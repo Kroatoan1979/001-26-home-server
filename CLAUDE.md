@@ -107,11 +107,14 @@ sudo dnf update -y
 
 ## Estado do Projeto (Checklist)
 
-- [ ] Descarregar Minimal ISO Rocky Linux 10
-- [ ] Criar pen USB bootável com Rufus
-- [ ] Instalar Rocky Linux no ASUS X555L
-- [ ] Configurar modo headless (tampa fechada)
-- [ ] Instalar e configurar SSH
+- [x] Descarregar Minimal ISO Rocky Linux 10
+- [x] Criar pen USB bootável com Rufus
+- [x] Instalar Rocky Linux no ASUS X555L
+- [x] Configurar modo headless (tampa fechada)
+- [x] Instalar e configurar SSH
+- [ ] Configurar autenticação por chave SSH (ED25519) e desativar autenticação por password
+- [ ] Configurar DHCP Reservation no router para o IP 192.168.1.136 ficar fixo
+- [ ] Actualizar toda a documentação para referenciar nodes com hostname + IP (ex: `homeserver (192.168.1.136)`)
 - [ ] Instalar Tailscale e integrar todos os dispositivos
 - [ ] Instalar Docker
 - [ ] Instalar Jellyfin via Docker
@@ -119,6 +122,15 @@ sudo dnf update -y
 - [ ] Configurar SSD externo e estrutura de pastas
 - [ ] Testar acesso da Smart TV ao Jellyfin
 - [ ] Testar acesso remoto via Tailscale de todos os dispositivos
+
+### Sub-projeto: Web Server + Cloudflare
+- [ ] Sessão de estudo: conceitos de proxy e reverse proxy
+- [ ] Decidir qual o web server a usar (Caddy / Nginx / Traefik)
+- [ ] Transferir gestão DNS do `digitalltogether.xyz` da Hostinger para a Cloudflare
+- [ ] Configurar Cloudflare Tunnel no home server
+- [ ] Instalar e configurar o web server escolhido via Docker
+- [ ] Configurar reverse proxy para expor o web server via `digitalltogether.xyz`
+- [ ] Testar acesso público ao site de estudo
 
 ---
 
