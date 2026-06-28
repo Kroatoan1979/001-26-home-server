@@ -113,7 +113,7 @@ sudo dnf update -y
 - [x] Configurar modo headless (tampa fechada)
 - [x] Instalar e configurar SSH
 - [ ] Configurar autenticação por chave SSH (ED25519) e desativar autenticação por password
-- [ ] Configurar DHCP Reservation no router para o IP 192.168.1.136 ficar fixo
+- [ ] Configurar DHCP Reservation no router para todos os nodes da rede (homeserver, DAT-WS-IA-01, ZenBook, etc.)
 - [ ] Actualizar toda a documentação para referenciar nodes com hostname + IP (ex: `homeserver (192.168.1.136)`)
 - [ ] Instalar Tailscale e integrar todos os dispositivos
 - [ ] Instalar Docker
