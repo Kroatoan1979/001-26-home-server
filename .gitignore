@@ -1,0 +1,19 @@
+# Segredos e credenciais
+secrets/
+*.env
+.env.*
+credentials.*
+
+# Ficheiros de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporários e backups
+*.tmp
+*.bak
+*.swp
+*~
+
+# Claude Code (sessão local)
+.claude/
