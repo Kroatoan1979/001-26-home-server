@@ -51,7 +51,7 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr R
 
 | Dispositivo | IP LAN | IP Tailscale |
 |---|---|---|
-| Servidor (ASUS X555L) | `192.168.1.136` | `100.x.x.x` (a confirmar após Tailscale) |
+| Servidor (ASUS X555L) | `192.168.1.2` | `100.x.x.x` (a confirmar após Tailscale) |
 
 > Preencher após instalação e integração na tailnet.
 
@@ -86,7 +86,7 @@ SSD externo 1TB (ponto de montagem: /mnt/dados ou /media)
 ssh ivan@100.x.x.x
 
 # Ligar ao servidor via SSH (LAN)
-ssh ivan@192.168.1.136
+ssh ivan@192.168.1.2
 
 # Verificar estado do Tailscale
 sudo tailscale status
@@ -114,8 +114,10 @@ sudo dnf update -y
 - [x] Instalar e configurar SSH
 - [ ] Configurar autenticação por chave SSH (ED25519) e desativar autenticação por password
 - [ ] Configurar DHCP Reservation no router para todos os nodes da rede (homeserver, DAT-WS-IA-01, ZenBook, etc.)
+- [ ] Recolher MAC Ethernet (adaptador USB-C) do ZenBook e PC Kyndryl e adicionar reservas DHCP adicionais para os mesmos IPs
 - [ ] Actualizar toda a documentação para referenciar nodes com hostname + IP (ex: `homeserver (192.168.1.136)`)
 - [ ] Instalar Tailscale e integrar todos os dispositivos
+- [ ] Configurar Devolutions RDM Free (workspace DAT) — adicionar ligações SSH e RDP para todos os nodes com IPs LAN e Tailscale
 - [ ] Instalar Docker
 - [ ] Instalar Jellyfin via Docker
 - [ ] Instalar Navidrome via Docker
@@ -131,6 +133,14 @@ sudo dnf update -y
 - [ ] Instalar e configurar o web server escolhido via Docker
 - [ ] Configurar reverse proxy para expor o web server via `digitalltogether.xyz`
 - [ ] Testar acesso público ao site de estudo
+
+### Sub-projeto: Guacamole (Gestão de Ligações Web)
+> Pré-requisitos: Docker operacional + Cloudflare Tunnel configurado
+- [ ] Estudar arquitetura do Apache Guacamole (guacd + guacamole-client)
+- [ ] Instalar Guacamole via Docker no homeserver
+- [ ] Configurar ligações SSH e RDP para todos os nodes da rede
+- [ ] Expor via Cloudflare Tunnel (ex: `remoto.digitalltogether.xyz`)
+- [ ] Testar acesso via browser de dentro e fora da rede
 
 ---
 
