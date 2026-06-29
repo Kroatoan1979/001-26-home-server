@@ -42,18 +42,24 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr R
 |---|---|---|
 | ASUS X555L (servidor) | Rocky Linux 10 | SSH |
 | DAT-WS-IA-01 (workstation Ivan) | Windows 11 Pro | RDP / SSH |
-| ZenBook Duo UX482 | Windows 11 | RDP / SSH |
-| PC Windows 3 | Windows | RDP |
+| ZenBook Duo UX482 | Windows 11 Home | — (não aceita RDP de entrada) |
 | Telemóvel 1 | Android/iOS | App Tailscale |
 | Telemóvel 2 | Android/iOS | App Tailscale |
+
+> PC Kyndryl excluído do projeto — equipamento corporativo, risco de violação de políticas de segurança da Kyndryl.
 
 ### IPs e Hostnames
 
 | Dispositivo | IP LAN | IP Tailscale |
 |---|---|---|
-| Servidor (ASUS X555L) | `192.168.1.2` | `100.x.x.x` (a confirmar após Tailscale) |
+| Servidor — homeserver (ASUS X555L) | `192.168.1.2` (estático no SO) | *(a preencher)* |
+| DAT-WS-IA-01 — Wi-Fi | `192.168.1.100` | *(a preencher)* |
+| DAT-WS-IA-01 — Ethernet | `192.168.1.101` | *(a preencher)* |
+| ZenBook UX482 — Wi-Fi | `192.168.1.110` | *(a preencher)* |
+| ZenBook UX482 — Ethernet USB-C | `192.168.1.111` | *(a preencher)* |
+| Smart TV (Xiaomi) | `192.168.1.120` | — (sem Tailscale) |
 
-> Preencher após instalação e integração na tailnet.
+> Pool DHCP do router (Vodafone): `192.168.1.64–253`. Reservas DHCP dentro deste range. Homeserver com IP estático via `nmcli` fora do pool.
 
 ### Acesso à tailnet
 
@@ -113,9 +119,11 @@ sudo dnf update -y
 - [x] Configurar modo headless (tampa fechada)
 - [x] Instalar e configurar SSH
 - [ ] Configurar autenticação por chave SSH (ED25519) e desativar autenticação por password
-- [ ] Configurar DHCP Reservation no router para todos os nodes da rede (homeserver, DAT-WS-IA-01, ZenBook, etc.)
-- [ ] Recolher MAC Ethernet (adaptador USB-C) do ZenBook e PC Kyndryl e adicionar reservas DHCP adicionais para os mesmos IPs
-- [ ] Actualizar toda a documentação para referenciar nodes com hostname + IP (ex: `homeserver (192.168.1.136)`)
+- [x] Configurar IP estático no homeserver via `nmcli` (`192.168.1.2/24`) — independente do router
+- [x] Configurar DHCP Reservation no router para DAT-WS-IA-01, ZenBook e Smart TV
+- [x] Recolher MAC Ethernet USB-C do ZenBook (`00-E0-4C-4D-25-20`) e criar reserva
+- [x] Actualizar toda a documentação para referenciar nodes com hostname + IP
+- [ ] Reiniciar dispositivos para aplicar novos IPs reservados e verificar com `ipconfig`
 - [ ] Instalar Tailscale e integrar todos os dispositivos
 - [ ] Configurar Devolutions RDM Free (workspace DAT) — adicionar ligações SSH e RDP para todos os nodes com IPs LAN e Tailscale
 - [ ] Instalar Docker
