@@ -9,10 +9,41 @@
 
 | Campo | Valor |
 |---|---|
-| Subnet LAN | `192.168.1.0/24` |
+| Subnet LAN | `192.168.1.0/24` (`255.255.255.0`) |
 | Gateway / Router | `192.168.1.1` |
+| Pool DHCP | `192.168.1.64 – 192.168.1.253` |
 | Tailscale subnet | `100.x.x.x/8` |
 | DNS local | `192.168.1.1` (router) |
+| Conta Tailscale | `ivan.almeida1979@gmail.com` |
+| Painel admin Tailscale | `https://login.tailscale.com/admin/machines` |
+
+---
+
+## Plano de Endereçamento IP
+
+```
+192.168.1.0/24  (255.255.255.0 — 254 endereços utilizáveis)
+│
+├── .0          → endereço de rede (reservado — não utilizável)
+├── .1          → router Vodafone (fixo — atribuído pelo próprio router)
+├── .2          → homeserver ASUS X555L (IP estático no OS via nmcli — fora do pool DHCP)
+│
+├── .3 – .63   → zona de infraestrutura (livre — fora do pool DHCP)
+│                 reservada para futuros equipamentos com IP estático
+│                 (servidores, switches, APs, etc.)
+│
+├── .64 – .253  → pool DHCP do router Vodafone
+│   ├── .100    → DAT-WS-IA-01 Wi-Fi        (reserva DHCP por MAC)
+│   ├── .101    → DAT-WS-IA-01 Ethernet     (reserva DHCP por MAC)
+│   ├── .110    → ZenBook UX482 Wi-Fi       (reserva DHCP por MAC)
+│   ├── .111    → ZenBook UX482 Ethernet USB-C (reserva DHCP por MAC)
+│   ├── .120    → Smart TV Xiaomi           (reserva DHCP por MAC — Ethernet)
+│   └── .121 – .253 → livres (dispositivos sem reserva, telemóveis, visitas)
+│
+└── .255        → broadcast (reservado — não utilizável)
+```
+
+> **Nota:** O homeserver tem IP estático configurado diretamente no OS (via `nmcli`), **fora do pool DHCP** do router. O router desconhece este IP — a proteção contra conflito é garantida pelo facto de `.2` estar fora do range `.64–.253`.
 
 ---
 
@@ -204,4 +235,4 @@ nmcli -f ipv4.method,IP4.ADDRESS,IP4.GATEWAY,IP4.DNS connection show enp2s0
 
 ---
 
-*Atualizado em 2026-06-29 — Kody para Ivan / DAT*
+*Atualizado em 2026-06-29 — Kody para Ivan / DAT — adicionado plano de endereçamento IP, pool DHCP, zona de infraestrutura e acesso Tailscale*

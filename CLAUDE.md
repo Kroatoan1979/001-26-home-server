@@ -118,12 +118,13 @@ sudo dnf update -y
 - [x] Instalar Rocky Linux no ASUS X555L
 - [x] Configurar modo headless (tampa fechada)
 - [x] Instalar e configurar SSH
-- [ ] Configurar autenticação por chave SSH (ED25519) e desativar autenticação por password
+- [x] Configurar autenticação por chave SSH (ED25519) — chave instalada no homeserver para o utilizador `ivan`
+- [ ] Desativar autenticação por password SSH — adiado para após instalação do Tailscale
 - [x] Configurar IP estático no homeserver via `nmcli` (`192.168.1.2/24`) — independente do router
 - [x] Configurar DHCP Reservation no router para DAT-WS-IA-01, ZenBook e Smart TV
 - [x] Recolher MAC Ethernet USB-C do ZenBook (`00-E0-4C-4D-25-20`) e criar reserva
 - [x] Actualizar toda a documentação para referenciar nodes com hostname + IP
-- [ ] Reiniciar dispositivos para aplicar novos IPs reservados e verificar com `ipconfig`
+- [x] Reiniciar dispositivos para aplicar novos IPs reservados e verificar com `ipconfig` — DAT-WS-IA-01 Wi-Fi `.100` ✅ · ZenBook Wi-Fi `.110` ✅ · Ethernet e telemóveis por verificar (cabos/dispositivos não disponíveis)
 - [ ] Instalar Tailscale e integrar todos os dispositivos
 - [ ] Configurar Devolutions RDM Free (workspace DAT) — adicionar ligações SSH e RDP para todos os nodes com IPs LAN e Tailscale
 - [ ] Instalar Docker
