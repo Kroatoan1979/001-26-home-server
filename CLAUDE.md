@@ -14,7 +14,7 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr R
 | CPU | Intel Core i7 (4ª ou 5ª geração) |
 | RAM | 8 GB DDR3 |
 | Disco interno | SSD (SO + serviços) |
-| Disco externo | SSD 1TB (media + dados) |
+| Disco externo | HDD 4TB (media + dados — uso 24/7 aceitável para home server de uso familiar) |
 | Rede | Ethernet ao router doméstico |
 | Avaria | Placa de som — irrelevante para servidor |
 
@@ -43,10 +43,9 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr R
 | ASUS X555L (servidor) | Rocky Linux 10 | SSH |
 | DAT-WS-IA-01 (workstation Ivan) | Windows 11 Pro | RDP / SSH |
 | ZenBook Duo UX482 | Windows 11 Home | — (não aceita RDP de entrada) |
-| Telemóvel 1 | Android/iOS | App Tailscale |
-| Telemóvel 2 | Android/iOS | App Tailscale |
+| Telemóvel (pessoal) | Android | App Tailscale |
 
-> PC Kyndryl excluído do projeto — equipamento corporativo, risco de violação de políticas de segurança da Kyndryl.
+> PC Kyndryl e Telemóvel Kyndryl excluídos do projeto — equipamentos corporativos, risco de violação de políticas de segurança da Kyndryl.
 
 ### IPs e Hostnames
 
@@ -76,12 +75,14 @@ SSD interno
 ├── Docker + serviços (Jellyfin, Navidrome, Tailscale)
 └── Configurações e logs
 
-SSD externo 1TB (ponto de montagem: /mnt/dados ou /media)
-├── /media/filmes
-├── /media/series
-├── /media/musica
-└── /backups
+HDD externo 4TB (ponto de montagem: /mnt/dados)
+├── /mnt/dados/filmes
+├── /mnt/dados/series
+├── /mnt/dados/musica
+└── /mnt/dados/backups
 ```
+
+> **Nota de armazenamento:** SSD M.2 2280 1TB (enclosure USB) usado como disco portátil de alta capacidade para transferência de ficheiros entre máquinas — não integrado no servidor. HDD 4TB escolhido pelo espaço; spin-down pode ser desativado via `hdparm` se causar delays no Jellyfin.
 
 ---
 
@@ -124,13 +125,16 @@ sudo dnf update -y
 - [x] Configurar DHCP Reservation no router para DAT-WS-IA-01, ZenBook e Smart TV
 - [x] Recolher MAC Ethernet USB-C do ZenBook (`00-E0-4C-4D-25-20`) e criar reserva
 - [x] Actualizar toda a documentação para referenciar nodes com hostname + IP
-- [x] Reiniciar dispositivos para aplicar novos IPs reservados e verificar com `ipconfig` — DAT-WS-IA-01 Wi-Fi `.100` ✅ · ZenBook Wi-Fi `.110` ✅ · Ethernet e telemóveis por verificar (cabos/dispositivos não disponíveis)
+- [x] Reiniciar dispositivos para aplicar novos IPs reservados e verificar com `ipconfig` — DAT-WS-IA-01 Wi-Fi `.100` ✅ · ZenBook Wi-Fi `.110` ✅ · Ethernet por verificar (cabos não disponíveis)
+- [ ] Confirmar IPs Ethernet LAN: DAT-WS-IA-01 `.101` e homeserver `.2` (primeira tarefa da próxima sessão)
 - [ ] Instalar Tailscale e integrar todos os dispositivos
 - [ ] Configurar Devolutions RDM Free (workspace DAT) — adicionar ligações SSH e RDP para todos os nodes com IPs LAN e Tailscale
 - [ ] Instalar Docker
 - [ ] Instalar Jellyfin via Docker
 - [ ] Instalar Navidrome via Docker
-- [ ] Configurar SSD externo e estrutura de pastas
+- [ ] Ligar HDD externo 4TB ao homeserver e montar via SSH (formatar em XFS, configurar `/etc/fstab`)
+- [ ] Configurar estrutura de pastas no HDD (`/mnt/dados/filmes`, `/mnt/dados/series`, `/mnt/dados/musica`, `/mnt/dados/backups`)
+- [ ] Desativar spin-down do HDD externo via `hdparm` para evitar delays no Jellyfin
 - [ ] Testar acesso da Smart TV ao Jellyfin
 - [ ] Testar acesso remoto via Tailscale de todos os dispositivos
 

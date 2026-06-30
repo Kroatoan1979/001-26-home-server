@@ -38,7 +38,7 @@
 │   ├── .110    → ZenBook UX482 Wi-Fi       (reserva DHCP por MAC)
 │   ├── .111    → ZenBook UX482 Ethernet USB-C (reserva DHCP por MAC)
 │   ├── .120    → Smart TV Xiaomi           (reserva DHCP por MAC — Ethernet)
-│   └── .121 – .253 → livres (dispositivos sem reserva, telemóveis, visitas)
+│   └── .121 – .253 → livres (telemóvel pessoal, visitas, dispositivos sem reserva)
 │
 └── .255        → broadcast (reservado — não utilizável)
 ```
@@ -91,7 +91,7 @@
 | Ligação | Ethernet |
 | Serviços expostos | SSH `:22`, Jellyfin `:8096`, Navidrome `:4533` |
 | Acesso remoto | SSH |
-| Notas | Headless (tampa fechada). SSD externo 1TB em `/mnt/dados`. IP fixo via `nmcli` — independente do router. |
+| Notas | Headless (tampa fechada). HDD externo 4TB em `/mnt/dados` (media + backups). IP fixo via `nmcli` — independente do router. |
 
 ---
 
@@ -156,39 +156,41 @@
 
 ---
 
-### Telemóvel 1
+### Telemóvel (pessoal)
 
 | Campo | Valor |
 |---|---|
 | Hostname | — *(a definir)* |
 | Tipo / Papel | Telemóvel pessoal |
-| OS | — *(Android / iOS — a confirmar)* |
-| IP LAN | — *(dinâmico Wi-Fi)* |
-| IP Tailscale | — *(a preencher)* |
+| OS | Android |
+| IP LAN | Dinâmico (sem reserva) |
+| IP Tailscale | — *(a preencher após instalação Tailscale)* |
 | MAC Address | — *(a preencher)* |
-| DHCP Reservation | Pendente |
+| DHCP Reservation | N/A — dispositivo portátil, cliente puro; IP LAN irrelevante |
 | Ligação | Wi-Fi |
 | Serviços expostos | — |
 | Acesso remoto | App Tailscale |
-| Notas | — |
+| Notas | Acede aos serviços (Jellyfin, Navidrome), não os serve. IP estável garantido via Tailscale (`100.x.x.x`). |
 
 ---
 
-### Telemóvel 2
+### Telemóvel Kyndryl
+
+> **Excluído do projeto** — equipamento corporativo da Kyndryl. Integração na rede doméstica excluída por risco de violação das políticas de segurança da empresa. Mantido como registo de inventário apenas.
 
 | Campo | Valor |
 |---|---|
-| Hostname | — *(a definir)* |
-| Tipo / Papel | Telemóvel |
-| OS | — *(Android / iOS — a confirmar)* |
-| IP LAN | — *(dinâmico Wi-Fi)* |
-| IP Tailscale | — *(a preencher)* |
-| MAC Address | — *(a preencher)* |
-| DHCP Reservation | Pendente |
+| Hostname | — |
+| Tipo / Papel | Telemóvel corporativo (Kyndryl) |
+| OS | — |
+| IP LAN | — (excluído do projeto) |
+| IP Tailscale | — (excluído do projeto) |
+| MAC Address | — |
+| DHCP Reservation | — (excluído do projeto) |
 | Ligação | Wi-Fi |
 | Serviços expostos | — |
-| Acesso remoto | App Tailscale |
-| Notas | — |
+| Acesso remoto | — |
+| Notas | Excluído por políticas corporativas da Kyndryl. |
 
 ---
 
@@ -235,4 +237,4 @@ nmcli -f ipv4.method,IP4.ADDRESS,IP4.GATEWAY,IP4.DNS connection show enp2s0
 
 ---
 
-*Atualizado em 2026-06-29 — Kody para Ivan / DAT — adicionado plano de endereçamento IP, pool DHCP, zona de infraestrutura e acesso Tailscale*
+*Atualizado em 2026-06-30 — Kody para Ivan / DAT — storage do homeserver alterado para HDD externo 4TB; telemóvel consolidado para 1 dispositivo pessoal (Android) sem reserva DHCP; telemóvel Kyndryl excluído do projeto*
