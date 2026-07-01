@@ -4,7 +4,7 @@ Cada dispositivo precisa de instalar o cliente Tailscale e autenticar com a mesm
 
 ---
 
-## Windows (DAT-WS-IA-01, ZenBook, PC Windows 3)
+## Windows (DAT-WS-IA-01, ZenBook)
 
 1. Descarregar o cliente: [tailscale.com/download/windows](https://tailscale.com/download/windows)
 2. Instalar e iniciar
@@ -15,10 +15,9 @@ Verificar no painel: `https://login.tailscale.com/admin/machines`
 
 ---
 
-## Android / iOS (Telemóveis)
+## Android (Telemóvel pessoal)
 
 - **Android:** [Google Play — Tailscale](https://play.google.com/store/apps/details?id=com.tailscale.ipn.android)
-- **iOS:** [App Store — Tailscale](https://apps.apple.com/app/tailscale/id1470499037)
 
 1. Instalar a app
 2. Tocar em **Sign in** → autenticar com Google
@@ -37,12 +36,10 @@ sudo tailscale status
 Exemplo de output esperado:
 
 ```
-100.x.x.x  asus-x555l     linux   -
+100.x.x.x  homeserver     linux   -
 100.x.x.x  dat-ws-ia-01   windows active; relay "..."
 100.x.x.x  zenbook-ux482  windows active; relay "..."
-100.x.x.x  pc-windows-3   windows -
-100.x.x.x  telemovel-1    android active; relay "..."
-100.x.x.x  telemovel-2    android active; relay "..."
+100.x.x.x  telemovel      android active; relay "..."
 ```
 
 ---

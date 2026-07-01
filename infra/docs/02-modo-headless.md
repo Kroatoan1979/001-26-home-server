@@ -48,7 +48,7 @@ systemctl status sleep.target
 3. Tentar SSH a partir de outro dispositivo na mesma rede:
 
 ```bash
-ssh ivan@192.168.1.136
+ssh ivan@192.168.1.2
 ```
 
 Se a ligação for bem sucedida, o modo headless está operacional.

@@ -6,7 +6,7 @@ Após a instalação, o assistente web guia pela configuração básica. Este do
 
 ## 1. Assistente de configuração inicial
 
-Aceder a `http://192.168.1.136:8096` pela primeira vez.
+Aceder a `http://192.168.1.2:8096` pela primeira vez.
 
 ### Passos do assistente
 
@@ -28,7 +28,7 @@ Aceder a `http://192.168.1.136:8096` pela primeira vez.
 |---|---|
 | Tipo de conteúdo | Filmes |
 | Nome da biblioteca | Filmes |
-| Pasta | `/media/filmes` (dentro do container = `/mnt/dados/media/filmes` no host) |
+| Pasta | `/media/filmes` (dentro do container = `/mnt/dados/filmes` no host) |
 | Idioma preferido | Português |
 
 ### Séries
@@ -48,14 +48,14 @@ O Jellyfin segue convenções específicas para identificar automaticamente meta
 ### Filmes
 
 ```
-/mnt/dados/media/filmes/
+/mnt/dados/filmes/
 └── Titulo do Filme (ano)/
     └── Titulo do Filme (ano).mkv
 ```
 
 Exemplo:
 ```
-/mnt/dados/media/filmes/
+/mnt/dados/filmes/
 ├── Inception (2010)/
 │   └── Inception (2010).mkv
 └── The Dark Knight (2008)/
@@ -65,7 +65,7 @@ Exemplo:
 ### Séries
 
 ```
-/mnt/dados/media/series/
+/mnt/dados/series/
 └── Nome da Serie/
     └── Season 01/
         ├── Nome da Serie - S01E01.mkv
@@ -86,7 +86,7 @@ Exemplo:
 
 ### Configurar cliente
 
-- **Servidor:** `http://192.168.1.136:8096` (LAN) ou `http://100.x.x.x:8096` (Tailscale)
+- **Servidor:** `http://192.168.1.2:8096` (LAN) ou `http://100.x.x.x:8096` (Tailscale)
 - **Username:** `ivan`
 - **Password:** (a definida no passo de configuração)
 

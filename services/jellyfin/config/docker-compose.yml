@@ -6,8 +6,8 @@ services:
     volumes:
       - /home/ivan/docker/jellyfin/config:/config
       - /home/ivan/docker/jellyfin/cache:/cache
-      - /mnt/dados/media/filmes:/media/filmes:ro
-      - /mnt/dados/media/series:/media/series:ro
+      - /mnt/dados/filmes:/media/filmes:ro
+      - /mnt/dados/series:/media/series:ro
     restart: unless-stopped
     environment:
-      - JELLYFIN_PublishedServerUrl=http://192.168.1.136:8096
+      - JELLYFIN_PublishedServerUrl=http://192.168.1.2:8096

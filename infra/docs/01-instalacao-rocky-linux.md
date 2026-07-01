@@ -77,7 +77,7 @@ ping -c 3 google.com
 ip addr show
 ```
 
-Anotar o IP local atribuído (ex: `192.168.1.136`) — necessário para SSH até o Tailscale estar configurado.
+Anotar o IP local atribuído (neste projeto, configurado como estático em `192.168.1.2`) — necessário para SSH até o Tailscale estar configurado.
 
 ---
 

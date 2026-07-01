@@ -12,5 +12,5 @@ services:
       ND_BASEURL: ""
     volumes:
       - /home/ivan/docker/navidrome/data:/data
-      - /mnt/dados/media/musica:/music:ro
+      - /mnt/dados/musica:/music:ro
     restart: unless-stopped

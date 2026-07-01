@@ -36,7 +36,7 @@ Servidor de media open-source para filmes e séries. Corre em Docker, expõe a i
 
 | Contexto | URL |
 |---|---|
-| LAN (em casa) | `http://192.168.1.136:8096` |
+| LAN (em casa) | `http://192.168.1.2:8096` ou `http://homeserver.local:8096` |
 | Remoto via Tailscale | `http://100.x.x.x:8096` |
 
 ---
@@ -44,8 +44,8 @@ Servidor de media open-source para filmes e séries. Corre em Docker, expõe a i
 ## Requisitos
 
 - Docker Engine instalado no servidor
-- SSD externo montado em `/mnt/dados`
-- Media organizada em `/mnt/dados/media/filmes` e `/mnt/dados/media/series`
+- HDD externo montado em `/mnt/dados` (concluído — ver [infra/docs/04-storage-hdd-5tb.md](../../infra/docs/04-storage-hdd-5tb.md))
+- Media organizada em `/mnt/dados/filmes` e `/mnt/dados/series`
 
 ---
 

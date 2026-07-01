@@ -48,7 +48,7 @@ docker compose logs -f navidrome
 Abrir no browser:
 
 ```
-http://192.168.1.136:4533
+http://192.168.1.2:4533
 ```
 
 Na primeira visita, o Navidrome pede para criar um utilizador administrador:
@@ -61,7 +61,7 @@ Na primeira visita, o Navidrome pede para criar um utilizador administrador:
 
 ## 6. Indexação da biblioteca
 
-Após o login, o Navidrome começa automaticamente a indexar a pasta `/mnt/dados/media/musica`. Dependendo do tamanho da coleção, pode demorar alguns minutos.
+Após o login, o Navidrome começa automaticamente a indexar a pasta `/mnt/dados/musica`. Dependendo do tamanho da coleção, pode demorar alguns minutos.
 
 Progresso visível em: **Painel → Indexação**
 
@@ -73,7 +73,7 @@ Exemplo com **Symfonium** (Android):
 
 1. Adicionar servidor
 2. Tipo: **Navidrome** (ou Subsonic)
-3. URL: `http://100.x.x.x:4533` (via Tailscale) ou `http://192.168.1.136:4533` (LAN)
+3. URL: `http://100.x.x.x:4533` (via Tailscale) ou `http://192.168.1.2:4533` (LAN)
 4. Username e password do passo 5
 
 ---
@@ -81,7 +81,7 @@ Exemplo com **Symfonium** (Android):
 ## Organização recomendada da música
 
 ```
-/mnt/dados/media/musica/
+/mnt/dados/musica/
 └── Artista/
     └── Album (ano)/
         ├── 01 - Titulo.flac

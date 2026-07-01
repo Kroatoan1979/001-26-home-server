@@ -8,13 +8,12 @@ Camada de rede do home server. O Tailscale cria uma rede privada virtual (mesh) 
 
 | Componente | Estado |
 |---|---|
+| Avahi (mDNS) no servidor | [x] Concluído — `homeserver.local` |
 | Tailscale instalado no servidor | [ ] Planeado |
 | Servidor autenticado na tailnet | [ ] Planeado |
 | DAT-WS-IA-01 na tailnet | [ ] Planeado |
 | ZenBook Duo UX482 na tailnet | [ ] Planeado |
-| PC Windows 3 na tailnet | [ ] Planeado |
-| Telemóvel 1 na tailnet | [ ] Planeado |
-| Telemóvel 2 na tailnet | [ ] Planeado |
+| Telemóvel (pessoal) na tailnet | [ ] Planeado |
 
 ---
 
@@ -22,6 +21,7 @@ Camada de rede do home server. O Tailscale cria uma rede privada virtual (mesh) 
 
 | Documento | Descrição |
 |---|---|
+| [00-avahi-mdns.md](docs/00-avahi-mdns.md) | Avahi (mDNS) — resolução `homeserver.local` independente do Tailscale |
 | [01-tailscale-instalacao.md](docs/01-tailscale-instalacao.md) | Instalar e configurar Tailscale no servidor Rocky Linux |
 | [02-tailscale-dispositivos.md](docs/02-tailscale-dispositivos.md) | Adicionar todos os dispositivos à tailnet |
 

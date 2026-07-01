@@ -34,7 +34,7 @@ Servidor de música open-source com suporte ao protocolo Subsonic/OpenSubsonic. 
 
 | Contexto | URL |
 |---|---|
-| LAN (em casa) | `http://192.168.1.136:4533` |
+| LAN (em casa) | `http://192.168.1.2:4533` ou `http://homeserver.local:4533` |
 | Remoto via Tailscale | `http://100.x.x.x:4533` |
 
 ### Apps compatíveis (protocolo Subsonic)
@@ -52,8 +52,8 @@ Servidor de música open-source com suporte ao protocolo Subsonic/OpenSubsonic. 
 ## Requisitos
 
 - Docker Engine instalado no servidor
-- SSD externo montado em `/mnt/dados`
-- Música organizada em `/mnt/dados/media/musica`
+- HDD externo montado em `/mnt/dados` (concluído — ver [infra/docs/04-storage-hdd-5tb.md](../../infra/docs/04-storage-hdd-5tb.md))
+- Música organizada em `/mnt/dados/musica`
 
 ---
 

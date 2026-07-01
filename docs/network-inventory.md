@@ -91,7 +91,7 @@
 | Ligação | Ethernet |
 | Serviços expostos | SSH `:22`, Jellyfin `:8096`, Navidrome `:4533` |
 | Acesso remoto | SSH |
-| Notas | Headless (tampa fechada). HDD externo 4TB em `/mnt/dados` (media + backups). IP fixo via `nmcli` — independente do router. |
+| Notas | Headless (tampa fechada). HDD externo 5TB WD My Passport em `/mnt/dados` (media + backups). IP fixo via `nmcli` — independente do router. |
 
 ---
 
@@ -237,4 +237,4 @@ nmcli -f ipv4.method,IP4.ADDRESS,IP4.GATEWAY,IP4.DNS connection show enp2s0
 
 ---
 
-*Atualizado em 2026-06-30 — Kody para Ivan / DAT — storage do homeserver alterado para HDD externo 4TB; telemóvel consolidado para 1 dispositivo pessoal (Android) sem reserva DHCP; telemóvel Kyndryl excluído do projeto*
+*Atualizado em 2026-07-01 — Kody para Ivan / DAT — confirmado via `ipconfig /all` que a reserva DHCP da ZenBook UX482 Ethernet USB-C está ativa e correta (`192.168.1.111`, MAC `00-E0-4C-4D-25-20`); confirmado também o IP Ethernet do DAT-WS-IA-01 via porta nativa Killer E2600 (`192.168.1.101`, MAC `74-D4-DD-55-D8-C1`); confirmado via `nmcli` no homeserver que o IP estático `192.168.1.2/24` está corretamente configurado — todos os IPs LAN da rede confirmados*

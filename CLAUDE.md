@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Transformar um portátil antigo (ASUS X555L) num home server headless a correr Rocky Linux 10, acessível remotamente via Tailscale. Serviços de media (Jellyfin, Navidrome) em Docker, com armazenamento em SSD externo 1TB.
+Transformar um portátil antigo (ASUS X555L) num home server headless a correr Rocky Linux 10, acessível remotamente via Tailscale. Serviços de media (Jellyfin, Navidrome) em Docker, com armazenamento em HDD externo 5TB.
 
 ---
 
@@ -14,7 +14,7 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr R
 | CPU | Intel Core i7 (4ª ou 5ª geração) |
 | RAM | 8 GB DDR3 |
 | Disco interno | SSD (SO + serviços) |
-| Disco externo | HDD 4TB (media + dados — uso 24/7 aceitável para home server de uso familiar) |
+| Disco externo | HDD 5TB WD My Passport (media + dados — uso 24/7 aceitável para home server de uso familiar) |
 | Rede | Ethernet ao router doméstico |
 | Avaria | Placa de som — irrelevante para servidor |
 
@@ -75,14 +75,15 @@ SSD interno
 ├── Docker + serviços (Jellyfin, Navidrome, Tailscale)
 └── Configurações e logs
 
-HDD externo 4TB (ponto de montagem: /mnt/dados)
+HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados)
 ├── /mnt/dados/filmes
 ├── /mnt/dados/series
 ├── /mnt/dados/musica
-└── /mnt/dados/backups
+├── /mnt/dados/backups
+└── /mnt/dados/arquivo
 ```
 
-> **Nota de armazenamento:** SSD M.2 2280 1TB (enclosure USB) usado como disco portátil de alta capacidade para transferência de ficheiros entre máquinas — não integrado no servidor. HDD 4TB escolhido pelo espaço; spin-down pode ser desativado via `hdparm` se causar delays no Jellyfin.
+> **Nota de armazenamento:** SSD M.2 2280 1TB (enclosure USB) usado como disco portátil de alta capacidade para transferência de ficheiros entre máquinas — não integrado no servidor. HDD 5TB WD My Passport escolhido pelo espaço; spin-down pode ser desativado via `hdparm` se causar delays no Jellyfin.
 
 ---
 
@@ -125,15 +126,18 @@ sudo dnf update -y
 - [x] Configurar DHCP Reservation no router para DAT-WS-IA-01, ZenBook e Smart TV
 - [x] Recolher MAC Ethernet USB-C do ZenBook (`00-E0-4C-4D-25-20`) e criar reserva
 - [x] Actualizar toda a documentação para referenciar nodes com hostname + IP
-- [x] Reiniciar dispositivos para aplicar novos IPs reservados e verificar com `ipconfig` — DAT-WS-IA-01 Wi-Fi `.100` ✅ · ZenBook Wi-Fi `.110` ✅ · Ethernet por verificar (cabos não disponíveis)
-- [ ] Confirmar IPs Ethernet LAN: DAT-WS-IA-01 `.101` e homeserver `.2` (primeira tarefa da próxima sessão)
+- [x] Reiniciar dispositivos para aplicar novos IPs reservados e verificar com `ipconfig` — DAT-WS-IA-01 Wi-Fi `.100` ✅ · ZenBook Wi-Fi `.110` ✅ · ZenBook Ethernet USB-C `.111` ✅ · DAT-WS-IA-01 Ethernet `.101` ✅ (porta nativa Killer E2600)
+- [x] Confirmar IP LAN do homeserver `.2` via SSH (`nmcli`) — confirmado `manual`/`192.168.1.2/24`, todos os IPs LAN da rede confirmados
+- [x] Configurar Avahi (mDNS) no homeserver — resolução `homeserver.local` independente do Tailscale. Documentado em [network/docs/00-avahi-mdns.md](network/docs/00-avahi-mdns.md)
+- [x] Testar resolução `homeserver.local` a partir do DAT-WS-IA-01 (`ping` + `ssh` confirmados)
+- [ ] Testar resolução `homeserver.local` a partir da ZenBook Duo UX482
 - [ ] Instalar Tailscale e integrar todos os dispositivos
 - [ ] Configurar Devolutions RDM Free (workspace DAT) — adicionar ligações SSH e RDP para todos os nodes com IPs LAN e Tailscale
 - [ ] Instalar Docker
 - [ ] Instalar Jellyfin via Docker
 - [ ] Instalar Navidrome via Docker
-- [ ] Ligar HDD externo 4TB ao homeserver e montar via SSH (formatar em XFS, configurar `/etc/fstab`)
-- [ ] Configurar estrutura de pastas no HDD (`/mnt/dados/filmes`, `/mnt/dados/series`, `/mnt/dados/musica`, `/mnt/dados/backups`)
+- [x] Ligar HDD externo 5TB ao homeserver e montar via SSH (formatado em XFS, configurado `/etc/fstab` com UUID + `nofail`)
+- [x] Configurar estrutura de pastas no HDD (`/mnt/dados/filmes`, `/mnt/dados/series`, `/mnt/dados/musica`, `/mnt/dados/backups`, `/mnt/dados/arquivo`)
 - [ ] Desativar spin-down do HDD externo via `hdparm` para evitar delays no Jellyfin
 - [ ] Testar acesso da Smart TV ao Jellyfin
 - [ ] Testar acesso remoto via Tailscale de todos os dispositivos
@@ -175,3 +179,24 @@ sudo dnf update -y
 - Assistente: **Kody**
 - Utilizador: **Ivan**
 - Toda a documentação deste projeto é escrita em PT
+
+---
+
+## Convenção: Documentos de Estudo por Serviço/Integração
+
+> Segue o protocolo global "Documentos de Estudo por Serviço/Integração" (memória geral do Ivan) — **perguntar sempre antes de criar**, nunca criar automaticamente. Este projeto não é exceção a essa regra.
+
+Sempre que se instala/configura um **serviço ou capacidade nova e significativa** no projeto (ex: Avahi, Tailscale, Docker, Jellyfin, Navidrome, montagem de disco, hardening SSH, Cloudflare Tunnel, Guacamole), **perguntar ao Ivan** se quer um documento de estudo dedicado antes de o criar. **Não aplicar a comandos triviais ou correções pontuais** — só a trabalho que introduz algo novo e relevante ao projeto.
+
+**Localização:** `<área>/docs/NN-nome-do-topico.md` (ex: `network/docs/00-avahi-mdns.md`, `infra/docs/03-ssh.md`), seguindo a numeração sequencial já usada em cada pasta. Serviços em `services/<nome>/` recebem também a sua própria subpasta `docs/`.
+
+**Estrutura obrigatória do documento** (modelo validado em `network/docs/00-avahi-mdns.md`):
+
+1. **O que é** — explicação do conceito/protocolo/serviço
+2. **Aplicabilidade** — onde e como se usa em geral
+3. **Pertinência para este projeto** — porquê foi necessário aqui, alternativas avaliadas e razão da escolha (tabela comparativa quando fizer sentido)
+4. **Comandos utilizados** — cada comando em bloco de código, seguido de explicação de **cada flag/switch individualmente** (o que cada opção faz e o que aconteceria sem ela)
+5. **Teste de validação** — comandos e resultado que confirmou funcionamento, incluindo o que falta testar
+6. **Comandos de referência/troubleshooting** — extras úteis para o futuro
+
+**Objetivo:** material de estudo pessoal para o Ivan (aprendizagem de Linux/redes do zero) e, futuramente, base para uma versão sanitizada (sem IPs/MACs/hostnames reais) para portfolio público. **Este repositório mantém-se privado** com os dados reais da rede doméstica — qualquer versão pública/portfolio será um repositório separado e anonimizado, criado só quando explicitamente pedido.

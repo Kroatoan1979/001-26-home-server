@@ -22,7 +22,7 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 | CPU | Intel Core i7 (4ª ou 5ª geração) |
 | RAM | 8 GB DDR3 |
 | Disco interno | SSD (SO + serviços) |
-| Disco externo | SSD 1 TB (media + dados) |
+| Disco externo | HDD 5TB WD My Passport (media + dados) |
 | Rede | Ethernet ao router doméstico |
 | Modo de operação | Headless — tampa fechada, sem monitor |
 
@@ -57,10 +57,10 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 |---|---|---|
 | ASUS X555L (servidor) | Rocky Linux 10 | SSH |
 | DAT-WS-IA-01 | Windows 11 Pro | RDP / SSH |
-| ZenBook Duo UX482 | Windows 11 | RDP / SSH |
-| PC Windows 3 | Windows | RDP |
-| Telemóvel 1 | Android/iOS | App Tailscale |
-| Telemóvel 2 | Android/iOS | App Tailscale |
+| ZenBook Duo UX482 | Windows 11 Home | — (não aceita RDP de entrada) |
+| Telemóvel (pessoal) | Android | App Tailscale |
+
+> PC Kyndryl e Telemóvel Kyndryl excluídos do projeto — equipamentos corporativos, risco de violação de políticas de segurança da Kyndryl.
 
 ### Protocolos de Acesso Remoto
 
@@ -76,7 +76,7 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 
 - Smart TV e servidor ligados por **ethernet ao mesmo router** → comunicação local direta (< 1ms)
 - Tailscale **não é necessário** para acesso em casa
-- Endereço Jellyfin na LAN: `http://192.168.1.136:8096`
+- Endereço Jellyfin na LAN (quando instalado): `http://192.168.1.2:8096` ou `http://homeserver.local:8096`
 
 ---
 
@@ -88,11 +88,12 @@ SSD interno
 ├── Docker + serviços (Jellyfin, Navidrome)
 └── Configurações e logs
 
-SSD externo 1 TB
-├── /media/filmes
-├── /media/series
-├── /media/musica
-└── /backups
+HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados)
+├── /mnt/dados/filmes
+├── /mnt/dados/series
+├── /mnt/dados/musica
+├── /mnt/dados/backups
+└── /mnt/dados/arquivo
 ```
 
 ---
@@ -153,7 +154,7 @@ sudo usermod -aG docker ivan
 
 ```bash
 mkdir -p ~/docker/jellyfin
-# Criar docker-compose.yml com mapeamento para /media no SSD externo
+# Criar docker-compose.yml com mapeamento para /mnt/dados no HDD externo
 docker compose up -d
 ```
 
@@ -161,7 +162,7 @@ docker compose up -d
 
 ```bash
 mkdir -p ~/docker/navidrome
-# Criar docker-compose.yml com mapeamento para /media/musica
+# Criar docker-compose.yml com mapeamento para /mnt/dados/musica
 docker compose up -d
 ```
 
@@ -177,25 +178,28 @@ watch -n 2 sensors
 
 ## Checklist de Progresso
 
-- [ ] Descarregar Minimal ISO Rocky Linux 10
-- [ ] Criar pen USB bootável com Rufus
-- [ ] Instalar Rocky Linux no ASUS X555L
-- [ ] Configurar modo headless
-- [ ] Instalar e configurar SSH
+- [x] Descarregar Minimal ISO Rocky Linux 10
+- [x] Criar pen USB bootável com Rufus
+- [x] Instalar Rocky Linux no ASUS X555L
+- [x] Configurar modo headless
+- [x] Instalar e configurar SSH (autenticação por chave ED25519)
+- [x] Configurar Avahi (mDNS) para resolução `homeserver.local`
 - [ ] Instalar Tailscale e integrar todos os dispositivos
 - [ ] Instalar Docker
 - [ ] Instalar Jellyfin via Docker
 - [ ] Instalar Navidrome via Docker
-- [ ] Configurar SSD externo e estrutura de pastas
+- [x] Configurar HDD externo 5TB e estrutura de pastas
 - [ ] Testar acesso da Smart TV ao Jellyfin
 - [ ] Testar acesso remoto via Tailscale de todos os dispositivos
+
+> Checklist detalhado e sempre atualizado: ver `CLAUDE.md`.
 
 ---
 
 ## Notas
 
 - Tailscale plano **Personal (gratuito)** — 1 utilizador, dispositivos ilimitados
-- Jellyfin e Navidrome **não incluem conteúdo** — organizam e fazem streaming do que está no SSD externo
+- Jellyfin e Navidrome **não incluem conteúdo** — organizam e fazem streaming do que está no HDD externo
 - Rocky Linux suporta sessões SSH **simultâneas ilimitadas**
 - Windows 11 Pro limita a **1 sessão RDP** simultânea
 - Latência local (mesmo router) < 1ms

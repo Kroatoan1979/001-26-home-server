@@ -32,7 +32,7 @@ sudo firewall-cmd --list-services
 No terminal da workstation `DAT-WS-IA-01`:
 
 ```powershell
-ssh ivan@192.168.1.136
+ssh ivan@192.168.1.2
 ```
 
 Aceitar a fingerprint do servidor quando solicitado (apenas na primeira ligação).
@@ -52,17 +52,17 @@ ssh-keygen -t ed25519 -C "ivan@dat-ws-ia-01"
 
 ```powershell
 # Método 1 — ssh-copy-id (disponível no Git Bash / WSL)
-ssh-copy-id ivan@192.168.1.136
+ssh-copy-id ivan@192.168.1.2
 
 # Método 2 — manual (PowerShell)
 $pubkey = Get-Content "$env:USERPROFILE\.ssh\id_ed25519.pub"
-ssh ivan@192.168.1.136 "mkdir -p ~/.ssh && echo '$pubkey' >> ~/.ssh/authorized_keys && chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys"
+ssh ivan@192.168.1.2 "mkdir -p ~/.ssh && echo '$pubkey' >> ~/.ssh/authorized_keys && chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys"
 ```
 
 ### Testar autenticação por chave
 
 ```powershell
-ssh ivan@192.168.1.136
+ssh ivan@192.168.1.2
 # Deve entrar sem pedir password
 ```
 
@@ -99,7 +99,7 @@ Criar/editar `C:\Users\IvanAlmeida\.ssh\config`:
 
 ```
 Host homeserver-lan
-    HostName 192.168.1.136
+    HostName 192.168.1.2
     User ivan
     IdentityFile ~/.ssh/id_ed25519
 
@@ -115,4 +115,4 @@ Depois basta usar: `ssh homeserver-lan` ou `ssh homeserver`
 
 ## Próximo passo
 
-→ [04-ssd-externo.md](04-ssd-externo.md) — montar o SSD externo 1 TB
+→ [04-storage-hdd-5tb.md](04-storage-hdd-5tb.md) — montar o HDD externo 5TB

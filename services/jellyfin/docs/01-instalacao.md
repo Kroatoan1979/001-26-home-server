@@ -69,7 +69,7 @@ docker compose logs -f jellyfin
 Abrir no browser (de qualquer dispositivo na mesma rede):
 
 ```
-http://192.168.1.136:8096
+http://192.168.1.2:8096
 ```
 
 O assistente de configuração inicial irá arrancar.
