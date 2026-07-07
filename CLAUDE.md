@@ -144,10 +144,18 @@ sudo dnf update -y
 - [x] Confirmar IP LAN do homeserver `.2` via SSH (`nmcli`) — confirmado `manual`/`192.168.1.2/24`, todos os IPs LAN da rede confirmados
 - [x] Configurar Avahi (mDNS) no homeserver — resolução `homeserver.local` independente do Tailscale. Documentado em [network/docs/00-avahi-mdns.md](network/docs/00-avahi-mdns.md)
 - [x] Testar resolução `homeserver.local` a partir do DAT-WS-IA-01 (`ping` + `ssh` confirmados)
-- [ ] Testar resolução `homeserver.local` a partir da ZenBook Duo UX482
+- [x] Testar resolução `homeserver.local` a partir da ZenBook Duo UX482 (`ping` confirmado, 3-6ms — falhava com Surfshark VPN ligada, resolvido ao desligar)
 - [x] Instalar Tailscale e integrar todos os dispositivos (homeserver, DAT-WS-IA-01, ZenBook, telemóvel — conta `digitalltogether.com` em trial)
-- [ ] Instalar e ativar OpenSSH Server no DAT-WS-IA-01 e na ZenBook (atualmente só o homeserver é servidor SSH; os Windows só funcionam como clientes)
-- [ ] Configurar Devolutions RDM Free (workspace DAT) — adicionar ligações SSH e RDP para todos os nodes com IPs LAN e Tailscale
+- [x] Instalar e ativar OpenSSH Server na ZenBook Duo UX482 (`sshd` a correr, arranque automático configurado, firewall `OpenSSH-Server-In-TCP` ativo, perfis de rede Wi-Fi e Tailscale confirmados como `Private`)
+- [ ] Instalar e ativar OpenSSH Server no DAT-WS-IA-01 (mesmo procedimento usado na ZenBook)
+- [ ] Configurar autenticação por chave SSH na ZenBook (decisão tomada: chaves sempre, sem password — ver política de autenticação SSH abaixo). Conta é Administrador, por isso o OpenSSH Server do Windows exige a chave pública em `C:\ProgramData\ssh\administrators_authorized_keys`, não no `authorized_keys` normal do utilizador
+- [ ] Testar `ssh ivana@localhost` na ZenBook com a chave configurada
+- [ ] Testar SSH à ZenBook a partir de outro dispositivo (LAN e/ou Tailscale) — depende do ponto anterior
+- [ ] Replicar a configuração de autenticação por chave SSH no DAT-WS-IA-01, quando o OpenSSH Server aí for instalado
+- [ ] Rever todos os nodes da tailnet (homeserver, ZenBook, DAT-WS-IA-01) para confirmar que a autenticação SSH por chave está corretamente configurada em todos
+- [ ] Avaliar node a node se a autenticação por password deve ser desativada, ou mantida ativa como failsafe (decisão manual por node, não automática)
+- [x] Desinstalar Devolutions RDM na ZenBook (confirmado via `winget list` — já não aparece instalada)
+- [ ] Verificar se a Devolutions RDM está instalada no DAT-WS-IA-01 e desinstalar se aplicável
 - [ ] Instalar Docker
 - [ ] Instalar Jellyfin via Docker
 - [ ] Instalar Navidrome via Docker
@@ -155,7 +163,7 @@ sudo dnf update -y
 - [x] Configurar estrutura de pastas no HDD (`/mnt/dados/filmes`, `/mnt/dados/series`, `/mnt/dados/musica`, `/mnt/dados/backups`, `/mnt/dados/arquivo`)
 - [ ] Desativar spin-down do HDD externo via `hdparm` para evitar delays no Jellyfin
 - [ ] Testar acesso da Smart TV ao Jellyfin
-- [ ] Testar acesso remoto via Tailscale de todos os dispositivos
+- [x] Testar acesso remoto via Tailscale de todos os dispositivos (ZenBook confirmada — ligação direta P2P, ~2-3ms após handshake inicial)
 
 ### Sub-projeto: Web Server + Cloudflare
 - [ ] Sessão de estudo: conceitos de proxy e reverse proxy
@@ -185,6 +193,8 @@ sudo dnf update -y
 - Rocky Linux 10 suporta **sessões SSH simultâneas ilimitadas**
 - Windows 11 Pro limita a **1 sessão RDP** simultânea
 - Monitorizar temperatura nas primeiras horas com tampa fechada
+- **Política de autenticação SSH:** preferência do Ivan é sempre chave SSH, nunca password, em todos os nodes da tailnet. Ao configurar SSH num node novo (ou rever um existente), a chave é a opção por defeito — não propor password como alternativa igualmente válida. Password authentication só se mantém ativa como failsafe mediante avaliação manual e explícita por node (não é o default). Homeserver já cumpre (chave ED25519, password desativada); ZenBook e DAT-WS-IA-01 pendentes de configuração/revisão
+- **Devolutions RDM abandonado** — decidido não usar como gestor central de ligações. SSH fica no Warp (já usado, com IA), RDP fica no cliente nativo do Windows (`mstsc`, mesmo motor RDP que o RDM usaria por baixo). A centralização de ligações fica para o Guacamole (sub-projeto já planeado), que cobre o mesmo objetivo via browser e com acesso remoto pelo Cloudflare Tunnel
 
 ---
 
