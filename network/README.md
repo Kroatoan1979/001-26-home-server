@@ -9,11 +9,11 @@ Camada de rede do home server. O Tailscale cria uma rede privada virtual (mesh) 
 | Componente | Estado |
 |---|---|
 | Avahi (mDNS) no servidor | [x] Concluído — `homeserver.local` |
-| Tailscale instalado no servidor | [ ] Planeado |
-| Servidor autenticado na tailnet | [ ] Planeado |
-| DAT-WS-IA-01 na tailnet | [ ] Planeado |
-| ZenBook Duo UX482 na tailnet | [ ] Planeado |
-| Telemóvel (pessoal) na tailnet | [ ] Planeado |
+| Tailscale instalado no servidor | [x] Concluído |
+| Servidor autenticado na tailnet | [x] Concluído — `100.97.253.85` |
+| DAT-WS-IA-01 na tailnet | [x] Concluído — `100.124.224.123` |
+| ZenBook Duo UX482 na tailnet | [x] Concluído — `100.81.2.53` |
+| Telemóvel (pessoal) na tailnet | [x] Concluído — `100.78.250.58` |
 
 ---
 
@@ -29,10 +29,10 @@ Camada de rede do home server. O Tailscale cria uma rede privada virtual (mesh) 
 
 ## Conta Tailscale
 
-- **Plano:** Personal (gratuito)
-- **Email:** `ivan.almeida1979@gmail.com`
+- **Plano:** Trial 14 dias (desde 2026-07-07) — conta `digitalltogether.com`. Decisão pendente: manter plano pago ou migrar para conta pessoal gratuita antes do fim do trial (2026-07-21)
+- **Email:** `ivan.almeida@digitalltogether.com`
 - **Painel admin:** `https://login.tailscale.com/admin/machines`
-- **Dispositivos ilimitados** no plano Personal
+- **MagicDNS ativo** — resolução por hostname (`homeserver`, `dat-ws-ia-01`, `ux482`, `redmi-note-14`) dentro da tailnet, confirmada mesmo fora da LAN (dados móveis)
 
 ---
 
@@ -49,13 +49,14 @@ O tráfego entre dispositivos é peer-to-peer via WireGuard quando possível. O 
 
 ---
 
-## IPs Tailscale (preencher após instalação)
+## IPs Tailscale
 
-| Dispositivo | IP Tailscale |
-|---|---|
-| ASUS X555L (servidor) | `100.x.x.x` |
-| DAT-WS-IA-01 | `100.x.x.x` |
-| ZenBook Duo UX482 | `100.x.x.x` |
+| Dispositivo | IP Tailscale | MagicDNS |
+|---|---|---|
+| ASUS X555L (servidor) | `100.97.253.85` | `homeserver` |
+| DAT-WS-IA-01 | `100.124.224.123` | `dat-ws-ia-01` |
+| ZenBook Duo UX482 | `100.81.2.53` | `ux482` |
+| Telemóvel (Redmi Note 14) | `100.78.250.58` | `redmi-note-14` |
 
 ---
 

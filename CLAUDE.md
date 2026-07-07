@@ -25,7 +25,7 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr R
 | Camada | Tecnologia |
 |---|---|
 | SO | Rocky Linux 10 (Minimal) |
-| VPN mesh | Tailscale (plano Personal, gratuito) |
+| VPN mesh | Tailscale — conta `digitalltogether.com` em trial (14 dias, a partir de 2026-07-07). Decisão pendente: manter plano pago ou migrar para conta pessoal gratuita antes do fim do trial |
 | Contenção | Docker + docker-compose |
 | Media (vídeo) | Jellyfin (porta 8096) |
 | Media (música) | Navidrome (protocolo Subsonic) |
@@ -51,19 +51,32 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr R
 
 | Dispositivo | IP LAN | IP Tailscale |
 |---|---|---|
-| Servidor — homeserver (ASUS X555L) | `192.168.1.2` (estático no SO) | *(a preencher)* |
-| DAT-WS-IA-01 — Wi-Fi | `192.168.1.100` | *(a preencher)* |
-| DAT-WS-IA-01 — Ethernet | `192.168.1.101` | *(a preencher)* |
-| ZenBook UX482 — Wi-Fi | `192.168.1.110` | *(a preencher)* |
-| ZenBook UX482 — Ethernet USB-C | `192.168.1.111` | *(a preencher)* |
+| Servidor — homeserver (ASUS X555L) | `192.168.1.2` (estático no SO) | `100.97.253.85` |
+| DAT-WS-IA-01 — Wi-Fi | `192.168.1.100` | `100.124.224.123` |
+| DAT-WS-IA-01 — Ethernet | `192.168.1.101` | `100.124.224.123` |
+| ZenBook UX482 — Wi-Fi | `192.168.1.110` | `100.81.2.53` |
+| ZenBook UX482 — Ethernet USB-C | `192.168.1.111` | `100.81.2.53` |
+| Telemóvel (pessoal, Redmi Note 14) | — | `100.78.250.58` |
 | Smart TV (Xiaomi) | `192.168.1.120` | — (sem Tailscale) |
 
 > Pool DHCP do router (Vodafone): `192.168.1.64–253`. Reservas DHCP dentro deste range. Homeserver com IP estático via `nmcli` fora do pool.
 
 ### Acesso à tailnet
 
-- Conta Tailscale: `ivan.almeida1979@gmail.com`
+- Conta Tailscale: `ivan.almeida@digitalltogether.com`
 - Painel admin: `https://login.tailscale.com/admin/machines`
+- **MagicDNS ativo** — resolução por hostname dentro da tailnet, funciona em qualquer rede (Wi-Fi, dados móveis), sem precisar do IP Tailscale. Confirmado com `ssh ivan@homeserver` a partir do telemóvel via dados móveis.
+
+### Nomes DNS dos nodes (MagicDNS)
+
+| Dispositivo | Hostname MagicDNS |
+|---|---|
+| Servidor (ASUS X555L) | `homeserver` |
+| DAT-WS-IA-01 | `dat-ws-ia-01` |
+| ZenBook UX482 | `ux482` |
+| Telemóvel (Redmi Note 14) | `redmi-note-14` |
+
+> ⚠️ Nomes atribuídos automaticamente pelo Tailscale — **por rever**: avaliar se vale a pena renomear para consistência com o resto da documentação (ex: `ux482` pouco descritivo). Ver tarefa pendente.
 
 ---
 
@@ -90,8 +103,9 @@ HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados)
 ## Comandos Frequentes
 
 ```bash
-# Ligar ao servidor via SSH (Tailscale)
-ssh ivan@100.x.x.x
+# Ligar ao servidor via SSH (Tailscale / MagicDNS)
+ssh ivan@homeserver
+# ou: ssh ivan@100.97.253.85
 
 # Ligar ao servidor via SSH (LAN)
 ssh ivan@192.168.1.2
@@ -121,7 +135,7 @@ sudo dnf update -y
 - [x] Configurar modo headless (tampa fechada)
 - [x] Instalar e configurar SSH
 - [x] Configurar autenticação por chave SSH (ED25519) — chave instalada no homeserver para o utilizador `ivan`
-- [ ] Desativar autenticação por password SSH — adiado para após instalação do Tailscale
+- [x] Desativar autenticação por password SSH (`PasswordAuthentication no`) — chave ED25519 validada
 - [x] Configurar IP estático no homeserver via `nmcli` (`192.168.1.2/24`) — independente do router
 - [x] Configurar DHCP Reservation no router para DAT-WS-IA-01, ZenBook e Smart TV
 - [x] Recolher MAC Ethernet USB-C do ZenBook (`00-E0-4C-4D-25-20`) e criar reserva
@@ -131,7 +145,8 @@ sudo dnf update -y
 - [x] Configurar Avahi (mDNS) no homeserver — resolução `homeserver.local` independente do Tailscale. Documentado em [network/docs/00-avahi-mdns.md](network/docs/00-avahi-mdns.md)
 - [x] Testar resolução `homeserver.local` a partir do DAT-WS-IA-01 (`ping` + `ssh` confirmados)
 - [ ] Testar resolução `homeserver.local` a partir da ZenBook Duo UX482
-- [ ] Instalar Tailscale e integrar todos os dispositivos
+- [x] Instalar Tailscale e integrar todos os dispositivos (homeserver, DAT-WS-IA-01, ZenBook, telemóvel — conta `digitalltogether.com` em trial)
+- [ ] Instalar e ativar OpenSSH Server no DAT-WS-IA-01 e na ZenBook (atualmente só o homeserver é servidor SSH; os Windows só funcionam como clientes)
 - [ ] Configurar Devolutions RDM Free (workspace DAT) — adicionar ligações SSH e RDP para todos os nodes com IPs LAN e Tailscale
 - [ ] Instalar Docker
 - [ ] Instalar Jellyfin via Docker

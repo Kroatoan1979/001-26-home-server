@@ -14,7 +14,7 @@
 | Pool DHCP | `192.168.1.64 – 192.168.1.253` |
 | Tailscale subnet | `100.x.x.x/8` |
 | DNS local | `192.168.1.1` (router) |
-| Conta Tailscale | `ivan.almeida1979@gmail.com` |
+| Conta Tailscale | `ivan.almeida@digitalltogether.com` (trial 14 dias desde 2026-07-07 — decisão pendente sobre plano final) |
 | Painel admin Tailscale | `https://login.tailscale.com/admin/machines` |
 
 ---
@@ -85,7 +85,7 @@
 | Hardware | ASUS X555L |
 | OS | Rocky Linux 10 (Minimal) |
 | IP LAN | `192.168.1.2` |
-| IP Tailscale | — *(a preencher após instalação Tailscale)* |
+| IP Tailscale | `100.97.253.85` (MagicDNS: `homeserver`) |
 | MAC Address | `9c:5c:8e:1e:d8:7e` (Ethernet — `enp2s0`) |
 | DHCP Reservation | N/A — IP estático configurado no SO via `nmcli` |
 | Ligação | Ethernet |
@@ -104,7 +104,7 @@
 | OS | Windows 11 Pro |
 | IP LAN Wi-Fi | `192.168.1.100` |
 | IP LAN Ethernet | `192.168.1.101` |
-| IP Tailscale | — *(a preencher)* |
+| IP Tailscale | `100.124.224.123` (MagicDNS: `dat-ws-ia-01`) |
 | MAC Address Wi-Fi | `A0-02-A5-A1-A7-B6` (Killer Wi-Fi 6 AX1650i) |
 | MAC Address Ethernet | `74-D4-DD-55-D8-C1` (Killer E2600 Gigabit) |
 | DHCP Reservation | Concluída (Wi-Fi → `.100` · Ethernet → `.101`) |
@@ -124,7 +124,7 @@
 | OS | Windows 11 Home |
 | IP LAN Wi-Fi | `192.168.1.110` |
 | IP LAN Ethernet (USB-C) | `192.168.1.111` |
-| IP Tailscale | — *(a preencher)* |
+| IP Tailscale | `100.81.2.53` (MagicDNS: `ux482`) |
 | MAC Address Wi-Fi | `38-FC-98-85-6F-88` (Intel Wi-Fi 6 AX200) |
 | MAC Address Ethernet (USB-C) | `00-E0-4C-4D-25-20` |
 | DHCP Reservation | Concluída (Wi-Fi → `.110` · Ethernet USB-C → `.111`) |
@@ -160,17 +160,17 @@
 
 | Campo | Valor |
 |---|---|
-| Hostname | — *(a definir)* |
+| Hostname | `redmi-note-14` |
 | Tipo / Papel | Telemóvel pessoal |
-| OS | Android |
+| OS | Android 16 |
 | IP LAN | Dinâmico (sem reserva) |
-| IP Tailscale | — *(a preencher após instalação Tailscale)* |
+| IP Tailscale | `100.78.250.58` (MagicDNS: `redmi-note-14`) |
 | MAC Address | — *(a preencher)* |
 | DHCP Reservation | N/A — dispositivo portátil, cliente puro; IP LAN irrelevante |
-| Ligação | Wi-Fi |
+| Ligação | Wi-Fi / dados móveis |
 | Serviços expostos | — |
-| Acesso remoto | App Tailscale |
-| Notas | Acede aos serviços (Jellyfin, Navidrome), não os serve. IP estável garantido via Tailscale (`100.x.x.x`). |
+| Acesso remoto | App Tailscale, Termius (SSH via MagicDNS/IP Tailscale) |
+| Notas | Acede aos serviços (Jellyfin, Navidrome), não os serve. Conectividade Tailscale confirmada também via dados móveis (fora da LAN). |
 
 ---
 
@@ -237,4 +237,4 @@ nmcli -f ipv4.method,IP4.ADDRESS,IP4.GATEWAY,IP4.DNS connection show enp2s0
 
 ---
 
-*Atualizado em 2026-07-01 — Kody para Ivan / DAT — confirmado via `ipconfig /all` que a reserva DHCP da ZenBook UX482 Ethernet USB-C está ativa e correta (`192.168.1.111`, MAC `00-E0-4C-4D-25-20`); confirmado também o IP Ethernet do DAT-WS-IA-01 via porta nativa Killer E2600 (`192.168.1.101`, MAC `74-D4-DD-55-D8-C1`); confirmado via `nmcli` no homeserver que o IP estático `192.168.1.2/24` está corretamente configurado — todos os IPs LAN da rede confirmados*
+*Atualizado em 2026-07-07 — Kody para Ivan / DAT — Tailscale instalado e autenticado nos 4 dispositivos (homeserver, DAT-WS-IA-01, ZenBook UX482, telemóvel Redmi Note 14) com a conta `ivan.almeida@digitalltogether.com` (trial 14 dias); IPs Tailscale confirmados e MagicDNS validado (resolução por hostname a funcionar mesmo via dados móveis, fora da LAN)*

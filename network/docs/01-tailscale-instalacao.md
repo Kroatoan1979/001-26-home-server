@@ -36,7 +36,7 @@ sudo systemctl status tailscaled
 sudo tailscale up
 ```
 
-O comando devolve um URL. Abrir esse URL num browser e autenticar com a conta Google (`ivan.almeida1979@gmail.com`).
+O comando devolve um URL. Abrir esse URL num browser e autenticar com a conta `ivan.almeida@digitalltogether.com` (a mesma conta usada em todos os dispositivos da tailnet).
 
 ---
 

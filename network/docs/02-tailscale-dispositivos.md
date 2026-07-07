@@ -1,6 +1,6 @@
 # Tailscale — Adicionar Dispositivos à Tailnet
 
-Cada dispositivo precisa de instalar o cliente Tailscale e autenticar com a mesma conta (`ivan.almeida1979@gmail.com`).
+Cada dispositivo precisa de instalar o cliente Tailscale e autenticar com a mesma conta (`ivan.almeida@digitalltogether.com`).
 
 ---
 
