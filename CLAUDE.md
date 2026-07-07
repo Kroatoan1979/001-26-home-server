@@ -129,6 +129,9 @@ sudo dnf update -y
 
 ## Estado do Projeto (Checklist)
 
+> **Próxima tarefa prioritária:**
+> - [ ] Atualização de memória geral Claude no UX482 (rever e consolidar protocolos/memórias do Claude Code nesta máquina — ex: protocolo de encerramento de sessão encontrado apenas no projeto `roadmap-devsecops`, avaliar se deve ser replicado como convenção geral)
+
 - [x] Descarregar Minimal ISO Rocky Linux 10
 - [x] Criar pen USB bootável com Rufus
 - [x] Instalar Rocky Linux no ASUS X555L
