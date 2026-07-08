@@ -109,9 +109,9 @@
 | MAC Address Ethernet | `74-D4-DD-55-D8-C1` (Killer E2600 Gigabit) |
 | DHCP Reservation | Concluída (Wi-Fi → `.100` · Ethernet → `.101`) |
 | Ligação | Wi-Fi (Ethernet disponível) |
-| Serviços expostos | RDP `:3389` |
-| Acesso remoto | RDP, SSH |
-| Notas | VirtualBox, Hyper-V (WSL2), Surfshark VPN instalados. IPs diferentes por adaptador (limitação do router). |
+| Serviços expostos | RDP `:3389`, SSH `:22` |
+| Acesso remoto | RDP, SSH (servidor instalado 2026-07-08; autenticação por chave ainda bloqueada — ver nota abaixo) |
+| Notas | VirtualBox, Hyper-V (WSL2), Surfshark VPN instalados. IPs diferentes por adaptador (limitação do router). Perfil de rede Wi-Fi corrigido de `Public` para `Private` (2026-07-08) para a regra de firewall do OpenSSH se aplicar. ⚠️ Conta Windows é Azure AD cloud-only (`azuread\ivanalmeida`) — `sshd` não resolve esta identidade para login, chave SSH não autentica ainda (ver `CLAUDE.md`, secção "Limitação Azure AD + OpenSSH"). |
 
 ---
 
@@ -237,4 +237,4 @@ nmcli -f ipv4.method,IP4.ADDRESS,IP4.GATEWAY,IP4.DNS connection show enp2s0
 
 ---
 
-*Atualizado em 2026-07-07 — Kody para Ivan / DAT — Tailscale instalado e autenticado nos 4 dispositivos (homeserver, DAT-WS-IA-01, ZenBook UX482, telemóvel Redmi Note 14) com a conta `ivan.almeida@digitalltogether.com` (trial 14 dias); IPs Tailscale confirmados e MagicDNS validado (resolução por hostname a funcionar mesmo via dados móveis, fora da LAN)*
+*Atualizado em 2026-07-08 — Kody para Ivan / DAT — OpenSSH Server instalado e ativo na DAT-WS-IA-01 (perfil Wi-Fi corrigido para `Private`); descoberto bloqueio de autenticação por chave SSH devido a conta Azure AD cloud-only (`sshd` não resolve a identidade) — decisão de contorno pendente*
