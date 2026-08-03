@@ -166,9 +166,10 @@ sudo dnf update -y
 - [ ] Instalar Navidrome via Docker
 - [x] Ligar HDD externo 5TB ao homeserver e montar via SSH (formatado em XFS, configurado `/etc/fstab` com UUID + `nofail`)
 - [x] Configurar estrutura de pastas no HDD (`/mnt/dados/filmes`, `/mnt/dados/series`, `/mnt/dados/musica`, `/mnt/dados/backups`, `/mnt/dados/arquivo`)
-- [ ] Desativar spin-down do HDD externo via `hdparm` para evitar delays no Jellyfin
+- [x] Desativar spin-down do HDD externo via `hdparm` para evitar delays no Jellyfin — `hdparm -B 254 -S 0` aplicado e tornado persistente via regra `udev` (`99-hdd-power.rules`), validado em [infra/docs/04-storage-hdd-5tb.md](infra/docs/04-storage-hdd-5tb.md)
 - [ ] Testar acesso da Smart TV ao Jellyfin
 - [x] Testar acesso remoto via Tailscale de todos os dispositivos (ZenBook confirmada — ligação direta P2P, ~2-3ms após handshake inicial)
+- [ ] Adicionar tablet à tailnet e à documentação — dispositivo já adicionado ao Tailscale (2026-08-03), acesso remoto por design (mesmo padrão do telemóvel pessoal, sem IP fixo necessário). Falta: confirmar acesso fora da rede local (teste do Ivan pendente) e depois preencher IP Tailscale/hostname MagicDNS/modelo em `CLAUDE.md`, `README.md`, `network/README.md`, `docs/network-inventory.md` e `docs/diagrama-rede.md`
 
 ### Sub-projeto: Web Server + Cloudflare
 - [ ] Sessão de estudo: conceitos de proxy e reverse proxy
