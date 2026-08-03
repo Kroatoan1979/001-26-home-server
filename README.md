@@ -198,7 +198,7 @@ watch -n 2 sensors
 
 ## Notas
 
-- Tailscale em **trial 14 dias** (conta `digitalltogether.com`, desde 2026-07-07) — decisão pendente entre manter plano pago ou migrar para conta pessoal gratuita antes de 2026-07-21
+- Tailscale — conta `digitalltogether.com`, plano **Free** (decisão tomada em 2026-08-03: mantém-se esta conta, sem plano pago)
 - **MagicDNS ativo** — dispositivos acessíveis pelo hostname (ex: `ssh ivan@homeserver`), sem precisar do IP Tailscale, mesmo fora da LAN
 - Jellyfin e Navidrome **não incluem conteúdo** — organizam e fazem streaming do que está no HDD externo
 - Rocky Linux suporta sessões SSH **simultâneas ilimitadas**

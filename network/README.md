@@ -29,7 +29,7 @@ Camada de rede do home server. O Tailscale cria uma rede privada virtual (mesh) 
 
 ## Conta Tailscale
 
-- **Plano:** Trial 14 dias (desde 2026-07-07) — conta `digitalltogether.com`. Decisão pendente: manter plano pago ou migrar para conta pessoal gratuita antes do fim do trial (2026-07-21)
+- **Plano:** Free — conta `digitalltogether.com`. Trial de 14 dias (desde 2026-07-07) terminado; decisão tomada em 2026-08-03 de manter esta conta no plano Free, sem necessidade de plano pago nem de migrar para conta pessoal
 - **Email:** `ivan.almeida@digitalltogether.com`
 - **Painel admin:** `https://login.tailscale.com/admin/machines`
 - **MagicDNS ativo** — resolução por hostname (`homeserver`, `dat-ws-ia-01`, `ux482`, `redmi-note-14`) dentro da tailnet, confirmada mesmo fora da LAN (dados móveis)

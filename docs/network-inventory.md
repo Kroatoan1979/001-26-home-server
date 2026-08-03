@@ -14,7 +14,7 @@
 | Pool DHCP | `192.168.1.64 – 192.168.1.253` |
 | Tailscale subnet | `100.x.x.x/8` |
 | DNS local | `192.168.1.1` (router) |
-| Conta Tailscale | `ivan.almeida@digitalltogether.com` (trial 14 dias desde 2026-07-07 — decisão pendente sobre plano final) |
+| Conta Tailscale | `ivan.almeida@digitalltogether.com` (plano Free — trial de 14 dias desde 2026-07-07 terminado, decisão tomada em 2026-08-03 de manter esta conta no plano Free) |
 | Painel admin Tailscale | `https://login.tailscale.com/admin/machines` |
 
 ---
@@ -237,4 +237,4 @@ nmcli -f ipv4.method,IP4.ADDRESS,IP4.GATEWAY,IP4.DNS connection show enp2s0
 
 ---
 
-*Atualizado em 2026-07-08 — Kody para Ivan / DAT — OpenSSH Server instalado e ativo na DAT-WS-IA-01 (perfil Wi-Fi corrigido para `Private`); descoberto bloqueio de autenticação por chave SSH devido a conta Azure AD cloud-only (`sshd` não resolve a identidade) — decisão de contorno pendente*
+*Atualizado em 2026-08-03 — Kody para Ivan / DAT — decisão tomada de manter a conta Tailscale `digitalltogether.com` no plano Free (trial terminado, sem migração para conta pessoal)*

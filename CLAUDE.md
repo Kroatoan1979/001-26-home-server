@@ -25,7 +25,7 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr R
 | Camada | Tecnologia |
 |---|---|
 | SO | Rocky Linux 10 (Minimal) |
-| VPN mesh | Tailscale — conta `digitalltogether.com` em trial (14 dias, a partir de 2026-07-07). Decisão pendente: manter plano pago ou migrar para conta pessoal gratuita antes do fim do trial |
+| VPN mesh | Tailscale — conta `digitalltogether.com`, plano **Free** (decisão tomada em 2026-08-03: mantém-se esta conta, sem necessidade de plano pago nem de migrar para conta pessoal — cobre bem o caso de uso) |
 | Contenção | Docker + docker-compose |
 | Media (vídeo) | Jellyfin (porta 8096) |
 | Media (música) | Navidrome (protocolo Subsonic) |
