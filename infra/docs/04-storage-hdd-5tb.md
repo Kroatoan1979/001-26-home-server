@@ -24,14 +24,16 @@ Este fluxo aplica-se a qualquer disco externo USB (HDD ou SSD) ligado a um servi
 
 ## Pertinência para este projeto
 
-O SSD interno do homeserver (223,6 GB) chega para o sistema operativo e para os containers Docker, mas não para uma biblioteca de filmes/séries/música. Este HDD externo de 5TB (WD My Passport) é o armazenamento dedicado para o Jellyfin e o Navidrome.
+O SSD interno do homeserver (223,6 GB) chega para o sistema operativo e para os containers Docker, mas não para armazenamento de dados em volume. Este HDD externo de 5TB (WD My Passport) é o armazenamento dedicado ao FileCloud e a backups.
+
+> ⚠️ **Atualização de 2026-08-05:** este disco foi montado e formatado originalmente a pensar no Jellyfin/Navidrome (media server). Esses serviços saíram do projeto — o disco e a formatação (XFS, UUID, `hdparm`) mantêm-se inalterados, mas a estrutura de pastas é reorganizada (ver secção 8 abaixo) para servir o FileCloud em vez de bibliotecas de media.
 
 **Duas decisões relevantes tomadas durante esta tarefa, que já foram corrigidas na documentação do projeto:**
 
 1. **Capacidade real:** o disco identificou-se como 5TB (`5.00 TB` / `4.55 TiB`), não 4TB como estava inicialmente documentado no `CLAUDE.md`/`README.md`. Documentação corrigida.
 2. **Sistema de ficheiros:** o plano original (`infra/docs/03-ssh.md` e um rascunho anterior) previa `ext4`. Optámos por **XFS** — sistema de ficheiros nativo e por defeito no Rocky Linux/RHEL, com bom histórico para ficheiros grandes (típico de media — filmes em `.mkv` de várias dezenas de GB) e suporte robusto a *extended attributes*, sem desvantagem relevante face ao `ext4` neste caso de uso.
 
-**Porquê a gestão de energia (`hdparm`):** discos externos WD são conhecidos por "estacionar as cabeças" muito agressivamente após poucos segundos de inatividade, para poupar energia. Num servidor de media 24/7 com acessos espaçados ao longo do dia, isto causa dois problemas: atraso percetível ("buffering") ao abrir um filme depois do disco estar parado, e desgaste acumulado do contador `Load_Cycle_Count` do disco (tem limite de vida útil).
+**Porquê a gestão de energia (`hdparm`):** discos externos WD são conhecidos por "estacionar as cabeças" muito agressivamente após poucos segundos de inatividade, para poupar energia. Num servidor 24/7 com acessos espaçados ao longo do dia (ex: sincronização de ficheiros no FileCloud), isto causa dois problemas: atraso percetível ao aceder a um ficheiro depois do disco estar parado, e desgaste acumulado do contador `Load_Cycle_Count` do disco (tem limite de vida útil).
 
 ---
 
@@ -120,13 +122,15 @@ df -h /mnt/dados
 
 ### 8. Estrutura de pastas
 
+> ⚠️ Estrutura original (Jellyfin/Navidrome, 2026-08): `{filmes,series,musica,backups,arquivo}`. Reestruturada em 2026-08-05 para o FileCloud — comandos abaixo já refletem a estrutura nova; ao reinstalar o servidor (ver [01-instalacao-rhel.md](01-instalacao-rhel.md)), as pastas antigas de media não são recriadas.
+
 ```bash
-sudo mkdir -p /mnt/dados/{filmes,series,musica,backups,arquivo}
+sudo mkdir -p /mnt/dados/{filecloud,backups,arquivo}
 sudo chown -R ivan:ivan /mnt/dados
 ```
 
-- A sintaxe `{a,b,c}` do bash expande para múltiplos argumentos — evita repetir `mkdir -p` cinco vezes
-- `chown -R ivan:ivan` — muda o dono das pastas para o utilizador `ivan` (por defeito, pastas criadas com `sudo mkdir` pertencem ao `root`, o que impediria o Jellyfin/Navidrome de escrever/ler ficheiros mais tarde); `-R` aplica recursivamente a todas as subpastas
+- A sintaxe `{a,b,c}` do bash expande para múltiplos argumentos — evita repetir `mkdir -p` três vezes
+- `chown -R ivan:ivan` — muda o dono das pastas para o utilizador `ivan` (por defeito, pastas criadas com `sudo mkdir` pertencem ao `root`, o que impediria o FileCloud de escrever/ler ficheiros mais tarde); `-R` aplica recursivamente a todas as subpastas
 
 ### 9. Gestão de energia — impedir o disco de "adormecer"
 

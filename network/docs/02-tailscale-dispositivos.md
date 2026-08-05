@@ -57,9 +57,9 @@ ssh ivan@100.x.x.x
 - Porta: 22
 - Utilizador: ivan
 
-### Telemóvel → Jellyfin (após instalação do serviço)
-- Browser ou app Jellyfin
-- URL: `http://100.x.x.x:8096`
+### Telemóvel → FileCloud (após instalação do serviço)
+- Browser (portal de utilizador FileCloud)
+- URL: `http://100.x.x.x` (porta 80) ou `https://100.x.x.x` (porta 443)
 
 ---
 

@@ -1,8 +1,36 @@
 # Home Server + Tailscale — Contexto do Projeto
 
+## ⚠️ Migração em curso: Rocky Linux → RHEL Developer
+
+> **Decisão tomada em 2026-08-05.** O servidor vai ser **recriado do zero** com **RHEL (Red Hat Developer Subscription for Individuals)**, substituindo o Rocky Linux 10 atualmente instalado. Motivo principal: usar o SO oficial da certificação **RHCSA** para estudo/prática, e não um rebuild binário. Aproveita-se também para instalar o **TraderShark** (app nativa de trading desportivo, sensível a latência).
+>
+> **Mudança adicional (mesma data):** o **Jellyfin e o Navidrome saem do projeto** — o serviço principal do servidor passa a ser o **FileCloud** (partilha/sincronização de ficheiros), que consolida aqui o que estava planeado como projeto separado ("FileCloud na AWS"). A estrutura de pastas do HDD 5TB é reorganizada de acordo (deixa de ser filmes/séries/música).
+>
+> **A reinstalação ainda não foi iniciada** — o servidor Rocky Linux continua em funcionamento normalmente até à reinstalação efetiva. Esta secção do `CLAUDE.md` já reflete o plano acordado; o checklist abaixo foi reposto a pendente nos pontos que dependem do SO (instalação, SSH, headless, Avahi, Tailscale no servidor), porque serão refeitos do zero em RHEL. **Decisões que não dependem do SO** (armazenamento HDD 5TB, conta Tailscale `digitalltogether.com`, IPs/DHCP reservations, topologia de rede) **mantêm-se inalteradas** — confirmado com o Ivan em 2026-08-05 que o documento de planeamento anterior estava desatualizado nesses dois pontos.
+>
+> **Vai mudar:**
+> - SO: Rocky Linux 10 → RHEL 10 Developer Subscription, instalação "Server with GUI" (GNOME) — deixa de ser Minimal, porque o TraderShark precisa de sessão gráfica local
+> - Identidade Tailscale do servidor (novo node — remover o node `homeserver` antigo no admin console após a reinstalação)
+> - Chave de host SSH (nova — clientes vão pedir para aceitar a fingerprint nova)
+> - Modo headless deixa de ser "sempre" — passa a "headless por padrão, exceto durante o uso do TraderShark" (sessão local, tampa aberta)
+>
+> **Não muda:**
+> - Hardware (ASUS X555L)
+> - HDD externo 5TB WD My Passport, estrutura `/mnt/dados`, `hdparm`
+> - Conta Tailscale `digitalltogether.com`, plano Free
+> - IPs LAN, reservas DHCP, topologia de rede
+> - Política de SSH por chave (sem password)
+
+---
+
 ## Objetivo
 
-Transformar um portátil antigo (ASUS X555L) num home server headless a correr Rocky Linux 10, acessível remotamente via Tailscale. Serviços de media (Jellyfin, Navidrome) em Docker, com armazenamento em HDD externo 5TB.
+Transformar um portátil antigo (ASUS X555L) num home server headless a correr **RHEL (Red Hat Developer Subscription for Individuals)**, acessível remotamente via Tailscale. Além do papel de servidor doméstico, o projeto serve quatro objetivos adicionais:
+
+- **Estudo e prática para a certificação RHCSA** (Red Hat Certified System Administrator) — maioritariamente via CLI (utilizadores/grupos, permissões, LVM/storage, systemd, firewalld, SELinux, containers)
+- **TraderShark** — app gráfica nativa Linux de trading desportivo em modo ladder, sensível a latência, para uso local/LAN
+- **FileCloud** — partilha e sincronização de ficheiros (self-hosted, tipo Dropbox/ownCloud) em Docker, com armazenamento em HDD externo 5TB. Consolida aqui o que estava planeado como projeto separado na AWS
+- Acesso gráfico remoto: X11 forwarding (Windows 11) e xrdp (tablet Android)
 
 ---
 
@@ -14,7 +42,7 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr R
 | CPU | Intel Core i7 (4ª ou 5ª geração) |
 | RAM | 8 GB DDR3 |
 | Disco interno | SSD (SO + serviços) |
-| Disco externo | HDD 5TB WD My Passport (media + dados — uso 24/7 aceitável para home server de uso familiar) |
+| Disco externo | HDD 5TB WD My Passport (armazenamento FileCloud + backups — uso 24/7 aceitável para home server de uso familiar) |
 | Rede | Ethernet ao router doméstico |
 | Avaria | Placa de som — irrelevante para servidor |
 
@@ -24,12 +52,14 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr R
 
 | Camada | Tecnologia |
 |---|---|
-| SO | Rocky Linux 10 (Minimal) |
-| VPN mesh | Tailscale — conta `digitalltogether.com`, plano **Free** (decisão tomada em 2026-08-03: mantém-se esta conta, sem necessidade de plano pago nem de migrar para conta pessoal — cobre bem o caso de uso) |
+| SO | **RHEL 10** (Red Hat Developer Subscription for Individuals), instalação "Server with GUI" (GNOME) — versão confirmada em 2026-08-05 como a base atual do exame RHCSA |
+| Subscrição | `subscription-manager register` — conta gratuita developers.redhat.com, uso de desenvolvimento individual (não produção em equipa) |
+| VPN mesh | Tailscale — conta `digitalltogether.com`, plano **Free** (decisão tomada em 2026-08-03, reconfirmada em 2026-08-05 para o servidor RHEL: mantém-se esta conta, sem necessidade de plano pago nem de migrar para conta pessoal — cobre bem o caso de uso) |
 | Contenção | Docker + docker-compose |
-| Media (vídeo) | Jellyfin (porta 8096) |
-| Media (música) | Navidrome (protocolo Subsonic) |
-| Acesso remoto Linux | SSH |
+| Partilha/sincronização de ficheiros | FileCloud Community Edition (portas 80/443) — consolida o projeto que estava planeado na AWS |
+| Trading (app gráfica) | TraderShark — nativo Linux, sensível a latência, uso local/LAN |
+| Acesso remoto Linux (terminal) | SSH |
+| Acesso remoto Linux (gráfico) | X11 forwarding (`ssh -X` + VcXsrv/Xming no Windows), xrdp (tablet Android + Microsoft Remote Desktop) |
 | Gestão de pacotes | `dnf` (não `apt`) |
 
 ---
@@ -40,7 +70,7 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr R
 
 | Dispositivo | OS | Protocolo de acesso |
 |---|---|---|
-| ASUS X555L (servidor) | Rocky Linux 10 | SSH |
+| ASUS X555L (servidor) | RHEL (Developer Subscription) | SSH, X11 forwarding, xrdp |
 | DAT-WS-IA-01 (workstation Ivan) | Windows 11 Pro | RDP / SSH |
 | ZenBook Duo UX482 | Windows 11 Home | — (não aceita RDP de entrada) |
 | Telemóvel (pessoal) | Android | App Tailscale |
@@ -51,7 +81,7 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr R
 
 | Dispositivo | IP LAN | IP Tailscale |
 |---|---|---|
-| Servidor — homeserver (ASUS X555L) | `192.168.1.2` (estático no SO) | `100.97.253.85` |
+| Servidor — homeserver (ASUS X555L) | `192.168.1.2` (estático no SO) | `100.97.253.85` (⚠️ vai mudar após a reinstalação RHEL — novo node Tailscale) |
 | DAT-WS-IA-01 — Wi-Fi | `192.168.1.100` | `100.124.224.123` |
 | DAT-WS-IA-01 — Ethernet | `192.168.1.101` | `100.124.224.123` |
 | ZenBook UX482 — Wi-Fi | `192.168.1.110` | `100.81.2.53` |
@@ -84,19 +114,19 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr R
 
 ```
 SSD interno
-├── Rocky Linux 10
-├── Docker + serviços (Jellyfin, Navidrome, Tailscale)
+├── RHEL (Developer Subscription)
+├── Docker + serviços (FileCloud, Tailscale)
 └── Configurações e logs
 
 HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados)
-├── /mnt/dados/filmes
-├── /mnt/dados/series
-├── /mnt/dados/musica
+├── /mnt/dados/filecloud
 ├── /mnt/dados/backups
 └── /mnt/dados/arquivo
 ```
 
-> **Nota de armazenamento:** SSD M.2 2280 1TB (enclosure USB) usado como disco portátil de alta capacidade para transferência de ficheiros entre máquinas — não integrado no servidor. HDD 5TB WD My Passport escolhido pelo espaço; spin-down pode ser desativado via `hdparm` se causar delays no Jellyfin.
+> **Nota de armazenamento:** SSD M.2 2280 1TB (enclosure USB) usado como disco portátil de alta capacidade para transferência de ficheiros entre máquinas — não integrado no servidor. HDD 5TB WD My Passport escolhido pelo espaço; spin-down pode ser desativado via `hdparm` se causar delays de acesso.
+>
+> ⚠️ **Reestruturação de 2026-08-05:** as pastas `filmes`/`series`/`musica` (pensadas para Jellyfin/Navidrome) saem do plano. Passam a existir fisicamente no disco de uma reinstalação anterior — a limpar/renomear ao recriar a estrutura em RHEL, ver [infra/docs/04-storage-hdd-5tb.md](infra/docs/04-storage-hdd-5tb.md).
 
 ---
 
@@ -123,6 +153,12 @@ docker ps
 
 # Atualizar sistema
 sudo dnf update -y
+
+# Verificar estado da subscrição RHEL
+sudo subscription-manager status
+
+# Ligação gráfica X11 forwarding (a partir do Windows, com VcXsrv a correr)
+ssh -X ivan@homeserver
 ```
 
 ---
@@ -132,23 +168,50 @@ sudo dnf update -y
 > **Próxima tarefa prioritária:**
 > - [ ] Atualização de memória geral Claude no UX482 (rever e consolidar protocolos/memórias do Claude Code nesta máquina — ex: protocolo de encerramento de sessão encontrado apenas no projeto `roadmap-devsecops`, avaliar se deve ser replicado como convenção geral)
 
-- [x] Descarregar Minimal ISO Rocky Linux 10
-- [x] Criar pen USB bootável com Rufus
-- [x] Instalar Rocky Linux no ASUS X555L
-- [x] Configurar modo headless (tampa fechada)
-- [x] Instalar e configurar SSH
-- [x] Configurar autenticação por chave SSH (ED25519) — chave instalada no homeserver para o utilizador `ivan`
-- [x] Desativar autenticação por password SSH (`PasswordAuthentication no`) — chave ED25519 validada
-- [x] Configurar IP estático no homeserver via `nmcli` (`192.168.1.2/24`) — independente do router
+### Migração Rocky Linux → RHEL (reinstalação completa do servidor)
+
+> Os pontos abaixo estavam concluídos em Rocky Linux e foram repostos a pendente porque serão refeitos do zero em RHEL. Ver [infra/docs/01-instalacao-rhel.md](infra/docs/01-instalacao-rhel.md).
+
+- [ ] Criar conta gratuita em developers.redhat.com e obter a subscrição Developer
+- [ ] Descarregar a ISO do RHEL
+- [ ] Criar pen USB bootável com Rufus, modo DD Image
+- [ ] Instalar RHEL no ASUS X555L, modo "Server with GUI" (GNOME)
+- [ ] `subscription-manager register` — ver [infra/docs/05-subscription-manager.md](infra/docs/05-subscription-manager.md)
+- [ ] `dnf update -y`
+- [ ] Definir hostname `homeserver`
+- [ ] Configurar IP estático no homeserver via `nmcli` (`192.168.1.2/24`) — independente do router (mesma config já usada em Rocky Linux)
+- [ ] Criar utilizador `ivan`, não-root, com sudo
+- [ ] Configurar modo headless (tampa fechada) — ver [infra/docs/02-modo-headless.md](infra/docs/02-modo-headless.md), com nota de exceção para uso do TraderShark
+- [ ] Instalar e configurar SSH — ver [infra/docs/03-ssh.md](infra/docs/03-ssh.md)
+- [ ] Configurar autenticação por chave SSH (ED25519, nova — a chave de host muda com a reinstalação)
+- [ ] Desativar autenticação por password SSH (`PasswordAuthentication no`)
+- [ ] Configurar Avahi (mDNS) no homeserver — resolução `homeserver.local`. Ver [network/docs/00-avahi-mdns.md](network/docs/00-avahi-mdns.md)
+- [ ] Remover o node antigo "homeserver" (Rocky Linux) no admin console do Tailscale
+- [ ] Instalar Tailscale no RHEL e autenticar (`tailscale up --hostname=homeserver`) — mesma conta `digitalltogether.com`. Ver [network/docs/01-tailscale-instalacao.md](network/docs/01-tailscale-instalacao.md)
+- [ ] Testar acesso remoto via Tailscale/MagicDNS a partir de todos os dispositivos
+- [ ] Instalar `xorg-x11-xauth`, testar X11 forwarding (`ssh -X`) a partir do Windows com VcXsrv — ver [infra/docs/06-acesso-grafico-x11.md](infra/docs/06-acesso-grafico-x11.md)
+- [ ] Instalar e configurar xrdp, abrir porta 3389, testar a partir do tablet Android (Microsoft Remote Desktop) — ver [infra/docs/07-acesso-grafico-xrdp.md](infra/docs/07-acesso-grafico-xrdp.md)
+- [ ] Ligar o HDD externo 5TB (já formatado/configurado) e confirmar montagem via `fstab` (UUID inalterado — não deve ser preciso reformatar)
+- [ ] Reestruturar as pastas do HDD: remover/renomear `filmes`/`series`/`musica` (Jellyfin/Navidrome já não fazem parte do projeto) e criar `/mnt/dados/filecloud`, mantendo `/backups` e `/arquivo`
+- [ ] Confirmar regra `udev` do `hdparm` (`99-hdd-power.rules`) — recriar se necessário
+- [ ] Instalar Docker ou Podman
+- [ ] Deploy FileCloud via Docker (apontado a `/mnt/dados/filecloud`) — ver [services/filecloud/docs/01-instalacao.md](services/filecloud/docs/01-instalacao.md)
+- [ ] Configurar portal de administração e primeira conta de utilizador no FileCloud
+- [ ] ⚠️ **Bloqueado:** confirmar dependências e formato do pacote Linux do TraderShark — pesquisa em 2026-08-05 não encontrou app Linux nativa com esse nome para trading desportivo em modo ladder; precisa do link/fonte oficial fornecido pelo Ivan antes de avançar (ver [services/tradershark/README.md](services/tradershark/README.md))
+- [ ] Instalar TraderShark
+- [ ] Testar TraderShark localmente na sessão gráfica do servidor (preferencialmente local/LAN — sensível a latência)
+- [ ] Praticar RHCSA: utilizadores/grupos, permissões, LVM/storage, systemd, firewalld, SELinux, containers — maioritariamente via CLI
+- [ ] Checklist de validação final: SSH, Tailscale, X11, xrdp, FileCloud, TraderShark, a partir de todos os dispositivos
+
+### Já concluído (independente do SO — não afetado pela reinstalação)
+
 - [x] Configurar DHCP Reservation no router para DAT-WS-IA-01, ZenBook e Smart TV
 - [x] Recolher MAC Ethernet USB-C do ZenBook (`00-E0-4C-4D-25-20`) e criar reserva
 - [x] Actualizar toda a documentação para referenciar nodes com hostname + IP
 - [x] Reiniciar dispositivos para aplicar novos IPs reservados e verificar com `ipconfig` — DAT-WS-IA-01 Wi-Fi `.100` ✅ · ZenBook Wi-Fi `.110` ✅ · ZenBook Ethernet USB-C `.111` ✅ · DAT-WS-IA-01 Ethernet `.101` ✅ (porta nativa Killer E2600)
-- [x] Confirmar IP LAN do homeserver `.2` via SSH (`nmcli`) — confirmado `manual`/`192.168.1.2/24`, todos os IPs LAN da rede confirmados
-- [x] Configurar Avahi (mDNS) no homeserver — resolução `homeserver.local` independente do Tailscale. Documentado em [network/docs/00-avahi-mdns.md](network/docs/00-avahi-mdns.md)
-- [x] Testar resolução `homeserver.local` a partir do DAT-WS-IA-01 (`ping` + `ssh` confirmados)
-- [x] Testar resolução `homeserver.local` a partir da ZenBook Duo UX482 (`ping` confirmado, 3-6ms — falhava com Surfshark VPN ligada, resolvido ao desligar)
-- [x] Instalar Tailscale e integrar todos os dispositivos (homeserver, DAT-WS-IA-01, ZenBook, telemóvel — conta `digitalltogether.com` em trial)
+- [x] Ligar HDD externo 5TB ao homeserver e montar via SSH (formatado em XFS, configurado `/etc/fstab` com UUID + `nofail`) — feito em Rocky Linux, disco e formatação mantêm-se após a reinstalação
+- [x] Configurar estrutura de pastas no HDD (`/mnt/dados/filmes`, `/mnt/dados/series`, `/mnt/dados/musica`, `/mnt/dados/backups`, `/mnt/dados/arquivo`) — ⚠️ estrutura superada em 2026-08-05: `filmes`/`series`/`musica` saem do plano (Jellyfin/Navidrome removidos), ver tarefa de reestruturação para `/mnt/dados/filecloud` na secção de migração acima
+- [x] Desativar spin-down do HDD externo via `hdparm` para evitar delays de acesso — `hdparm -B 254 -S 0` aplicado e tornado persistente via regra `udev` (`99-hdd-power.rules`), validado em [infra/docs/04-storage-hdd-5tb.md](infra/docs/04-storage-hdd-5tb.md) — regra `udev` precisa de ser recriada após reinstalação do SO (fica em `/etc`, não sobrevive)
 - [x] Instalar e ativar OpenSSH Server na ZenBook Duo UX482 (`sshd` a correr, arranque automático configurado, firewall `OpenSSH-Server-In-TCP` ativo, perfis de rede Wi-Fi e Tailscale confirmados como `Private`)
 - [x] Instalar e ativar OpenSSH Server no DAT-WS-IA-01 (`sshd` a correr, arranque automático configurado, firewall `OpenSSH-Server-In-TCP` ativo — só se aplica ao perfil `Private`; perfil de rede Wi-Fi corrigido de `Public` para `Private` para paridade com a ZenBook e para o SSH ficar de facto acessível por essa rede)
 - [ ] Configurar autenticação por chave SSH na ZenBook (decisão tomada: chaves sempre, sem password — ver política de autenticação SSH abaixo). Conta é Administrador, por isso o OpenSSH Server do Windows exige a chave pública em `C:\ProgramData\ssh\administrators_authorized_keys`, não no `authorized_keys` normal do utilizador
@@ -161,15 +224,9 @@ sudo dnf update -y
 - [ ] Avaliar node a node se a autenticação por password deve ser desativada, ou mantida ativa como failsafe (decisão manual por node, não automática)
 - [x] Desinstalar Devolutions RDM na ZenBook (confirmado via `winget list` — já não aparece instalada)
 - [ ] Verificar se a Devolutions RDM está instalada no DAT-WS-IA-01 e desinstalar se aplicável
-- [ ] Instalar Docker
-- [ ] Instalar Jellyfin via Docker
-- [ ] Instalar Navidrome via Docker
-- [x] Ligar HDD externo 5TB ao homeserver e montar via SSH (formatado em XFS, configurado `/etc/fstab` com UUID + `nofail`)
-- [x] Configurar estrutura de pastas no HDD (`/mnt/dados/filmes`, `/mnt/dados/series`, `/mnt/dados/musica`, `/mnt/dados/backups`, `/mnt/dados/arquivo`)
-- [x] Desativar spin-down do HDD externo via `hdparm` para evitar delays no Jellyfin — `hdparm -B 254 -S 0` aplicado e tornado persistente via regra `udev` (`99-hdd-power.rules`), validado em [infra/docs/04-storage-hdd-5tb.md](infra/docs/04-storage-hdd-5tb.md)
-- [ ] Testar acesso da Smart TV ao Jellyfin
-- [x] Testar acesso remoto via Tailscale de todos os dispositivos (ZenBook confirmada — ligação direta P2P, ~2-3ms após handshake inicial)
 - [ ] Adicionar tablet à tailnet e à documentação — dispositivo já adicionado ao Tailscale (2026-08-03), acesso remoto por design (mesmo padrão do telemóvel pessoal, sem IP fixo necessário). Falta: confirmar acesso fora da rede local (teste do Ivan pendente) e depois preencher IP Tailscale/hostname MagicDNS/modelo em `CLAUDE.md`, `README.md`, `network/README.md`, `docs/network-inventory.md` e `docs/diagrama-rede.md`
+
+> Nota: instalação de Docker/FileCloud e teste de acesso remoto via Tailscale ficam repostos a pendente na secção "Migração Rocky Linux → RHEL" acima, por dependerem do SO do servidor. A Smart TV deixa de ter um papel definido no projeto — estava só ligada ao Jellyfin, que saiu do âmbito (ver Notas Importantes).
 
 ### Sub-projeto: Web Server + Cloudflare
 - [ ] Sessão de estudo: conceitos de proxy e reverse proxy
@@ -192,14 +249,18 @@ sudo dnf update -y
 
 ## Notas Importantes
 
-- Servidor é **headless** — após setup inicial, opera com tampa fechada, sem monitor nem teclado
+- Servidor é **headless por padrão** — tampa fechada, sem monitor nem teclado, **exceto durante o uso do TraderShark** (sessão gráfica local, sensível a latência)
 - A avaria na placa de som é **completamente irrelevante** para o funcionamento como servidor
-- O acesso remoto é feito **exclusivamente via Tailscale** quando fora da rede local
-- Na LAN (em casa), servidor e Smart TV comunicam diretamente — Tailscale não é necessário
-- Rocky Linux 10 suporta **sessões SSH simultâneas ilimitadas**
+- O acesso remoto (terminal ou gráfico) é feito **exclusivamente via Tailscale** quando fora da rede local
+- **Smart TV sem papel definido no projeto** (desde 2026-08-05) — estava na tailnet/inventário só para aceder ao Jellyfin; com o Jellyfin removido, mantém-se como dispositivo de inventário de rede, mas sem função ativa até se decidir um novo uso
+- RHEL suporta **sessões SSH simultâneas ilimitadas** (mesmo comportamento que o Rocky Linux, ambos baseados em OpenSSH/systemd)
 - Windows 11 Pro limita a **1 sessão RDP** simultânea
 - Monitorizar temperatura nas primeiras horas com tampa fechada
-- **Política de autenticação SSH:** preferência do Ivan é sempre chave SSH, nunca password, em todos os nodes da tailnet. Ao configurar SSH num node novo (ou rever um existente), a chave é a opção por defeito — não propor password como alternativa igualmente válida. Password authentication só se mantém ativa como failsafe mediante avaliação manual e explícita por node (não é o default). Homeserver já cumpre (chave ED25519, password desativada); ZenBook e DAT-WS-IA-01 pendentes de configuração/revisão
+- A GUI instalada (GNOME, modo "Server with GUI") **não interfere** com o SSH — são serviços independentes
+- A subscrição RHEL Developer cobre uso de **desenvolvimento individual**, não produção em equipa
+- Para o RHCSA, a prática deve manter-se maioritariamente em CLI, mesmo com o GNOME instalado
+- O **TraderShark é sensível a latência** (modo ladder) — recomendado correr localmente ou em LAN por ethernet, evitando X11/xrdp pela internet durante trading ativo
+- **Política de autenticação SSH:** preferência do Ivan é sempre chave SSH, nunca password, em todos os nodes da tailnet. Ao configurar SSH num node novo (ou rever um existente), a chave é a opção por defeito — não propor password como alternativa igualmente válida. Password authentication só se mantém ativa como failsafe mediante avaliação manual e explícita por node (não é o default). Homeserver cumpria isto em Rocky Linux (chave ED25519, password desativada) — **a repetir do zero após a reinstalação em RHEL**; ZenBook e DAT-WS-IA-01 continuam pendentes de configuração/revisão, independentemente da migração do servidor
 - **Limitação Azure AD + OpenSSH (Windows):** contas Windows "Azure AD Joined" cloud-only (sem AD on-premises por trás — SID `S-1-12-1-...`) não são resolvíveis pelo `sshd.exe` do Windows para autenticação (nenhum formato de username funciona: simples, `AzureAD\user`, ou SID direto). Confirmado na DAT-WS-IA-01. Antes de configurar chaves SSH num node Windows, confirmar primeiro o tipo de conta (`whoami /user` + `dsregcmd /status`) — se for Azure AD cloud-only, a chave SSH só funciona associada a uma conta local dedicada, não à conta principal do Ivan
 - **Devolutions RDM abandonado** — decidido não usar como gestor central de ligações. SSH fica no Warp (já usado, com IA), RDP fica no cliente nativo do Windows (`mstsc`, mesmo motor RDP que o RDM usaria por baixo). A centralização de ligações fica para o Guacamole (sub-projeto já planeado), que cobre o mesmo objetivo via browser e com acesso remoto pelo Cloudflare Tunnel
 
@@ -218,7 +279,7 @@ sudo dnf update -y
 
 > Segue o protocolo global "Documentos de Estudo por Serviço/Integração" (memória geral do Ivan) — **perguntar sempre antes de criar**, nunca criar automaticamente. Este projeto não é exceção a essa regra.
 
-Sempre que se instala/configura um **serviço ou capacidade nova e significativa** no projeto (ex: Avahi, Tailscale, Docker, Jellyfin, Navidrome, montagem de disco, hardening SSH, Cloudflare Tunnel, Guacamole), **perguntar ao Ivan** se quer um documento de estudo dedicado antes de o criar. **Não aplicar a comandos triviais ou correções pontuais** — só a trabalho que introduz algo novo e relevante ao projeto.
+Sempre que se instala/configura um **serviço ou capacidade nova e significativa** no projeto (ex: Avahi, Tailscale, Docker, FileCloud, montagem de disco, hardening SSH, Cloudflare Tunnel, Guacamole), **perguntar ao Ivan** se quer um documento de estudo dedicado antes de o criar. **Não aplicar a comandos triviais ou correções pontuais** — só a trabalho que introduz algo novo e relevante ao projeto.
 
 **Localização:** `<área>/docs/NN-nome-do-topico.md` (ex: `network/docs/00-avahi-mdns.md`, `infra/docs/03-ssh.md`), seguindo a numeração sequencial já usada em cada pasta. Serviços em `services/<nome>/` recebem também a sua própria subpasta `docs/`.
 

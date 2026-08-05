@@ -1,16 +1,18 @@
-# Tailscale — Instalação no Servidor (Rocky Linux 10)
+# Tailscale — Instalação no Servidor (RHEL)
+
+> ⚠️ **Migração Rocky Linux → RHEL (2026-08-05):** este servidor vai gerar um **node Tailscale novo** ao reinstalar. Antes de autenticar aqui, remover o node antigo "homeserver" (Rocky Linux) no admin console (`https://login.tailscale.com/admin/machines`), para não ficar com dois registos do mesmo servidor.
 
 ---
 
 ## 1. Instalar Tailscale
 
-O instalador oficial suporta Rocky Linux diretamente:
+O instalador oficial suporta RHEL diretamente:
 
 ```bash
 curl -fsSL https://tailscale.com/install.sh | sh
 ```
 
-Alternativamente, via repositório manual:
+Alternativamente, via repositório manual (o repositório já era o mesmo usado em Rocky Linux, por ser um rebuild binário do RHEL):
 
 ```bash
 sudo dnf config-manager --add-repo https://pkgs.tailscale.com/stable/rhel/10/tailscale.repo

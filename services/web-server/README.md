@@ -16,7 +16,7 @@ Subprojeto em planeamento. A tecnologia ainda não está definida.
 
 ## Objetivos possíveis
 
-- Reverse proxy para Jellyfin e Navidrome (URLs amigáveis em vez de portas)
+- Reverse proxy para o FileCloud (URL amigável em vez de porta)
 - Servir uma página pessoal ou dashboard
 - HTTPS para acesso via domínio (requer domínio ou solução como Tailscale Funnel)
 

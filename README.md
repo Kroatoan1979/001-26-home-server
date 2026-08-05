@@ -1,6 +1,10 @@
 # Home Server + Tailscale
 
-Infraestrutura pessoal baseada num portátil antigo transformado em servidor headless, com acesso remoto seguro via VPN mesh (Tailscale) e serviços de media em Docker.
+Infraestrutura pessoal baseada num portátil antigo transformado em servidor headless com **RHEL**, com acesso remoto seguro via VPN mesh (Tailscale), partilha/sincronização de ficheiros via **FileCloud**, e ambiente de prática para a certificação **RHCSA**.
+
+> ⚠️ **Migração em curso (decisão de 2026-08-05):** o servidor está a ser recriado do zero, de Rocky Linux 10 para **RHEL (Red Hat Developer Subscription for Individuals)**. Ver detalhe completo em [CLAUDE.md](CLAUDE.md).
+>
+> ⚠️ **Mudança de serviços (mesma data):** Jellyfin e Navidrome saíram do projeto. O serviço principal passa a ser o **FileCloud**, que consolida aqui o que estava planeado como projeto separado na AWS.
 
 ---
 
@@ -9,8 +13,10 @@ Infraestrutura pessoal baseada num portátil antigo transformado em servidor hea
 Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevante para servidor) para criar uma infraestrutura doméstica robusta e de baixo custo, com:
 
 - Acesso remoto seguro a todos os dispositivos de casa
-- Streaming de media (filmes, séries, música) para qualquer dispositivo
+- Partilha e sincronização de ficheiros própria, via **FileCloud** — sem depender de Dropbox/Google Drive
 - Controlo total dos dados — sem dependência de serviços cloud de terceiros
+- Ambiente oficial de estudo/prática para a certificação **RHCSA** (o RHEL Developer é o mesmo SO usado no exame, ao contrário do Rocky Linux que é apenas um rebuild binário)
+- Execução do **TraderShark** (app nativa Linux de trading desportivo em modo ladder)
 
 ---
 
@@ -22,19 +28,21 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 | CPU | Intel Core i7 (4ª ou 5ª geração) |
 | RAM | 8 GB DDR3 |
 | Disco interno | SSD (SO + serviços) |
-| Disco externo | HDD 5TB WD My Passport (media + dados) |
+| Disco externo | HDD 5TB WD My Passport (FileCloud + backups) |
 | Rede | Ethernet ao router doméstico |
-| Modo de operação | Headless — tampa fechada, sem monitor |
+| Modo de operação | Headless por padrão — tampa fechada, sem monitor, exceto durante o uso do TraderShark |
 
 ---
 
 ## Sistema Operativo
 
-**Rocky Linux 10** — Minimal ISO (x86_64)
+**RHEL 10** (Red Hat Developer Subscription for Individuals) — instalação "Server with GUI" (GNOME). Versão confirmada em 2026-08-05 como a base atual do exame RHCSA — continuidade natural com o Rocky Linux 10 anterior.
 
-- Download: [rockylinux.org/download](https://rockylinux.org/download)
-- Criação de pen bootável: **Rufus** (Windows) → partição GPT, FAT32
+- Conta gratuita: [developers.redhat.com](https://developers.redhat.com)
+- Criação de pen bootável: **Rufus** (Windows) → modo DD Image
+- Registo obrigatório pós-instalação: `subscription-manager register`
 - Gestão de pacotes: `dnf`
+- GUI (GNOME) necessária para correr o TraderShark localmente — não interfere com o SSH nem com a prática RHCSA (maioritariamente CLI)
 
 ---
 
@@ -44,8 +52,9 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 |---|---|---|
 | **Tailscale** | VPN mesh — acesso remoto seguro | — |
 | **Docker** | Plataforma de contenção para os serviços | — |
-| **Jellyfin** | Media server — filmes e séries | 8096 |
-| **Navidrome** | Media server — música (protocolo Subsonic) | 4533 |
+| **FileCloud** | Partilha e sincronização de ficheiros (self-hosted) | 80 / 443 |
+| **TraderShark** | App nativa de trading desportivo (modo ladder), sensível a latência | — |
+| **X11 forwarding / xrdp** | Acesso gráfico remoto (Windows / tablet Android) | 3389 (xrdp) |
 
 ---
 
@@ -55,7 +64,7 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 
 | Dispositivo | OS | Acesso |
 |---|---|---|
-| ASUS X555L (servidor) | Rocky Linux 10 | SSH |
+| ASUS X555L (servidor) | RHEL (Developer Subscription) | SSH, X11 forwarding, xrdp |
 | DAT-WS-IA-01 | Windows 11 Pro | RDP / SSH |
 | ZenBook Duo UX482 | Windows 11 Home | — (não aceita RDP de entrada) |
 | Telemóvel (pessoal) | Android | App Tailscale |
@@ -72,11 +81,9 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 | Telemóvel → Linux | SSH | Termius / JuiceSSH |
 | Telemóvel → Windows | RDP | Microsoft RDP app |
 
-### Smart TV (acesso ao Jellyfin)
+### Smart TV
 
-- Smart TV e servidor ligados por **ethernet ao mesmo router** → comunicação local direta (< 1ms)
-- Tailscale **não é necessário** para acesso em casa
-- Endereço Jellyfin na LAN (quando instalado): `http://192.168.1.2:8096` ou `http://homeserver.local:8096`
+> ⚠️ Desde 2026-08-05, a Smart TV não tem papel definido no projeto — estava na rede apenas para aceder ao Jellyfin, que saiu do âmbito. Mantém-se como dispositivo de inventário de rede (ligação Ethernet ao mesmo router), sem função ativa até se decidir um novo uso.
 
 ---
 
@@ -84,14 +91,12 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 
 ```
 SSD interno
-├── Rocky Linux 10
-├── Docker + serviços (Jellyfin, Navidrome)
+├── RHEL (Developer Subscription)
+├── Docker + serviços (FileCloud, Tailscale)
 └── Configurações e logs
 
 HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados)
-├── /mnt/dados/filmes
-├── /mnt/dados/series
-├── /mnt/dados/musica
+├── /mnt/dados/filecloud
 ├── /mnt/dados/backups
 └── /mnt/dados/arquivo
 ```
@@ -100,11 +105,11 @@ HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados)
 
 ## Guia de Instalação
 
-### 1. Instalar Rocky Linux
+### 1. Instalar RHEL
 
 ```bash
 # Arrancar pela pen USB (BIOS: F2 → boot order)
-# Selecionar: Minimal Install
+# Selecionar: Server with GUI (GNOME) — não Minimal, por causa do TraderShark
 # Criar utilizador: ivan
 # Ativar rede durante instalação
 ```
@@ -112,6 +117,7 @@ HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados)
 ### 2. Pós-instalação imediata
 
 ```bash
+sudo subscription-manager register
 sudo dnf update -y
 sudo dnf install openssh-server -y
 sudo systemctl enable --now sshd
@@ -150,23 +156,16 @@ sudo systemctl enable --now docker
 sudo usermod -aG docker ivan
 ```
 
-### 6. Instalar Jellyfin
+### 6. Instalar FileCloud
 
 ```bash
-mkdir -p ~/docker/jellyfin
-# Criar docker-compose.yml com mapeamento para /mnt/dados no HDD externo
+mkdir -p /mnt/dados/filecloud
+# Ver services/filecloud/config/docker-compose.yml
+cd services/filecloud/config
 docker compose up -d
 ```
 
-### 7. Instalar Navidrome
-
-```bash
-mkdir -p ~/docker/navidrome
-# Criar docker-compose.yml com mapeamento para /mnt/dados/musica
-docker compose up -d
-```
-
-### 8. Monitorizar temperatura
+### 7. Monitorizar temperatura
 
 ```bash
 sudo dnf install lm_sensors -y
@@ -178,19 +177,24 @@ watch -n 2 sensors
 
 ## Checklist de Progresso
 
-- [x] Descarregar Minimal ISO Rocky Linux 10
-- [x] Criar pen USB bootável com Rufus
-- [x] Instalar Rocky Linux no ASUS X555L
-- [x] Configurar modo headless
-- [x] Instalar e configurar SSH (autenticação por chave ED25519)
-- [x] Configurar Avahi (mDNS) para resolução `homeserver.local`
-- [x] Instalar Tailscale e integrar todos os dispositivos
+> Migração Rocky Linux → RHEL em curso — instalação, SSH, headless, Avahi e Tailscale do servidor repostos a pendente porque serão refeitos do zero. O HDD externo mantém-se inalterado.
+
+- [ ] Obter subscrição RHEL Developer e descarregar a ISO
+- [ ] Criar pen USB bootável com Rufus (modo DD Image)
+- [ ] Instalar RHEL no ASUS X555L ("Server with GUI")
+- [ ] `subscription-manager register`
+- [ ] Configurar modo headless (exceto uso do TraderShark)
+- [ ] Instalar e configurar SSH (autenticação por chave ED25519)
+- [ ] Configurar Avahi (mDNS) para resolução `homeserver.local`
+- [ ] Instalar Tailscale e integrar todos os dispositivos (novo node — remover o antigo)
 - [ ] Instalar Docker
-- [ ] Instalar Jellyfin via Docker
-- [ ] Instalar Navidrome via Docker
-- [x] Configurar HDD externo 5TB e estrutura de pastas
-- [ ] Testar acesso da Smart TV ao Jellyfin
+- [ ] Reestruturar pastas do HDD (`filmes`/`series`/`musica` → `/mnt/dados/filecloud`)
+- [ ] Instalar FileCloud via Docker e configurar portal de administração
+- [x] Configurar HDD externo 5TB (feito em Rocky Linux — disco mantém-se, estrutura de pastas a rever acima)
 - [ ] Testar acesso remoto via Tailscale de todos os dispositivos
+- [ ] Configurar X11 forwarding e xrdp para acesso gráfico remoto
+- [ ] Instalar e testar o TraderShark localmente
+- [ ] Praticar RHCSA (CLI: utilizadores, permissões, LVM, systemd, firewalld, SELinux, containers)
 
 > Checklist detalhado e sempre atualizado: ver `CLAUDE.md`.
 
@@ -198,12 +202,13 @@ watch -n 2 sensors
 
 ## Notas
 
-- Tailscale — conta `digitalltogether.com`, plano **Free** (decisão tomada em 2026-08-03: mantém-se esta conta, sem plano pago)
+- Tailscale — conta `digitalltogether.com`, plano **Free** (decisão tomada em 2026-08-03, reconfirmada em 2026-08-05 para o servidor RHEL: mantém-se esta conta, sem plano pago)
 - **MagicDNS ativo** — dispositivos acessíveis pelo hostname (ex: `ssh ivan@homeserver`), sem precisar do IP Tailscale, mesmo fora da LAN
-- Jellyfin e Navidrome **não incluem conteúdo** — organizam e fazem streaming do que está no HDD externo
-- Rocky Linux suporta sessões SSH **simultâneas ilimitadas**
+- FileCloud **consolida o projeto que estava planeado na AWS** — deixou de ser uma instância separada
+- RHEL suporta sessões SSH **simultâneas ilimitadas**
 - Windows 11 Pro limita a **1 sessão RDP** simultânea
 - Latência local (mesmo router) < 1ms
+- O **TraderShark é sensível a latência** — recomendado uso local/LAN, não X11/xrdp pela internet durante trading ativo
 
 ---
 

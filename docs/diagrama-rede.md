@@ -12,8 +12,8 @@ graph TB
 
     subgraph LAN["LAN Doméstica — 192.168.1.0/24"]
         Router["Router\n192.168.1.1"]
-        Server["ASUS X555L\nRocky Linux 10\n192.168.1.2"]
-        TV["Smart TV\nJellyfin App"]
+        Server["ASUS X555L\nRHEL\n192.168.1.2"]
+        TV["Smart TV\n(sem função ativa)"]
     end
 
     subgraph Tailnet["Tailscale Mesh — 100.x.x.x/8"]
@@ -26,8 +26,6 @@ graph TB
     Router -->|Ethernet| Server
     Router -->|Ethernet| TV
 
-    TV -->|"Jellyfin HTTP :8096\ndireto na LAN"| Server
-
     Server <-->|"Tailscale VPN"| Internet
     WS <-->|"Tailscale VPN"| Internet
     ZB <-->|"Tailscale VPN"| Internet
@@ -35,13 +33,13 @@ graph TB
 
     WS -->|"SSH :22"| Server
     ZB -->|"SSH :22"| Server
-    TM1 -->|"Jellyfin :8096"| Server
+    TM1 -->|"FileCloud :443"| Server
 
     classDef linux fill:#2d6a4f,color:#fff,stroke:#1b4332
     classDef windows fill:#0d6efd,color:#fff,stroke:#084298
     classDef mobile fill:#6f42c1,color:#fff,stroke:#432874
     classDef network fill:#495057,color:#fff,stroke:#212529
-    classDef tv fill:#e76f51,color:#fff,stroke:#c1440e
+    classDef tv fill:#6c757d,color:#fff,stroke:#343a40
 
     class Server linux
     class WS,ZB windows
@@ -60,45 +58,39 @@ Serviços a correr no ASUS X555L e mapeamento de volumes para o armazenamento ex
 
 ```mermaid
 graph TB
-    subgraph Server["ASUS X555L — Rocky Linux 10"]
+    subgraph Server["ASUS X555L — RHEL"]
         Tailscaled["tailscaled\nVPN mesh"]
         SSHD["sshd\n:22"]
 
         subgraph Docker["Docker Engine"]
-            Jellyfin["Jellyfin\n:8096\nMedia server"]
-            Navidrome["Navidrome\n:4533\nMúsica / Subsonic"]
+            FileCloud["FileCloud\n:80 / :443\nPartilha de ficheiros"]
         end
     end
 
     subgraph Storage["Armazenamento"]
         SSD_int["SSD Interno\nSO + Docker + configs"]
         subgraph HDD_ext["HDD Externo 5TB — /mnt/dados"]
-            Filmes["/mnt/dados/filmes"]
-            Series["/mnt/dados/series"]
-            Musica["/mnt/dados/musica"]
+            FCData["/mnt/dados/filecloud"]
             Backups["/mnt/dados/backups"]
+            Arquivo["/mnt/dados/arquivo"]
         end
     end
 
     Docker -.->|"instalado em"| SSD_int
 
-    Jellyfin -->|"volume"| Filmes
-    Jellyfin -->|"volume"| Series
-    Navidrome -->|"volume"| Musica
+    FileCloud -->|"volume"| FCData
 
-    TV["Smart TV\nLAN :8096"] -->|"HTTP streaming"| Jellyfin
     WinPC["Windows PC\nTailscale SSH"] -->|"SSH"| SSHD
-    Phone["Telemóvel\nTailscale"] -->|"Subsonic API"| Navidrome
-    Browser["Browser\nqualquer dispositivo"] -->|"HTTP :8096"| Jellyfin
+    Phone["Telemóvel\nTailscale"] -->|"HTTPS"| FileCloud
+    Browser["Browser\nqualquer dispositivo"] -->|"HTTP/HTTPS"| FileCloud
 
     classDef service fill:#2d6a4f,color:#fff,stroke:#1b4332
     classDef storage fill:#6c757d,color:#fff,stroke:#343a40
     classDef client fill:#0d6efd,color:#fff,stroke:#084298
-    classDef media fill:#495057,color:#fff,stroke:#212529
 
-    class Jellyfin,Navidrome,SSHD,Tailscaled service
-    class SSD_int,Filmes,Series,Musica,Backups,Backups storage
-    class TV,WinPC,Phone,Browser client
+    class FileCloud,SSHD,Tailscaled service
+    class SSD_int,FCData,Backups,Arquivo storage
+    class WinPC,Phone,Browser client
 ```
 
 ---
@@ -126,9 +118,9 @@ sequenceDiagram
         S-->>D: Resposta via DERP
     end
 
-    D->>S: SSH / RDP / HTTP :8096 (encriptado)
+    D->>S: SSH / RDP / HTTP(S) FileCloud (encriptado)
 ```
 
 ---
 
-*Atualizado em 2026-07-01 — Kody para Ivan / DAT — IP do homeserver corrigido para 192.168.1.2; dispositivos consolidados (ZenBook, DAT, telemóvel pessoal); storage atualizado para HDD 5TB em /mnt/dados*
+*Atualizado em 2026-08-05 — Kody para Ivan / DAT — labels do servidor atualizados de Rocky Linux 10 para RHEL; Jellyfin/Navidrome substituídos por FileCloud; Smart TV marcada como sem função ativa*

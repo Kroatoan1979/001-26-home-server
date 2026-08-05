@@ -2,6 +2,8 @@
 
 Por omissão, o Linux suspende o sistema quando a tampa do portátil é fechada. Para operar como servidor headless, é necessário desativar esse comportamento.
 
+> **Exceção — TraderShark:** o servidor passa a ser "headless por padrão, exceto durante o uso do TraderShark". Quando for preciso usar a app (sensível a latência, recomendado local/LAN), a tampa é aberta e usa-se a sessão gráfica local (GNOME) normalmente — desativar os targets de suspensão abaixo não impede o uso normal do ecrã com a tampa aberta, só impede a suspensão automática ao fechá-la.
+
 ---
 
 ## 1. Configurar `systemd-logind`

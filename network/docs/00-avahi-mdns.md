@@ -43,7 +43,9 @@ Como os dois usam nomes diferentes (`homeserver` vs `homeserver.local`), nunca c
 
 ---
 
-## Comandos utilizados (Rocky Linux 10 — homeserver)
+## Comandos utilizados (RHEL — homeserver)
+
+> Comandos idênticos aos usados em Rocky Linux 10 — RHEL e Rocky partilham o mesmo `dnf`, `systemd` e `firewalld`. Esta secção documentava originalmente a instalação em Rocky Linux; após a migração para RHEL (2026-08-05), o procedimento é o mesmo e falta apenas repetir os passos e o teste de validação na instalação nova.
 
 ### 1. Atualizar o sistema antes de instalar software novo
 
@@ -51,7 +53,7 @@ Como os dois usam nomes diferentes (`homeserver` vs `homeserver.local`), nunca c
 sudo dnf update -y
 ```
 
-- `dnf` — gestor de pacotes do Rocky Linux (sucessor do `yum`)
+- `dnf` — gestor de pacotes do RHEL (sucessor do `yum`)
 - `update` — atualiza todos os pacotes instalados para a versão mais recente disponível nos repositórios configurados
 - `-y` — responde "yes" automaticamente a qualquer prompt de confirmação (sem isto, o `dnf` pararia a pedir confirmação antes de aplicar as atualizações)
 
@@ -64,7 +66,7 @@ sudo dnf install -y avahi
 ```
 
 - `install` — instala o pacote indicado e todas as suas dependências
-- `avahi` — nome do pacote no repositório Rocky/RHEL; inclui o binário `avahi-daemon` e o serviço `systemd` correspondente
+- `avahi` — nome do pacote no repositório RHEL; inclui o binário `avahi-daemon` e o serviço `systemd` correspondente
 - `-y` — mesma função que acima, evita o prompt de confirmação "Is this ok [y/N]"
 
 > Nota: este pacote só permite que o homeserver **anuncie** o seu próprio nome. Se no futuro quisermos que o *próprio Linux* resolva nomes `.local` de **outros** dispositivos (o inverso do que fizemos aqui), seria preciso instalar também `nss-mdns` e ajustar `/etc/nsswitch.conf` — não é necessário para o nosso caso, porque quem precisa de resolver é o Windows (DAT/ZenBook), que já tem suporte mDNS nativo.
@@ -75,7 +77,7 @@ sudo dnf install -y avahi
 sudo systemctl enable --now avahi-daemon
 ```
 
-- `systemctl` — ferramenta de controlo de serviços do `systemd` (o gestor de processos/serviços do Rocky Linux)
+- `systemctl` — ferramenta de controlo de serviços do `systemd` (o gestor de processos/serviços do RHEL)
 - `enable` — cria o *symlink* necessário para que o serviço arranque automaticamente em todos os boots futuros
 - `--now` — flag que combina `enable` + `start` num único comando: além de registar o arranque automático, arranca o serviço **imediatamente**, sem esperar por um reboot
 - `avahi-daemon` — nome da unit (serviço) `systemd` instalada pelo pacote `avahi`
@@ -89,7 +91,7 @@ sudo firewall-cmd --add-service=mdns --permanent
 sudo firewall-cmd --reload
 ```
 
-- `firewall-cmd` — ferramenta de gestão do `firewalld`, o serviço de firewall por defeito no Rocky Linux
+- `firewall-cmd` — ferramenta de gestão do `firewalld`, o serviço de firewall por defeito no RHEL
 - `--add-service=mdns` — adiciona a regra pré-definida `mdns` à zona ativa da firewall (o `firewalld` já vem com definições de serviços conhecidos; `mdns` = UDP porta `5353`, sem ser preciso indicar a porta manualmente)
 - `--permanent` — grava a regra na configuração persistente em disco (sem esta flag, a regra aplicava-se já mas desaparecia no próximo reload/reboot)
 - `--reload` — recarrega a configuração do `firewalld` a partir do disco, aplicando as regras `--permanent` à firewall ativa **sem** cortar ligações já estabelecidas (diferente de reiniciar o serviço)
@@ -110,6 +112,8 @@ systemctl status avahi-daemon --no-pager
 ---
 
 ## Teste de validação (a partir do Windows — DAT-WS-IA-01)
+
+> ⚠️ Resultado abaixo obtido em Rocky Linux 10 — a repetir após a reinstalação em RHEL, já que o Avahi fica reconfigurado do zero.
 
 ```powershell
 ping homeserver

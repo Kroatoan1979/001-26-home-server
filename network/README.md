@@ -2,15 +2,17 @@
 
 Camada de rede do home server. O Tailscale cria uma rede privada virtual (mesh) entre todos os dispositivos, permitindo acesso remoto seguro ao servidor sem expor portas ao exterior.
 
+> ⚠️ **Migração Rocky Linux → RHEL em curso** (decisão de 2026-08-05). O servidor vai gerar um **node Tailscale novo** ao reinstalar — o node antigo (`homeserver` em Rocky Linux) tem de ser removido manualmente no admin console antes ou depois da reinstalação. O Avahi também será reconfigurado do zero. A conta Tailscale (`digitalltogether.com`, plano Free) e os restantes dispositivos da tailnet não são afetados.
+
 ---
 
 ## Estado
 
 | Componente | Estado |
 |---|---|
-| Avahi (mDNS) no servidor | [x] Concluído — `homeserver.local` |
-| Tailscale instalado no servidor | [x] Concluído |
-| Servidor autenticado na tailnet | [x] Concluído — `100.97.253.85` |
+| Avahi (mDNS) no servidor | [ ] Pendente — a repetir em RHEL (era `homeserver.local` em Rocky Linux) |
+| Tailscale instalado no servidor | [ ] Pendente — a repetir em RHEL |
+| Servidor autenticado na tailnet | [ ] Pendente — novo node Tailscale (IP `100.97.253.85` era do node Rocky Linux, a substituir) |
 | DAT-WS-IA-01 na tailnet | [x] Concluído — `100.124.224.123` |
 | ZenBook Duo UX482 na tailnet | [x] Concluído — `100.81.2.53` |
 | Telemóvel (pessoal) na tailnet | [x] Concluído — `100.78.250.58` |
@@ -22,7 +24,7 @@ Camada de rede do home server. O Tailscale cria uma rede privada virtual (mesh) 
 | Documento | Descrição |
 |---|---|
 | [00-avahi-mdns.md](docs/00-avahi-mdns.md) | Avahi (mDNS) — resolução `homeserver.local` independente do Tailscale |
-| [01-tailscale-instalacao.md](docs/01-tailscale-instalacao.md) | Instalar e configurar Tailscale no servidor Rocky Linux |
+| [01-tailscale-instalacao.md](docs/01-tailscale-instalacao.md) | Instalar e configurar Tailscale no servidor RHEL |
 | [02-tailscale-dispositivos.md](docs/02-tailscale-dispositivos.md) | Adicionar todos os dispositivos à tailnet |
 
 ---

@@ -81,17 +81,17 @@
 | Campo | Valor |
 |---|---|
 | Hostname | `homeserver` |
-| Tipo / Papel | Home Server (media + serviços) |
+| Tipo / Papel | Home Server (FileCloud + serviços) |
 | Hardware | ASUS X555L |
-| OS | Rocky Linux 10 (Minimal) |
+| OS | **RHEL** (Red Hat Developer Subscription for Individuals, "Server with GUI") — ⚠️ migração de Rocky Linux 10 decidida em 2026-08-05, reinstalação ainda por fazer |
 | IP LAN | `192.168.1.2` |
-| IP Tailscale | `100.97.253.85` (MagicDNS: `homeserver`) |
+| IP Tailscale | `100.97.253.85` (MagicDNS: `homeserver`) — ⚠️ vai mudar após a reinstalação (novo node Tailscale) |
 | MAC Address | `9c:5c:8e:1e:d8:7e` (Ethernet — `enp2s0`) |
 | DHCP Reservation | N/A — IP estático configurado no SO via `nmcli` |
 | Ligação | Ethernet |
-| Serviços expostos | SSH `:22`, Jellyfin `:8096`, Navidrome `:4533` |
-| Acesso remoto | SSH |
-| Notas | Headless (tampa fechada). HDD externo 5TB WD My Passport em `/mnt/dados` (media + backups). IP fixo via `nmcli` — independente do router. |
+| Serviços expostos | SSH `:22`, FileCloud `:80`/`:443`, xrdp `:3389` (planeado) |
+| Acesso remoto | SSH, X11 forwarding, xrdp |
+| Notas | Headless por padrão (tampa fechada), exceto durante uso do TraderShark. HDD externo 5TB WD My Passport em `/mnt/dados` (FileCloud + backups, desde 2026-08-05 — substituiu media/Jellyfin/Navidrome) — disco mantém-se inalterado pela migração de SO. IP fixo via `nmcli` — independente do router. |
 
 ---
 
@@ -170,7 +170,7 @@
 | Ligação | Wi-Fi / dados móveis |
 | Serviços expostos | — |
 | Acesso remoto | App Tailscale, Termius (SSH via MagicDNS/IP Tailscale) |
-| Notas | Acede aos serviços (Jellyfin, Navidrome), não os serve. Conectividade Tailscale confirmada também via dados móveis (fora da LAN). |
+| Notas | Acede aos serviços (ex: FileCloud), não os serve. Conectividade Tailscale confirmada também via dados móveis (fora da LAN). |
 
 ---
 
@@ -196,10 +196,12 @@
 
 ### Smart TV
 
+> ⚠️ Sem papel definido no projeto desde 2026-08-05 — estava na rede apenas como cliente Jellyfin, serviço que saiu do âmbito. Mantido como registo de inventário.
+
 | Campo | Valor |
 |---|---|
 | Hostname | `smarttv` |
-| Tipo / Papel | Smart TV (cliente Jellyfin) |
+| Tipo / Papel | Smart TV (sem função ativa no projeto — ex-cliente Jellyfin) |
 | OS | Android TV (Xiaomi) |
 | IP LAN | `192.168.1.120` |
 | IP Tailscale | — (acesso direto na LAN — sem Tailscale) |
@@ -210,7 +212,7 @@
 | Ligação | Ethernet |
 | Serviços expostos | — |
 | Acesso remoto | — |
-| Notas | Acede ao Jellyfin diretamente na LAN (`:8096`). Não precisa de Tailscale. |
+| Notas | Sem função ativa desde a remoção do Jellyfin (2026-08-05). Anteriormente acedia ao Jellyfin diretamente na LAN (`:8096`). |
 
 ---
 
@@ -231,10 +233,10 @@ sudo tailscale status
 ping homeserver
 ping 192.168.1.2
 
-# Verificar IP estático no homeserver (Rocky Linux)
+# Verificar IP estático no homeserver (RHEL)
 nmcli -f ipv4.method,IP4.ADDRESS,IP4.GATEWAY,IP4.DNS connection show enp2s0
 ```
 
 ---
 
-*Atualizado em 2026-08-03 — Kody para Ivan / DAT — decisão tomada de manter a conta Tailscale `digitalltogether.com` no plano Free (trial terminado, sem migração para conta pessoal)*
+*Atualizado em 2026-08-05 — Kody para Ivan / DAT — registada a decisão de migração do servidor de Rocky Linux 10 para RHEL, e a substituição de Jellyfin/Navidrome por FileCloud; Smart TV sem função ativa no projeto*
