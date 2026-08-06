@@ -8,8 +8,10 @@
 
 - Criar conta gratuita em [developers.redhat.com](https://developers.redhat.com)
 - Ativar a **Red Hat Developer Subscription for Individuals** (gratuita, uso de desenvolvimento individual)
-- Descarregar a ISO do **RHEL 10** (arquitetura x86_64) a partir do portal de downloads do Red Hat Developer
-- Verificar o checksum SHA256 após download
+- Na página de downloads, o RHEL 10.0 lista várias variantes — usar sempre a **DVD iso**, nunca a **Boot iso** (que não traz os pacotes e depende de rede estável durante toda a instalação) nem a **WSL2 image** (outro caso de uso, correr RHEL dentro do WSL2 no Windows)
+- Descarregar: **DVD iso, x86_64, 7.88 GB** (`aarch64` é para ARM, não se aplica ao ASUS X555L)
+  - Checksum SHA256 confirmado (release 2025-05-13): `edce2dd6f8e1d1b2ff0b204f89b0659bc9e320d175beb7caad60712957a19608`
+- Verificar o checksum SHA256 após download (`Get-FileHash <ficheiro> -Algorithm SHA256` no PowerShell) — só avançar se coincidir exatamente
 
 ---
 

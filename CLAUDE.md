@@ -6,7 +6,7 @@
 >
 > **Mudança adicional (mesma data):** o **Jellyfin e o Navidrome saem do projeto** — o serviço principal do servidor passa a ser o **FileCloud** (partilha/sincronização de ficheiros), que consolida aqui o que estava planeado como projeto separado ("FileCloud na AWS"). A estrutura de pastas do HDD 5TB é reorganizada de acordo (deixa de ser filmes/séries/música).
 >
-> **A reinstalação ainda não foi iniciada** — o servidor Rocky Linux continua em funcionamento normalmente até à reinstalação efetiva. Esta secção do `CLAUDE.md` já reflete o plano acordado; o checklist abaixo foi reposto a pendente nos pontos que dependem do SO (instalação, SSH, headless, Avahi, Tailscale no servidor), porque serão refeitos do zero em RHEL. **Decisões que não dependem do SO** (armazenamento HDD 5TB, conta Tailscale `digitalltogether.com`, IPs/DHCP reservations, topologia de rede) **mantêm-se inalteradas** — confirmado com o Ivan em 2026-08-05 que o documento de planeamento anterior estava desatualizado nesses dois pontos.
+> **Reinstalação em curso — RHEL 10 já instalado (2026-08-06).** ISO DVD x86_64 verificada por checksum, pen USB criada com Rufus (modo DD Image), instalação "Server with GUI" concluída no ASUS X555L, subscrição registada via `subscription-manager register` (sem `--auto-attach` — opção removida no RHEL 10, ver [infra/docs/05-subscription-manager.md](infra/docs/05-subscription-manager.md)). Faltam: `dnf update`, IP estático, e todos os pontos seguintes do checklist (headless, SSH, Avahi, Tailscale no servidor). **Decisões que não dependem do SO** (armazenamento HDD 5TB, conta Tailscale `digitalltogether.com`, IPs/DHCP reservations, topologia de rede) **mantêm-se inalteradas** — confirmado com o Ivan em 2026-08-05 que o documento de planeamento anterior estava desatualizado nesses dois pontos.
 >
 > **Vai mudar:**
 > - SO: Rocky Linux 10 → RHEL 10 Developer Subscription, instalação "Server with GUI" (GNOME) — deixa de ser Minimal, porque o TraderShark precisa de sessão gráfica local
@@ -172,15 +172,15 @@ ssh -X ivan@homeserver
 
 > Os pontos abaixo estavam concluídos em Rocky Linux e foram repostos a pendente porque serão refeitos do zero em RHEL. Ver [infra/docs/01-instalacao-rhel.md](infra/docs/01-instalacao-rhel.md).
 
-- [ ] Criar conta gratuita em developers.redhat.com e obter a subscrição Developer
-- [ ] Descarregar a ISO do RHEL
-- [ ] Criar pen USB bootável com Rufus, modo DD Image
-- [ ] Instalar RHEL no ASUS X555L, modo "Server with GUI" (GNOME)
-- [ ] `subscription-manager register` — ver [infra/docs/05-subscription-manager.md](infra/docs/05-subscription-manager.md)
+- [x] Criar conta gratuita em developers.redhat.com e obter a subscrição Developer
+- [x] Descarregar a ISO do RHEL — **DVD iso x86_64 (7.88 GB)**, não a Boot iso — ver [infra/docs/01-instalacao-rhel.md](infra/docs/01-instalacao-rhel.md)
+- [x] Criar pen USB bootável com Rufus, modo DD Image
+- [x] Instalar RHEL no ASUS X555L, modo "Server with GUI" (GNOME)
+- [x] `subscription-manager register` — **sem `--auto-attach`** (opção removida no RHEL 10, usa Simple Content Access) — ver [infra/docs/05-subscription-manager.md](infra/docs/05-subscription-manager.md)
 - [ ] `dnf update -y`
-- [ ] Definir hostname `homeserver`
+- [x] Definir hostname `homeserver`
 - [ ] Configurar IP estático no homeserver via `nmcli` (`192.168.1.2/24`) — independente do router (mesma config já usada em Rocky Linux)
-- [ ] Criar utilizador `ivan`, não-root, com sudo
+- [x] Criar utilizador `ivan`, não-root, com sudo
 - [ ] Configurar modo headless (tampa fechada) — ver [infra/docs/02-modo-headless.md](infra/docs/02-modo-headless.md), com nota de exceção para uso do TraderShark
 - [ ] Instalar e configurar SSH — ver [infra/docs/03-ssh.md](infra/docs/03-ssh.md)
 - [ ] Configurar autenticação por chave SSH (ED25519, nova — a chave de host muda com a reinstalação)

@@ -1,6 +1,6 @@
 # subscription-manager — Registo da Subscrição RHEL
 
-> **Estado: planeado, ainda não executado.** Este documento é um esqueleto criado antes da reinstalação do servidor (decisão de 2026-08-05) — a preencher com os resultados reais assim que o passo for executado em RHEL.
+> **Estado: em execução.** Registo testado em RHEL 10 real — `--auto-attach` não existe nesta versão (ver comando corrigido abaixo). Falta confirmar o resultado do `status`/`repolist` para fechar a secção de teste de validação.
 
 ---
 
@@ -24,17 +24,17 @@ Alternativa avaliada: manter o Rocky Linux e só usar RHEL numa VM separada para
 
 ---
 
-## Comandos previstos
+## Comandos utilizados
 
 ### 1. Registar a máquina na subscrição
 
 ```bash
-sudo subscription-manager register --username <utilizador-redhat> --auto-attach
+sudo subscription-manager register --username <utilizador-redhat>
 ```
 
 - `register` — associa esta instalação à conta Red Hat Developer do Ivan
 - `--username` — evita o prompt interativo de utilizador (a password é sempre pedida interativamente, nunca em texto simples na linha de comandos)
-- `--auto-attach` — a subscrição Developer aplica-se automaticamente, sem ser preciso escolher manualmente um "pool" de subscrição (relevante em contas empresariais com várias subscrições disponíveis)
+- **Sem `--auto-attach`** — testado em RHEL 10, dá erro `no such option: --auto-attach`. O RHEL 10 usa **Simple Content Access (SCA)**: a conta Red Hat Developer já não precisa de "anexar" uma subscrição/pool manualmente — o acesso aos repositórios fica disponível assim que a máquina é registada. A flag `--auto-attach` era necessária no modelo antigo (entitlement-based), já não existe como opção no `subscription-manager` atual
 
 ### 2. Verificar o estado
 
@@ -58,10 +58,9 @@ sudo dnf repolist
 
 ## Teste de validação
 
-> Por executar — atualizar esta secção com o resultado real após a reinstalação.
-
-- [ ] `subscription-manager status` devolve "Overall Status: Current"
-- [ ] `dnf update -y` corre sem erro de "no repositories configured"
+- [x] `subscription-manager register --username <user>` (sem `--auto-attach`) executado com sucesso em RHEL 10 real
+- [ ] `subscription-manager status` devolve "Overall Status: Current" — a confirmar na próxima sessão
+- [ ] `dnf update -y` corre sem erro de "no repositories configured" — a confirmar na próxima sessão
 
 ---
 
