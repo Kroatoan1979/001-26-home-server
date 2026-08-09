@@ -6,7 +6,7 @@
 >
 > **Mudança adicional (mesma data):** o **Jellyfin e o Navidrome saem do projeto** — o serviço principal do servidor passa a ser o **FileCloud** (partilha/sincronização de ficheiros), que consolida aqui o que estava planeado como projeto separado ("FileCloud na AWS"). A estrutura de pastas do HDD 5TB é reorganizada de acordo (deixa de ser filmes/séries/música).
 >
-> **Reinstalação em curso — RHEL 10.2 instalado, rede e SSH parcialmente operacionais (2026-08-07).** ISO DVD x86_64 verificada por checksum, pen USB criada com Rufus (modo DD Image), instalação "Server with GUI" concluída no ASUS X555L, subscrição registada via `subscription-manager register` (sem `--auto-attach` — ver [infra/docs/05-subscription-manager.md](infra/docs/05-subscription-manager.md)), `dnf update -y` aplicado (versão atual: RHEL 10.2 "Coughlan"). SSH ativo e acessível, modo headless configurado (passos 1–2), Tailscale reinstalado e autenticado como novo node `homeserver` (IP `100.98.31.9`, MagicDNS testado com sucesso). Servidor já colocado na rack definitiva, ligado por Ethernet + Wi-Fi (Wi-Fi mantido propositadamente como via de acesso permanente de recurso, decisão do Ivan). **TraderShark pausado** (decisão do Ivan em 2026-08-07 — problemas na própria aplicação, projeto secundário) — X11 forwarding e xrdp pausados também, sem uso previsto para já. ⚠️ **Dois problemas em aberto, ver checklist:** (1) o IP estático `192.168.1.2` via `nmcli` não está a ser aplicado ao Ethernet (a ligação ativa aparece com IP dinâmico do pool DHCP); (2) autenticação SSH por chave funcionou uma vez sem password mas voltou a pedir password numa ligação seguinte — inconsistência por investigar. **Decisões que não dependem do SO** (armazenamento HDD 5TB, conta Tailscale `digitalltogether.com`, IPs/DHCP reservations, topologia de rede) **mantêm-se inalteradas**.
+> **Reinstalação em curso — rede e SSH operacionais, X11 em configuração (2026-08-09).** ISO DVD x86_64 verificada por checksum, pen USB criada com Rufus (modo DD Image), instalação "Server with GUI" concluída no ASUS X555L, subscrição registada via `subscription-manager register` (sem `--auto-attach` — ver [infra/docs/05-subscription-manager.md](infra/docs/05-subscription-manager.md)), `dnf update -y` aplicado (versão atual: RHEL 10.2 "Coughlan"). SSH ativo e acessível, modo headless configurado (passos 1–2), Tailscale reinstalado e autenticado como novo node `homeserver` (IP `100.98.31.9`, MagicDNS testado com sucesso). Servidor já colocado na rack definitiva, ligado por Ethernet + Wi-Fi (Wi-Fi mantido propositadamente como via de acesso permanente de recurso, decisão do Ivan). **Os dois bugs de rede/SSH foram resolvidos em 2026-08-09:** IP estático `192.168.1.2` a aplicar-se corretamente em `enp2s0` (o perfil `nmcli` ativo estava trocado — corrigido), autenticação SSH por chave a funcionar de forma consistente (causa real: `~/.ssh` nem existia no servidor — recriado com permissões e contexto SELinux corretos). Confirmado também que `subscription-manager status` mostrar `Registered` (não `Current`) é o comportamento esperado em Simple Content Access, não um problema. **TraderShark continua pausado** (decisão do Ivan em 2026-08-07 — problemas na própria aplicação, projeto secundário), mas **o X11 forwarding foi retomado por decisão do Ivan em 2026-08-09**, independente do TraderShark — em configuração, ver checklist. xrdp mantém-se pausado (caso de uso futuro independente, tablet Android). **Decisões que não dependem do SO** (armazenamento HDD 5TB, conta Tailscale `digitalltogether.com`, IPs/DHCP reservations, topologia de rede) **mantêm-se inalteradas**.
 >
 > **Vai mudar:**
 > - SO: Rocky Linux 10 → RHEL 10 Developer Subscription, instalação "Server with GUI" (GNOME) — deixa de ser Minimal, porque o TraderShark precisa de sessão gráfica local
@@ -81,7 +81,7 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr *
 
 | Dispositivo | IP LAN | IP Tailscale |
 |---|---|---|
-| Servidor — homeserver (ASUS X555L) | ⚠️ `192.168.1.2` planeado, mas Ethernet a receber IP dinâmico do DHCP — bug por resolver (ver checklist) · Wi-Fi `192.168.1.84` (dinâmico, permanente) | `100.98.31.9` (novo node RHEL, confirmado a funcionar) |
+| Servidor — homeserver (ASUS X555L) | `192.168.1.2` (estático, Ethernet `enp2s0`, confirmado ativo em 2026-08-09) · Wi-Fi `192.168.1.146` (dinâmico, permanente, IP pode variar) | `100.98.31.9` (novo node RHEL, confirmado a funcionar) |
 | DAT-WS-IA-01 — Wi-Fi | `192.168.1.100` | `100.124.224.123` |
 | DAT-WS-IA-01 — Ethernet | `192.168.1.101` | `100.124.224.123` |
 | ZenBook UX482 — Wi-Fi | `192.168.1.110` | `100.81.2.53` |
@@ -137,7 +137,7 @@ HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados)
 ssh ivan@homeserver
 # ou: ssh ivan@100.98.31.9
 
-# Ligar ao servidor via SSH (LAN) — ⚠️ .2 é o IP estático planeado, mas ainda não confirmado ativo (ver checklist); usar 192.168.1.84 (Wi-Fi) como alternativa confirmada
+# Ligar ao servidor via SSH (LAN, Ethernet, IP estático confirmado)
 ssh ivan@192.168.1.2
 
 # Verificar estado do Tailscale
@@ -165,12 +165,11 @@ ssh -X ivan@homeserver
 
 ## Estado do Projeto (Checklist)
 
-> **Próximas tarefas prioritárias (por ordem):**
-> - [ ] ⚠️ **Resolver o IP estático do Ethernet:** `enp2s0` está a receber IP dinâmico (`192.168.1.136` em 2026-08-07) em vez do `192.168.1.2` estático configurado via `nmcli`. Verificar `nmcli connection show` e `nmcli connection show <perfil-enp2s0> | grep ipv4` — confirmar se `ipv4.method` está mesmo `manual` e se o perfil correto está ativo na interface
-> - [ ] ⚠️ **Investigar autenticação SSH por chave inconsistente:** funcionou sem password via IP `192.168.1.84`, mas pediu password numa ligação seguinte via `ssh ivan@homeserver` — confirmar se a chave está mesmo a ser oferecida/aceite de forma consistente antes de desativar `PasswordAuthentication`
-> - [ ] Confirmar `sudo dnf repolist` (mostra `Overall Status: Registered` em vez de `Current` no `subscription-manager status` — confirmar se os repositórios estão mesmo ativos)
-> - [ ] Confirmar se o Surfshark ficou instalado com sucesso (ficou por fechar — dúvida entre snap e instalador nativo Fedora)
-> - [ ] Decidir se vale a pena criar reserva DHCP para o MAC Wi-Fi do servidor (`80:a5:89:93:a6:fb`), já que o Wi-Fi ficou como via de acesso permanente
+> **Próximas tarefas prioritárias (por ordem) — continuar por aqui:**
+> - [ ] **Importar a chave GPG do repositório Tailscale de forma persistente:** `sudo rpm --import https://pkgs.tailscale.com/stable/rhel/10/repo.gpg` — sem isto, qualquer `dnf` que toque no repo `tailscale-stable` fica preso a pedir confirmação `[y/N]`
+> - [ ] **Encontrar alternativa ao `xorg-x11-apps` para testar o X11 forwarding:** o pacote não existe nos repositórios do RHEL 10 (descontinuado/renomeado) — pesquisar `dnf search xclock`/`xcalc`/`xterm` (com a chave GPG já importada) e instalar o que estiver disponível como app de teste leve
+> - [ ] **Testar `ssh -X ivan@homeserver`** a partir da DAT-WS-IA-01 e confirmar que uma app gráfica (xclock ou equivalente) aparece no ecrã do Windows via VcXsrv — depois avançar para o TraderShark se fizer sentido
+> - [ ] Decidir se avança já a desativação de `PasswordAuthentication` no SSH do homeserver — o bloqueio original (chave inconsistente) já está resolvido, por isso deixou de haver motivo técnico para adiar; falta só a decisão do Ivan
 > - [ ] Atualização de memória geral Claude no UX482 (rever e consolidar protocolos/memórias do Claude Code nesta máquina — ex: protocolo de encerramento de sessão encontrado apenas no projeto `roadmap-devsecops`, avaliar se deve ser replicado como convenção geral)
 
 ### Migração Rocky Linux → RHEL (reinstalação completa do servidor)
@@ -184,17 +183,17 @@ ssh -X ivan@homeserver
 - [x] `subscription-manager register` — **sem `--auto-attach`** (opção removida no RHEL 10, usa Simple Content Access) — ver [infra/docs/05-subscription-manager.md](infra/docs/05-subscription-manager.md)
 - [x] `dnf update -y` — confirmado indiretamente (sistema já em RHEL 10.2 "Coughlan", kernel atualizado)
 - [x] Definir hostname `homeserver`
-- [ ] ⚠️ Configurar IP estático no homeserver via `nmcli` (`192.168.1.2/24`) — **comando corrido, mas não está a aplicar-se**: `enp2s0` aparece com IP dinâmico do pool DHCP (`192.168.1.136` em 2026-08-07). Diagnosticar com `nmcli connection show` antes de continuar
+- [x] Configurar IP estático no homeserver via `nmcli` (`192.168.1.2/24`) — **resolvido em 2026-08-09**: existiam dois perfis para `enp2s0` (`Wired connection 1`, automático/DHCP, e `enp2s0`, manual/estático, já configurado corretamente mas com `autoconnect: no`). Corrigido com `nmcli connection modify "Wired connection 1" connection.autoconnect no`, `nmcli connection modify enp2s0 connection.autoconnect yes` e `nmcli connection up enp2s0`. Confirmado via `ip -4 a show enp2s0` e `ip route show default`
 - [x] Criar utilizador `ivan`, não-root, com sudo
 - [x] Configurar modo headless (tampa fechada) — passos 1–2 concluídos (`logind.conf` + `systemctl mask` dos targets de suspensão, confirmado `sleep.target` como `masked`). Falta o teste final (fechar a tampa e confirmar SSH) — ver [infra/docs/02-modo-headless.md](infra/docs/02-modo-headless.md)
 - [x] Instalar e configurar SSH — `sshd` ativo, porta aberta na firewall, ligação testada — ver [infra/docs/03-ssh.md](infra/docs/03-ssh.md)
-- [ ] ⚠️ Configurar autenticação por chave SSH (ED25519) — chave gerada e copiada, funcionou sem password via IP `192.168.1.84`, mas voltou a pedir password numa ligação seguinte via `ssh ivan@homeserver`. Inconsistência por investigar antes de dar como concluído
-- [ ] Desativar autenticação por password SSH (`PasswordAuthentication no`) — **não avançar** enquanto a autenticação por chave não estiver 100% consistente
+- [x] Configurar autenticação por chave SSH (ED25519) — **resolvido em 2026-08-09**: a causa real não era inconsistência, era ausência total — `~/.ssh` nem existia no servidor. Criado `~/.ssh` (`chmod 700`), `authorized_keys` (`chmod 600`) com a chave pública `id_ed25519` da DAT-WS-IA-01, e `restorecon -Rv ~/.ssh` para repor o contexto SELinux (`ssh_home_t`). Confirmado com ligação `ssh -o BatchMode=yes` bem-sucedida
+- [ ] Desativar autenticação por password SSH (`PasswordAuthentication no`) — bloqueio técnico resolvido (chave já 100% consistente); **falta só a decisão do Ivan** sobre avançar
 - [ ] Configurar Avahi (mDNS) no homeserver — resolução `homeserver.local`. Ver [network/docs/00-avahi-mdns.md](network/docs/00-avahi-mdns.md)
 - [x] Remover o node antigo "homeserver" (Rocky Linux) no admin console do Tailscale
 - [x] Instalar Tailscale no RHEL e autenticar (`tailscale up --hostname=homeserver`) — novo IP `100.98.31.9`. Ver [network/docs/01-tailscale-instalacao.md](network/docs/01-tailscale-instalacao.md)
 - [x] Testar acesso remoto via Tailscale/MagicDNS — confirmado a partir do DAT-WS-IA-01 (`ssh ivan@homeserver`); falta testar a partir dos restantes dispositivos
-- [ ] ⏸️ **Pausado** (2026-08-07, decisão do Ivan — TraderShark já não vai ser instalado): Instalar `xorg-x11-xauth`, testar X11 forwarding (`ssh -X`) a partir do Windows com VcXsrv — ver [infra/docs/06-acesso-grafico-x11.md](infra/docs/06-acesso-grafico-x11.md)
+- [ ] **Em configuração** (retomado 2026-08-09, decisão do Ivan — independente do TraderShark): X11 forwarding. Feito: `xorg-x11-xauth` já vinha instalado no servidor, `X11Forwarding yes` já ativo por omissão no `sshd_config`, VcXsrv instalado e a correr na DAT-WS-IA-01 (`vcxsrv.exe :0 -multiwindow -clipboard -wgl -ac`). Por fazer: importar a chave GPG do repo Tailscale (bloqueava o `dnf search`), encontrar alternativa ao `xorg-x11-apps` (não existe no RHEL 10) para testar com uma app gráfica leve, testar `ssh -X` de facto — ver [infra/docs/06-acesso-grafico-x11.md](infra/docs/06-acesso-grafico-x11.md)
 - [ ] ⏸️ **Pausado** (2026-08-07, decisão do Ivan): Instalar e configurar xrdp, abrir porta 3389 — ver [infra/docs/07-acesso-grafico-xrdp.md](infra/docs/07-acesso-grafico-xrdp.md). Nota: mantém-se um caso de uso futuro independente (tablet Android), a retomar quando fizer sentido
 - [ ] Ligar o HDD externo 5TB (já formatado/configurado) e confirmar montagem via `fstab` (UUID inalterado — não deve ser preciso reformatar)
 - [ ] Reestruturar as pastas do HDD: remover/renomear `filmes`/`series`/`musica` (Jellyfin/Navidrome já não fazem parte do projeto) e criar `/mnt/dados/filecloud`, mantendo `/backups` e `/arquivo`
@@ -253,7 +252,7 @@ ssh -X ivan@homeserver
 ## Notas Importantes
 
 - Servidor é **headless por padrão** — tampa fechada, sem monitor nem teclado, **exceto durante o uso do TraderShark** (sessão gráfica local, sensível a latência) — ⚠️ nota 2026-08-07: TraderShark pausado, ver checklist; o modo headless mantém-se como configuração base do servidor de qualquer forma
-- **Servidor com duas interfaces de rede ativas em permanência** (decisão de 2026-08-07): Ethernet (principal, ligado à rack) + Wi-Fi (`192.168.1.84`, fallback de acesso, decisão explícita do Ivan de não desligar)
+- **Servidor com duas interfaces de rede ativas em permanência** (decisão de 2026-08-07): Ethernet (principal, ligado à rack, IP estático `192.168.1.2` confirmado) + Wi-Fi (IP dinâmico, atualmente `192.168.1.146`, fallback de acesso, decisão explícita do Ivan de não desligar — sem reserva DHCP por agora, decisão reconfirmada em 2026-08-09)
 - A avaria na placa de som é **completamente irrelevante** para o funcionamento como servidor
 - O acesso remoto (terminal ou gráfico) é feito **exclusivamente via Tailscale** quando fora da rede local
 - **Smart TV sem papel definido no projeto** (desde 2026-08-05) — estava na tailnet/inventário só para aceder ao Jellyfin; com o Jellyfin removido, mantém-se como dispositivo de inventário de rede, mas sem função ativa até se decidir um novo uso
@@ -266,6 +265,9 @@ ssh -X ivan@homeserver
 - O **TraderShark é sensível a latência** (modo ladder) — recomendado correr localmente ou em LAN por ethernet, evitando X11/xrdp pela internet durante trading ativo
 - **Política de autenticação SSH:** preferência do Ivan é sempre chave SSH, nunca password, em todos os nodes da tailnet. Ao configurar SSH num node novo (ou rever um existente), a chave é a opção por defeito — não propor password como alternativa igualmente válida. Password authentication só se mantém ativa como failsafe mediante avaliação manual e explícita por node (não é o default). Homeserver cumpria isto em Rocky Linux (chave ED25519, password desativada) — **a repetir do zero após a reinstalação em RHEL**; ZenBook e DAT-WS-IA-01 continuam pendentes de configuração/revisão, independentemente da migração do servidor
 - **Limitação Azure AD + OpenSSH (Windows):** contas Windows "Azure AD Joined" cloud-only (sem AD on-premises por trás — SID `S-1-12-1-...`) não são resolvíveis pelo `sshd.exe` do Windows para autenticação (nenhum formato de username funciona: simples, `AzureAD\user`, ou SID direto). Confirmado na DAT-WS-IA-01. Antes de configurar chaves SSH num node Windows, confirmar primeiro o tipo de conta (`whoami /user` + `dsregcmd /status`) — se for Azure AD cloud-only, a chave SSH só funciona associada a uma conta local dedicada, não à conta principal do Ivan
+- **`subscription-manager status` mostrar "Registered" (não "Current") é o esperado** — RHEL 10 Developer usa Simple Content Access (SCA), que elimina o conceito de entitlements "Current"/"Expired"; basta estar registado numa org com SCA para os repositórios funcionarem (confirmado com `dnf repolist` a mostrar `appstream`/`baseos` populados). Não é um problema a corrigir
+- **Surfshark não instalado** — decisão de 2026-08-09: deixar por instalar por agora, já que estava ligado ao TraderShark (pausado). Reavaliar se/quando o TraderShark for retomado
+- **Reserva DHCP do Wi-Fi do servidor não criada** — decisão de 2026-08-09: manter IP dinâmico por agora (MAC confirmado: `80:a5:89:93:a6:fb`, para quando fizer sentido criar a reserva)
 - **Devolutions RDM abandonado** — decidido não usar como gestor central de ligações. SSH fica no Warp (já usado, com IA), RDP fica no cliente nativo do Windows (`mstsc`, mesmo motor RDP que o RDM usaria por baixo). A centralização de ligações fica para o Guacamole (sub-projeto já planeado), que cobre o mesmo objetivo via browser e com acesso remoto pelo Cloudflare Tunnel
 
 ---

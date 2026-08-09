@@ -1,6 +1,6 @@
 # X11 Forwarding — Acesso Gráfico Remoto (Windows)
 
-> **Estado: planeado, ainda não executado.** Este documento é um esqueleto criado antes da reinstalação do servidor (decisão de 2026-08-05) — a preencher com os resultados reais assim que o passo for executado.
+> **Estado: em configuração (2026-08-09).** Retomado por decisão do Ivan, independente do TraderShark (que continua pausado). Passos 1–3 concluídos, teste final (`ssh -X` + app gráfica) ainda por fazer — dois obstáculos novos encontrados pelo caminho, ver secção de progresso real abaixo.
 
 ---
 
@@ -69,12 +69,21 @@ xclock
 
 ---
 
+## Progresso real (2026-08-09)
+
+- [x] **Passo 1 — `xorg-x11-xauth` no servidor:** já vinha instalado por omissão na instalação "Server with GUI" (`xorg-x11-xauth-1.1.2-8.el10.x86_64` confirmado via `rpm -qa`). Nada a fazer.
+- [x] **Passo 2 — `X11Forwarding` no `sshd_config`:** já vem `yes` por omissão no RHEL 10 (`sudo grep -i X11Forwarding /etc/ssh/sshd_config` confirma). Nada a fazer, sem necessidade de restart do `sshd`.
+- [x] **Passo 3 — VcXsrv no Windows (DAT-WS-IA-01):** instalado via `winget install --id marha.VcXsrv -e`. Em vez do assistente gráfico XLaunch, arrancado diretamente por linha de comando com as flags equivalentes ao perfil pretendido: `vcxsrv.exe :0 -multiwindow -clipboard -wgl -ac` (`-multiwindow` = perfil "Multiple windows"; `-ac` = "Disable access control"). Confirmado a correr via `tasklist`. Não precisa de regra de firewall — o `ssh -X` tunela o tráfego X11 pela ligação SSH já estabelecida, não por ligação direta à rede.
+- [ ] **Passo 4/5 — `ssh -X` + `xclock`:** ainda por testar. Dois obstáculos encontrados no caminho, ambos por resolver na próxima sessão:
+  1. O pacote `xorg-x11-apps` (que traria o `xclock` para o teste) **não existe nos repositórios do RHEL 10** — foi descontinuado/renomeado nesta versão. Por pesquisar alternativa (`dnf search xclock`/`xcalc`/`xterm`).
+  2. **Achado à parte, não específico do X11:** a chave GPG do repositório `tailscale-stable` nunca ficou importada de forma persistente — qualquer `dnf` que toque nesse repo pede confirmação `[y/N]` da chave, o que bloqueia scripts/automação não-interativa. Corrigir com `sudo rpm --import https://pkgs.tailscale.com/stable/rhel/10/repo.gpg` antes de repetir a pesquisa de pacotes.
+
 ## Teste de validação
 
-> Por executar — atualizar esta secção com o resultado real.
+> Por executar — atualizar esta secção com o resultado real assim que os dois obstáculos acima forem resolvidos.
 
 - [ ] `xclock` (ou app equivalente) aparece no ecrã do Windows via VcXsrv
-- [ ] TraderShark corre via X11 forwarding sem erros gráficos relevantes (aceitando alguma latência de renderização)
+- [ ] TraderShark corre via X11 forwarding sem erros gráficos relevantes (aceitando alguma latência de renderização) — nota: TraderShark continua pausado, este ponto só se aplica se/quando for retomado
 
 ---
 

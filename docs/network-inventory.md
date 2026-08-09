@@ -84,16 +84,16 @@
 | Tipo / Papel | Home Server (FileCloud + serviços) |
 | Hardware | ASUS X555L |
 | OS | **RHEL 10.2** (Coughlan) — reinstalação concluída em 2026-08-06/07, substitui o Rocky Linux 10 |
-| IP LAN (Ethernet, `enp2s0`) | ⚠️ **Instável** — deveria ser `192.168.1.2` fixo via `nmcli`, mas em 2026-08-07 apareceu como IP dinâmico (`192.168.1.136`, dentro do pool DHCP) — o perfil `nmcli` estático não está a ser aplicado à ligação ativa. **A investigar/corrigir no início da próxima sessão** |
-| IP LAN (Wi-Fi, `wlp3s0`) | `192.168.1.84` (dinâmico, sem reserva DHCP) — mantido ligado permanentemente por decisão do Ivan (2026-08-07), como via de acesso de recurso além do Ethernet |
+| IP LAN (Ethernet, `enp2s0`) | `192.168.1.2` fixo via `nmcli`, **confirmado ativo em 2026-08-09** — causa do bug anterior: perfil `nmcli` errado (`Wired connection 1`, DHCP) estava ativo em vez do perfil `enp2s0` (manual), corrigido |
+| IP LAN (Wi-Fi, `wlp3s0`) | `192.168.1.146` (dinâmico, sem reserva DHCP — decisão de 2026-08-09: manter dinâmico por agora) — mantido ligado permanentemente por decisão do Ivan (2026-08-07), como via de acesso de recurso além do Ethernet |
 | IP Tailscale | `100.98.31.9` (MagicDNS: `homeserver`) — novo node, confirmado a funcionar (`ssh ivan@homeserver` testado com sucesso em 2026-08-07) |
 | MAC Address Ethernet | `9c:5c:8e:1e:d8:7e` (`enp2s0`) |
 | MAC Address Wi-Fi | `80:a5:89:93:a6:fb` (`wlp3s0`) |
-| DHCP Reservation | Ethernet: não aplicável (deveria ser IP estático via SO) · Wi-Fi: nenhuma ainda — decisão pendente sobre se vale a pena reservar, já que o Wi-Fi ficou permanente |
+| DHCP Reservation | Ethernet: não aplicável (IP estático via SO, confirmado a funcionar) · Wi-Fi: nenhuma — decisão de 2026-08-09 de manter dinâmico por agora |
 | Ligação | Ethernet (principal, ligado à rack em 2026-08-07) + Wi-Fi (permanente, fallback) |
 | Serviços expostos | SSH `:22` |
-| Acesso remoto | SSH (por chave — autenticação inconsistente detetada em 2026-08-07, ver notas) |
-| Notas | Modo headless configurado (`logind.conf` + `systemctl mask` dos targets de suspensão) — passos 1–2 concluídos, falta o teste final de fechar a tampa com o servidor já na posição definitiva. Autenticação SSH por chave funcionou sem password via IP `192.168.1.84`, mas voltou a pedir password ao ligar via `ssh ivan@homeserver` — inconsistência por investigar. TraderShark: **projeto pausado** (decisão do Ivan em 2026-08-07, problemas na própria aplicação) — X11 forwarding e xrdp também pausados, sem uso previsto para já. HDD externo 5TB WD My Passport em `/mnt/dados` (FileCloud + backups) — disco mantém-se inalterado pela migração de SO, montagem ainda por confirmar em RHEL. |
+| Acesso remoto | SSH por chave, **confirmado consistente em 2026-08-09** |
+| Notas | Modo headless configurado (`logind.conf` + `systemctl mask` dos targets de suspensão) — passos 1–2 concluídos, falta o teste final de fechar a tampa com o servidor já na posição definitiva. Autenticação SSH por chave corrigida em 2026-08-09 (causa real: `~/.ssh` não existia no servidor, não uma inconsistência — recriado com permissões e SELinux corretos). `subscription-manager status` mostrar "Registered" é o esperado em Simple Content Access (SCA), repositórios confirmados a funcionar via `dnf repolist`. Surfshark não instalado (decisão: deixar por agora). TraderShark: **projeto pausado** (decisão do Ivan em 2026-08-07, problemas na própria aplicação) — X11 forwarding **retomado em 2026-08-09** (independente do TraderShark, em configuração), xrdp continua pausado. HDD externo 5TB WD My Passport em `/mnt/dados` (FileCloud + backups) — disco mantém-se inalterado pela migração de SO, montagem ainda por confirmar em RHEL. |
 
 ---
 
@@ -241,4 +241,4 @@ nmcli -f ipv4.method,IP4.ADDRESS,IP4.GATEWAY,IP4.DNS connection show enp2s0
 
 ---
 
-*Atualizado em 2026-08-07 — Kody para Ivan / DAT — reinstalação RHEL concluída, Tailscale novo node autenticado (IP `100.98.31.9`), modo headless parcialmente configurado, TraderShark/X11/xrdp pausados; bug do IP estático Ethernet por resolver*
+*Atualizado em 2026-08-09 — Kody para Ivan / DAT — bugs de IP estático e SSH por chave resolvidos, subscrição RHEL confirmada (SCA), X11 forwarding retomado e em configuração*
