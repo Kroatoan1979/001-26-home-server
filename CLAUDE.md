@@ -1,5 +1,20 @@
 # Home Server + Tailscale — Contexto do Projeto
 
+## 🔄 Estado atual (verificado a 2026-10-10)
+
+> Prevalece sobre o texto histórico abaixo, quando houver diferença.
+>
+> - **Nomes do servidor** (renomeado a 2026-09-28): o hostname é `homelan` (LAN, mDNS `homelan.local`) e o nó Tailscale é `hometail` (FQDN MagicDNS completo omitido de propósito, porque o repositório é público). O nome `homeserver` deixou de existir na rede. Ficou apenas como alias SSH local (`~/.ssh/config`) no Omarchy.
+> - **ZenBook Duo UX482:** desde outubro de 2026 corre **Omarchy (Arch Linux + Hyprland)** e já não Windows 11 Home. O Tailscale **ainda não está instalado** no Omarchy, por isso o nó `ux482` (`100.81.2.53`) está parado na tailnet.
+> - **Avahi/mDNS:** ativo; `homelan.local` resolve na LAN. O serviço `mdns` foi aberto no firewalld a 2026-09-28.
+> - **Chave GPG do repositório Tailscale:** importada (`gpg-pubkey` presente).
+> - **Wi-Fi do servidor (`wlp3s0`): desligado** (`disconnected`). Só o Ethernet `enp2s0` está ativo. Isto contradiz a decisão de 2026-08-07 de manter o Wi-Fi como acesso de recurso; **o Ivan tem de confirmar** se foi intencional.
+> - **HDD externo 4,5 TB** (`/dev/sdb1`): está montado automaticamente em `/run/media/ivan/<uuid>`. **Não está no `/etc/fstab`** e `/mnt/dados` não existe.
+> - **Contentores:** o Podman está instalado (vem com o RHEL) e o Docker não. Falta decidir entre Docker e Podman para o FileCloud.
+> - **SSH:** a chave ED25519 funciona a partir do DAT-WS-IA-01 e do Omarchy. `PasswordAuthentication` continua ativo (valor por omissão); falta a decisão do Ivan.
+> - **Repositório público** (decisão do Ivan a 2026-10-08).
+> - **Memória do Claude:** sincronizada entre o Omarchy e o Windows pelo repositório privado `claude-memoria` (concluído a 2026-10-10).
+
 ## ⚠️ Migração em curso: Rocky Linux → RHEL Developer
 
 > **Decisão tomada em 2026-08-05.** O servidor vai ser **recriado do zero** com **RHEL (Red Hat Developer Subscription for Individuals)**, substituindo o Rocky Linux 10 atualmente instalado. Motivo principal: usar o SO oficial da certificação **RHCSA** para estudo/prática, e não um rebuild binário. Aproveita-se também para instalar o **TraderShark** (app nativa de trading desportivo, sensível a latência).
@@ -72,7 +87,7 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr *
 |---|---|---|
 | ASUS X555L (servidor) | RHEL (Developer Subscription) | SSH, X11 forwarding, xrdp |
 | DAT-WS-IA-01 (workstation Ivan) | Windows 11 Pro | RDP / SSH |
-| ZenBook Duo UX482 | Windows 11 Home | — (não aceita RDP de entrada) |
+| ZenBook Duo UX482 | Omarchy (Arch Linux + Hyprland), desde 10/2026 (antes: Windows 11 Home) | SSH; Tailscale ainda por instalar no Omarchy |
 | Telemóvel (pessoal) | Android | App Tailscale |
 
 > PC Kyndryl e Telemóvel Kyndryl excluídos do projeto — equipamentos corporativos, risco de violação de políticas de segurança da Kyndryl.
@@ -81,7 +96,7 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr *
 
 | Dispositivo | IP LAN | IP Tailscale |
 |---|---|---|
-| Servidor — homeserver (ASUS X555L) | `192.168.1.2` (estático, Ethernet `enp2s0`, confirmado ativo em 2026-08-09) · Wi-Fi `192.168.1.146` (dinâmico, permanente, IP pode variar) | `100.98.31.9` (novo node RHEL, confirmado a funcionar) |
+| Servidor — homelan / hometail (ASUS X555L) | `192.168.1.2` (estático, Ethernet `enp2s0`, reconfirmado a 2026-10-10) · Wi-Fi `wlp3s0` desligado a 2026-10-10 (antes `192.168.1.146`, dinâmico) | `100.98.31.9` (novo node RHEL, confirmado a funcionar) |
 | DAT-WS-IA-01 — Wi-Fi | `192.168.1.100` | `100.124.224.123` |
 | DAT-WS-IA-01 — Ethernet | `192.168.1.101` | `100.124.224.123` |
 | ZenBook UX482 — Wi-Fi | `192.168.1.110` | `100.81.2.53` |
@@ -95,15 +110,15 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr *
 
 - Conta Tailscale: `ivan.almeida@digitalltogether.com`
 - Painel admin: `https://login.tailscale.com/admin/machines`
-- **MagicDNS ativo** — resolução por hostname dentro da tailnet, funciona em qualquer rede (Wi-Fi, dados móveis), sem precisar do IP Tailscale. Confirmado com `ssh ivan@homeserver` a partir do telemóvel via dados móveis.
+- **MagicDNS ativo** — resolução por hostname dentro da tailnet, funciona em qualquer rede (Wi-Fi, dados móveis), sem precisar do IP Tailscale. Confirmado com `ssh ivan@homeserver` a partir do telemóvel via dados móveis (nome da altura; hoje é `ssh ivan@hometail`).
 
 ### Nomes DNS dos nodes (MagicDNS)
 
 | Dispositivo | Hostname MagicDNS |
 |---|---|
-| Servidor (ASUS X555L) | `homeserver` |
+| Servidor (ASUS X555L) | `hometail` (era `homeserver` até 2026-09-28) |
 | DAT-WS-IA-01 | `dat-ws-ia-01` |
-| ZenBook UX482 | `ux482` |
+| ZenBook UX482 | `ux482` (parado; o Tailscale ainda não está instalado no Omarchy) |
 | Telemóvel (Redmi Note 14) | `redmi-note-14` |
 
 > ⚠️ Nomes atribuídos automaticamente pelo Tailscale — **por rever**: avaliar se vale a pena renomear para consistência com o resto da documentação (ex: `ux482` pouco descritivo). Ver tarefa pendente.
@@ -134,8 +149,11 @@ HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados)
 
 ```bash
 # Ligar ao servidor via SSH (Tailscale / MagicDNS)
-ssh ivan@homeserver
+ssh ivan@hometail
 # ou: ssh ivan@100.98.31.9
+
+# Ligar ao servidor via SSH (LAN, mDNS — o .local é obrigatório)
+ssh ivan@homelan.local
 
 # Ligar ao servidor via SSH (LAN, Ethernet, IP estático confirmado)
 ssh ivan@192.168.1.2
@@ -146,7 +164,8 @@ sudo tailscale status
 # Verificar temperatura (headless)
 watch -n 2 sensors
 
-# Gerir serviços Docker
+# Gerir contentores (hoje só existe Podman; Docker por decidir)
+podman ps
 docker-compose up -d
 docker-compose down
 docker ps
@@ -158,7 +177,7 @@ sudo dnf update -y
 sudo subscription-manager status
 
 # Ligação gráfica X11 forwarding (a partir do Windows, com VcXsrv a correr)
-ssh -X ivan@homeserver
+ssh -X ivan@hometail
 ```
 
 ---
@@ -166,11 +185,11 @@ ssh -X ivan@homeserver
 ## Estado do Projeto (Checklist)
 
 > **Próximas tarefas prioritárias (por ordem) — continuar por aqui:**
-> - [ ] **Importar a chave GPG do repositório Tailscale de forma persistente:** `sudo rpm --import https://pkgs.tailscale.com/stable/rhel/10/repo.gpg` — sem isto, qualquer `dnf` que toque no repo `tailscale-stable` fica preso a pedir confirmação `[y/N]`
+> - [x] **Importar a chave GPG do repositório Tailscale de forma persistente** (confirmado a 2026-10-10): `sudo rpm --import https://pkgs.tailscale.com/stable/rhel/10/repo.gpg` — sem isto, qualquer `dnf` que toque no repo `tailscale-stable` fica preso a pedir confirmação `[y/N]`
 > - [ ] **Encontrar alternativa ao `xorg-x11-apps` para testar o X11 forwarding:** o pacote não existe nos repositórios do RHEL 10 (descontinuado/renomeado) — pesquisar `dnf search xclock`/`xcalc`/`xterm` (com a chave GPG já importada) e instalar o que estiver disponível como app de teste leve
-> - [ ] **Testar `ssh -X ivan@homeserver`** a partir da DAT-WS-IA-01 e confirmar que uma app gráfica (xclock ou equivalente) aparece no ecrã do Windows via VcXsrv — depois avançar para o TraderShark se fizer sentido
+> - [ ] **Testar `ssh -X ivan@hometail`** a partir da DAT-WS-IA-01 (ou, mais simples, do Omarchy, que é Linux e não precisa de VcXsrv) e confirmar que uma app gráfica (xclock ou equivalente) aparece no ecrã do Windows via VcXsrv — depois avançar para o TraderShark se fizer sentido
 > - [ ] Decidir se avança já a desativação de `PasswordAuthentication` no SSH do homeserver — o bloqueio original (chave inconsistente) já está resolvido, por isso deixou de haver motivo técnico para adiar; falta só a decisão do Ivan
-> - [ ] Atualização de memória geral Claude no UX482 (rever e consolidar protocolos/memórias do Claude Code nesta máquina — ex: protocolo de encerramento de sessão encontrado apenas no projeto `roadmap-devsecops`, avaliar se deve ser replicado como convenção geral)
+> - [x] Atualização de memória geral Claude no UX482: concluída a 2026-10-10. Os protocolos DAT estão no `CLAUDE.md` global e a memória sincroniza entre os PCs pelo repositório privado `claude-memoria`.
 
 ### Migração Rocky Linux → RHEL (reinstalação completa do servidor)
 
@@ -182,23 +201,23 @@ ssh -X ivan@homeserver
 - [x] Instalar RHEL no ASUS X555L, modo "Server with GUI" (GNOME)
 - [x] `subscription-manager register` — **sem `--auto-attach`** (opção removida no RHEL 10, usa Simple Content Access) — ver [infra/docs/05-subscription-manager.md](infra/docs/05-subscription-manager.md)
 - [x] `dnf update -y` — confirmado indiretamente (sistema já em RHEL 10.2 "Coughlan", kernel atualizado)
-- [x] Definir hostname `homeserver`
+- [x] Definir hostname `homeserver` (renomeado a 2026-09-28 para `homelan`; Tailscale `hometail`)
 - [x] Configurar IP estático no homeserver via `nmcli` (`192.168.1.2/24`) — **resolvido em 2026-08-09**: existiam dois perfis para `enp2s0` (`Wired connection 1`, automático/DHCP, e `enp2s0`, manual/estático, já configurado corretamente mas com `autoconnect: no`). Corrigido com `nmcli connection modify "Wired connection 1" connection.autoconnect no`, `nmcli connection modify enp2s0 connection.autoconnect yes` e `nmcli connection up enp2s0`. Confirmado via `ip -4 a show enp2s0` e `ip route show default`
 - [x] Criar utilizador `ivan`, não-root, com sudo
 - [x] Configurar modo headless (tampa fechada) — passos 1–2 concluídos (`logind.conf` + `systemctl mask` dos targets de suspensão, confirmado `sleep.target` como `masked`). Falta o teste final (fechar a tampa e confirmar SSH) — ver [infra/docs/02-modo-headless.md](infra/docs/02-modo-headless.md)
 - [x] Instalar e configurar SSH — `sshd` ativo, porta aberta na firewall, ligação testada — ver [infra/docs/03-ssh.md](infra/docs/03-ssh.md)
 - [x] Configurar autenticação por chave SSH (ED25519) — **resolvido em 2026-08-09**: a causa real não era inconsistência, era ausência total — `~/.ssh` nem existia no servidor. Criado `~/.ssh` (`chmod 700`), `authorized_keys` (`chmod 600`) com a chave pública `id_ed25519` da DAT-WS-IA-01, e `restorecon -Rv ~/.ssh` para repor o contexto SELinux (`ssh_home_t`). Confirmado com ligação `ssh -o BatchMode=yes` bem-sucedida
 - [ ] Desativar autenticação por password SSH (`PasswordAuthentication no`) — bloqueio técnico resolvido (chave já 100% consistente); **falta só a decisão do Ivan** sobre avançar
-- [ ] Configurar Avahi (mDNS) no homeserver — resolução `homeserver.local`. Ver [network/docs/00-avahi-mdns.md](network/docs/00-avahi-mdns.md)
+- [x] Configurar Avahi (mDNS) no homeserver: ativo, resolve `homelan.local` desde 2026-09-28 (firewalld `mdns` aberto). Ver [network/docs/00-avahi-mdns.md](network/docs/00-avahi-mdns.md)
 - [x] Remover o node antigo "homeserver" (Rocky Linux) no admin console do Tailscale
 - [x] Instalar Tailscale no RHEL e autenticar (`tailscale up --hostname=homeserver`) — novo IP `100.98.31.9`. Ver [network/docs/01-tailscale-instalacao.md](network/docs/01-tailscale-instalacao.md)
 - [x] Testar acesso remoto via Tailscale/MagicDNS — confirmado a partir do DAT-WS-IA-01 (`ssh ivan@homeserver`); falta testar a partir dos restantes dispositivos
 - [ ] **Em configuração** (retomado 2026-08-09, decisão do Ivan — independente do TraderShark): X11 forwarding. Feito: `xorg-x11-xauth` já vinha instalado no servidor, `X11Forwarding yes` já ativo por omissão no `sshd_config`, VcXsrv instalado e a correr na DAT-WS-IA-01 (`vcxsrv.exe :0 -multiwindow -clipboard -wgl -ac`). Por fazer: importar a chave GPG do repo Tailscale (bloqueava o `dnf search`), encontrar alternativa ao `xorg-x11-apps` (não existe no RHEL 10) para testar com uma app gráfica leve, testar `ssh -X` de facto — ver [infra/docs/06-acesso-grafico-x11.md](infra/docs/06-acesso-grafico-x11.md)
 - [ ] ⏸️ **Pausado** (2026-08-07, decisão do Ivan): Instalar e configurar xrdp, abrir porta 3389 — ver [infra/docs/07-acesso-grafico-xrdp.md](infra/docs/07-acesso-grafico-xrdp.md). Nota: mantém-se um caso de uso futuro independente (tablet Android), a retomar quando fizer sentido
-- [ ] Ligar o HDD externo 5TB (já formatado/configurado) e confirmar montagem via `fstab` (UUID inalterado — não deve ser preciso reformatar)
+- [ ] Ligar o HDD externo 5TB (já formatado/configurado) e confirmar montagem via `fstab` (UUID inalterado — não deve ser preciso reformatar). Estado a 2026-10-10: ligado (`/dev/sdb1`, 4,5 TB), mas montado automaticamente em `/run/media/ivan/<uuid>` e não pelo `fstab`
 - [ ] Reestruturar as pastas do HDD: remover/renomear `filmes`/`series`/`musica` (Jellyfin/Navidrome já não fazem parte do projeto) e criar `/mnt/dados/filecloud`, mantendo `/backups` e `/arquivo`
 - [ ] Confirmar regra `udev` do `hdparm` (`99-hdd-power.rules`) — recriar se necessário
-- [ ] Instalar Docker ou Podman
+- [ ] Instalar Docker ou Podman. Estado a 2026-10-10: o Podman já está instalado (vem com o RHEL) e o Docker não; falta decidir
 - [ ] Deploy FileCloud via Docker (apontado a `/mnt/dados/filecloud`) — ver [services/filecloud/docs/01-instalacao.md](services/filecloud/docs/01-instalacao.md)
 - [ ] Configurar portal de administração e primeira conta de utilizador no FileCloud
 - [ ] ⏸️ **Pausado** (2026-08-07, decisão do Ivan — problemas na própria aplicação, projeto secundário sem urgência): Instalar e testar TraderShark. Ver [services/tradershark/README.md](services/tradershark/README.md)
@@ -216,12 +235,12 @@ ssh -X ivan@homeserver
 - [x] Desativar spin-down do HDD externo via `hdparm` para evitar delays de acesso — `hdparm -B 254 -S 0` aplicado e tornado persistente via regra `udev` (`99-hdd-power.rules`), validado em [infra/docs/04-storage-hdd-5tb.md](infra/docs/04-storage-hdd-5tb.md) — regra `udev` precisa de ser recriada após reinstalação do SO (fica em `/etc`, não sobrevive)
 - [x] Instalar e ativar OpenSSH Server na ZenBook Duo UX482 (`sshd` a correr, arranque automático configurado, firewall `OpenSSH-Server-In-TCP` ativo, perfis de rede Wi-Fi e Tailscale confirmados como `Private`)
 - [x] Instalar e ativar OpenSSH Server no DAT-WS-IA-01 (`sshd` a correr, arranque automático configurado, firewall `OpenSSH-Server-In-TCP` ativo — só se aplica ao perfil `Private`; perfil de rede Wi-Fi corrigido de `Public` para `Private` para paridade com a ZenBook e para o SSH ficar de facto acessível por essa rede)
-- [ ] Configurar autenticação por chave SSH na ZenBook (decisão tomada: chaves sempre, sem password — ver política de autenticação SSH abaixo). Conta é Administrador, por isso o OpenSSH Server do Windows exige a chave pública em `C:\ProgramData\ssh\administrators_authorized_keys`, não no `authorized_keys` normal do utilizador
-- [ ] Testar `ssh ivana@localhost` na ZenBook com a chave configurada
-- [ ] Testar SSH à ZenBook a partir de outro dispositivo (LAN e/ou Tailscale) — depende do ponto anterior
+- [~] ~~Configurar autenticação por chave SSH na ZenBook (decisão tomada: chaves sempre, sem password — ver política de autenticação SSH abaixo). Conta é Administrador, por isso o OpenSSH Server do Windows exige a chave pública em `C:\ProgramData\ssh\administrators_authorized_keys`, não no `authorized_keys` normal do utilizador~~ **Obsoleto (2026-10-10): a ZenBook deixou de ter Windows (agora Omarchy).**
+- [~] ~~Testar `ssh ivana@localhost` na ZenBook com a chave configurada~~ **Obsoleto (2026-10-10): a ZenBook deixou de ter Windows (agora Omarchy).**
+- [~] ~~Testar SSH à ZenBook a partir de outro dispositivo (LAN e/ou Tailscale) — depende do ponto anterior~~ **Obsoleto (2026-10-10): a ZenBook deixou de ter Windows (agora Omarchy).**
 - [x] Replicar a configuração de `administrators_authorized_keys` no DAT-WS-IA-01 (chave própria ED25519 adicionada, ACLs corrigidas — `SYSTEM:F` + `BUILTIN\Administrators:F`) — **mas autenticação por chave ainda não funciona, ver bloqueio abaixo**
 - [ ] ⚠️ **Bloqueio descoberto:** a conta Windows da DAT-WS-IA-01 é Azure AD cloud-only (`azuread\ivanalmeida`, SID `S-1-12-1-...`), e o `sshd` do Windows não consegue resolver esta identidade para login (`LookupAccountName`/`LogonUser` falham) — testados username simples, `AzureAD\user` e o SID direto, todos rejeitados como `Invalid user` no log do Event Viewer (`OpenSSH/Operational`), mesmo com a chave pública corretamente instalada. É uma limitação conhecida da plataforma (contas Azure AD Joined "cloud-only", sem AD on-premises por trás), não um erro de configuração. Contorno recomendado: criar conta local dedicada ao SSH. **Decisão pendente** até se confirmar se a ZenBook tem o mesmo problema
-- [ ] Verificar se a ZenBook tem o mesmo problema de conta Azure AD cloud-only (`whoami /user` — SID a começar por `S-1-12-1-` confirma; `dsregcmd /status` — `AzureAdJoined : YES` confirma) antes de decidir a estratégia de contorno para autenticação por chave SSH nas duas máquinas Windows
+- [~] ~~Verificar se a ZenBook tem o mesmo problema de conta Azure AD cloud-only (`whoami /user` — SID a começar por `S-1-12-1-` confirma; `dsregcmd /status` — `AzureAdJoined : YES` confirma) antes de decidir a estratégia de contorno para autenticação por chave SSH nas duas máquinas Windows~~ **Obsoleto (2026-10-10): a ZenBook deixou de ter Windows (agora Omarchy).**
 - [ ] Rever todos os nodes da tailnet (homeserver, ZenBook, DAT-WS-IA-01) para confirmar que a autenticação SSH por chave está corretamente configurada em todos
 - [ ] Avaliar node a node se a autenticação por password deve ser desativada, ou mantida ativa como failsafe (decisão manual por node, não automática)
 - [x] Desinstalar Devolutions RDM na ZenBook (confirmado via `winget list` — já não aparece instalada)
@@ -298,4 +317,4 @@ Sempre que se instala/configura um **serviço ou capacidade nova e significativa
 5. **Teste de validação** — comandos e resultado que confirmou funcionamento, incluindo o que falta testar
 6. **Comandos de referência/troubleshooting** — extras úteis para o futuro
 
-**Objetivo:** material de estudo pessoal para o Ivan (aprendizagem de Linux/redes do zero) e, futuramente, base para uma versão sanitizada (sem IPs/MACs/hostnames reais) para portfolio público. **Este repositório mantém-se privado** com os dados reais da rede doméstica — qualquer versão pública/portfolio será um repositório separado e anonimizado, criado só quando explicitamente pedido.
+**Objetivo:** material de estudo pessoal para o Ivan (aprendizagem de Linux/redes do zero) e, futuramente, base para uma versão sanitizada (sem IPs/MACs/hostnames reais) para portfolio público. **Este repositório é público** (decisão do Ivan a 2026-10-08), apesar de conter dados reais da rede doméstica. Uma versão de portfólio anonimizada continua a ser um repositório separado, criado só quando o Ivan o pedir explicitamente.
