@@ -15,7 +15,7 @@ Camada de infraestrutura do servidor: sistema operativo, modo headless, SSH, ace
 | Modo headless configurado | [ ] Pendente (exceto durante uso do TraderShark) |
 | SSH operacional | [ ] Pendente (autenticação por chave ED25519 — nova chave de host) |
 | Acesso gráfico remoto (X11 / xrdp) | [ ] Pendente |
-| HDD externo 5TB montado | [x] Concluído em Rocky Linux (`/mnt/dados`, XFS, fstab) — regra `udev` do hdparm precisa de ser recriada após a reinstalação |
+| HDD externo 5TB montado | [x] Reposto em RHEL a 2026-10-11 (`/mnt/dados`, XFS, fstab, regra `udev` do hdparm recriada) |
 
 ---
 
@@ -26,10 +26,11 @@ Camada de infraestrutura do servidor: sistema operativo, modo headless, SSH, ace
 | [01-instalacao-rhel.md](docs/01-instalacao-rhel.md) | Instalação do SO — RHEL Developer Subscription, "Server with GUI", particionamento, utilizador |
 | [02-modo-headless.md](docs/02-modo-headless.md) | Configurar o portátil para operar com tampa fechada (exceto uso do TraderShark) |
 | [03-ssh.md](docs/03-ssh.md) | Setup SSH, primeiro acesso remoto, autenticação por chave |
-| [04-storage-hdd-5tb.md](docs/04-storage-hdd-5tb.md) | Montar o HDD externo 5TB, estrutura de pastas para o FileCloud e gestão de energia (hdparm+udev) |
+| [04-storage-hdd-5tb.md](docs/04-storage-hdd-5tb.md) | Montar o HDD externo 5TB, estrutura de pastas para o FileCloud, gestão de energia (hdparm+udev), SMART e reposição em RHEL |
 | [05-subscription-manager.md](docs/05-subscription-manager.md) | Registo da subscrição RHEL Developer (`subscription-manager`) |
 | [06-acesso-grafico-x11.md](docs/06-acesso-grafico-x11.md) | X11 forwarding — sessão gráfica remota a partir do Windows |
 | [07-acesso-grafico-xrdp.md](docs/07-acesso-grafico-xrdp.md) | xrdp — acesso gráfico remoto a partir do tablet Android |
+| [08-backup-arquivo-ssd.md](docs/08-backup-arquivo-ssd.md) | Backup do arquivo pessoal (SSD externo NTFS) para `/mnt/dados/backups` com `rsync` por SSH e verificação SHA-256 |
 
 ---
 

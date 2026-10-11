@@ -188,9 +188,9 @@ watch -n 2 sensors
 - [ ] Configurar Avahi (mDNS) para resolução `homeserver.local`
 - [ ] Instalar Tailscale e integrar todos os dispositivos (novo node — remover o antigo)
 - [ ] Instalar Docker
-- [ ] Reestruturar pastas do HDD (`filmes`/`series`/`musica` → `/mnt/dados/filecloud`)
+- [x] Reestruturar pastas do HDD (`filmes`/`series`/`musica` → `/mnt/dados/filecloud`) — 2026-10-11
 - [ ] Instalar FileCloud via Docker e configurar portal de administração
-- [x] Configurar HDD externo 5TB (feito em Rocky Linux — disco mantém-se, estrutura de pastas a rever acima)
+- [x] Configurar HDD externo 5TB (feito em Rocky Linux; reposto em RHEL a 2026-10-11: `fstab` + regra `udev`)
 - [ ] Testar acesso remoto via Tailscale de todos os dispositivos
 - [ ] Configurar X11 forwarding e xrdp para acesso gráfico remoto
 - [ ] Instalar e testar o TraderShark localmente

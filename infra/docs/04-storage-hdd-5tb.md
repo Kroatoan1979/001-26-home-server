@@ -185,9 +185,113 @@ Resultado: `APM_level = 254` — confirmado que a regra reaplica a definição a
 
 ---
 
+## Reposição em RHEL (2026-10-11)
+
+A reinstalação Rocky Linux → RHEL apagou tudo o que vivia em `/etc` (a entrada do `fstab` e a regra `udev`). O disco, a partição, o XFS e o UUID ficaram intactos, por isso **não foi preciso reformatar**. Até aqui o disco estava a ser montado pelo udisks em `/run/media/ivan/<uuid>`, só porque havia uma sessão de utilizador. Num servidor isso é frágil: depois de um reboot sem login gráfico, o disco não monta, e um backup automático escreveria em `/run/media/...`, que está em RAM.
+
+### 1. Saúde do disco antes de lhe confiar dados (SMART)
+
+```bash
+sudo smartctl -a /dev/sdb
+sudo smartctl -t short /dev/sdb
+sleep 150; sudo smartctl -l selftest /dev/sdb
+```
+
+- `smartctl` — lê o SMART, o autodiagnóstico do próprio disco (pacote `smartmontools`, já instalado no RHEL). Precisa de `sudo` porque fala diretamente com o dispositivo
+- `-a` — mostra toda a informação SMART: identificação, avaliação geral e atributos. Sem flag, o `smartctl` não mostra nada de útil
+- `-t short` — arranca o teste curto (~2 min) **dentro do disco**; o comando volta logo e o teste corre em segundo plano. Sem o tipo (`-t` sozinho) o comando fica incompleto
+- `-l selftest` — mostra o registo dos testes já corridos e o resultado de cada um
+- `sleep 150` — espera 2,5 min, para o teste curto ter tempo de acabar antes de pedir o registo
+
+**Atributos que importam** (os restantes são informativos):
+
+| ID | Atributo | Valor a 2026-10-11 | O que indica |
+|---|---|---|---|
+| 5 | `Reallocated_Sector_Ct` | 0 | setores estragados que o disco já substituiu |
+| 197 | `Current_Pending_Sector` | 0 | setores que falharam a leitura e esperam decisão |
+| 198 | `Offline_Uncorrectable` | 0 | setores que não se conseguiram ler de todo |
+| 199 | `UDMA_CRC_Error_Count` | 0 | erros no caminho dos dados (cabo / ponte USB) |
+| 9 | `Power_On_Hours` | 3.619 | idade em horas ligado |
+| 193 | `Load_Cycle_Count` | 8.803 | estacionamentos das cabeças; sobe depressa sem a regra `udev` do passo 4 |
+
+Qualquer valor acima de 0 nos IDs 5, 197 ou 198 é motivo para **não** usar o disco como única cópia de nada. Resultado: `PASSED`, todos a 0, teste curto `Completed without error`. **Por fazer:** o teste longo (`-t long`, ~194 min), que lê a superfície inteira.
+
+### 2. Montagem persistente em `/mnt/dados`
+
+```bash
+sudo cp /etc/fstab /etc/fstab.bak-2026-10-11
+sudo mkdir -p /mnt/dados
+echo "UUID=aca21e44-94be-42fd-817d-633ab4be3568 /mnt/dados xfs defaults,nofail 0 2" | sudo tee -a /etc/fstab
+sudo findmnt --verify
+sudo systemctl daemon-reload
+sudo umount /dev/sdb1
+sudo mount -a
+findmnt /mnt/dados
+```
+
+- `cp /etc/fstab /etc/fstab.bak-…` — cópia de segurança antes de mexer. Um `fstab` partido pode deixar o servidor em modo de emergência no próximo boot
+- A linha do `fstab` é a mesma da secção 7 (já validada em Rocky Linux)
+- `findmnt --verify` — valida o `fstab` (sintaxe, UUID existente, tipo de sistema de ficheiros) **antes** de o usar. O aviso `fstab has been modified, but systemd still uses the old version` é esperado neste ponto e desaparece com o `daemon-reload`
+- `umount /dev/sdb1` — desmonta a montagem do udisks em `/run/media/...` (pelo dispositivo, porque o caminho era longo)
+- `mount -a` — monta tudo o que está no `fstab` e ainda não está montado; testa a entrada sem reiniciar
+
+> ⚠️ **Lição aprendida (2026-10-11):** por engano foram corridos dois blocos de comandos, um com `/srv/dados` e outro com `/mnt/dados`. Resultado: duas linhas no `fstab` para o mesmo UUID, o disco montado em dois sítios e o backup do `fstab` reescrito pelo segundo `cp` (já com a linha errada). Correção:
+>
+> ```bash
+> sudo umount /srv/dados
+> sudo sed -i '\|/srv/dados|d' /etc/fstab
+> sudo rmdir /srv/dados
+> grep aca21e44 /etc/fstab; findmnt -S /dev/sdb1
+> ```
+>
+> - `sed -i '\|padrão|d'` — apaga do ficheiro (`-i`, edita no próprio ficheiro) as linhas que contêm o padrão; `\|…|` usa `|` como delimitador para não escapar as `/` do caminho
+> - `findmnt -S /dev/sdb1` — lista **todos** os pontos de montagem desse dispositivo; tem de aparecer um só
+>
+> Regras a reter: antes de acrescentar ao `fstab`, ver se já existe linha para o UUID (`grep <uuid> /etc/fstab`), e dar nomes únicos aos backups (ex.: com hora, `fstab.bak-$(date +%F-%H%M)`).
+
+### 3. Estrutura de pastas
+
+```bash
+cd /mnt/dados && rmdir filmes series musica && mkdir -p filecloud backups/Ivan_SSD
+```
+
+- `rmdir` — só apaga pastas **vazias**; se alguma tivesse ficheiros, falhava em vez de apagar dados (por isso é preferível a `rm -r` aqui)
+- Sem `sudo`: a raiz do XFS pertence ao `ivan` (secção 8)
+- `backups/Ivan_SSD` — destino da cópia do arquivo pessoal (ver o `CLAUDE.md`, "Estado atual")
+
+### 4. Regra `udev` do `hdparm`
+
+Os mesmos comandos da secção 10, mais a prova imediata:
+
+```bash
+sudo udevadm trigger --action=add --name-match=/dev/sdb
+sleep 1; sudo hdparm -B /dev/sdb
+```
+
+Resultado: `APM_level = 254`.
+
+### Validação da reposição
+
+| Teste | Comando | Resultado |
+|---|---|---|
+| Uma só entrada no `fstab` | `grep aca21e44 /etc/fstab` | 1 linha, `/mnt/dados` ✅ |
+| Um só ponto de montagem | `findmnt -S /dev/sdb1` | `/mnt/dados` ✅ |
+| Backup do `fstab` = original | `diff <(grep -v aca21e44 /etc/fstab) /etc/fstab.bak-2026-10-11` | sem diferenças ✅ |
+| Regra `udev` | `hdparm -B /dev/sdb` | `APM_level = 254` ✅ |
+| SMART | `smartctl -l selftest` | teste curto sem erros ✅ |
+
+**Por testar:** reboot do servidor, para confirmar que monta sozinho em `/mnt/dados` e que a regra `udev` se aplica no arranque. Teste SMART longo.
+
+---
+
 ## Comandos de referência / troubleshooting
 
 ```bash
+# Saúde do disco: resumo, teste longo e registo de testes
+sudo smartctl -H /dev/sdb
+sudo smartctl -t long /dev/sdb
+sudo smartctl -l selftest /dev/sdb
+
 # Ver o estado de energia atual do disco (active/idle/standby)
 sudo hdparm -C /dev/sdb
 

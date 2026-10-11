@@ -1,15 +1,16 @@
 # Home Server + Tailscale — Contexto do Projeto
 
-## 🔄 Estado atual (verificado a 2026-10-10)
+## 🔄 Estado atual (verificado a 2026-10-10; HDD atualizado a 2026-10-11)
 
 > Prevalece sobre o texto histórico abaixo, quando houver diferença.
 >
 > - **Nomes do servidor** (renomeado a 2026-09-28): o hostname é `homelan` (LAN, mDNS `homelan.local`) e o nó Tailscale é `hometail` (FQDN MagicDNS completo omitido de propósito, porque o repositório é público). O nome `homeserver` deixou de existir na rede. Ficou apenas como alias SSH local (`~/.ssh/config`) no Omarchy.
 > - **ZenBook Duo UX482:** desde outubro de 2026 corre **Omarchy (Arch Linux + Hyprland)** e já não Windows 11 Home. O Tailscale **ainda não está instalado** no Omarchy, por isso o nó `ux482` (`100.81.2.53`) está parado na tailnet.
 > - **Avahi/mDNS:** ativo; `homelan.local` resolve na LAN. O serviço `mdns` foi aberto no firewalld a 2026-09-28.
-> - **Chave GPG do repositório Tailscale:** importada (`gpg-pubkey` presente).
+> - **Chave GPG do repositório Tailscale:** importada (`gpg-pubkey` presente). ⚠️ A 2026-10-11, um `dnf list --available` corrido **sem `sudo`** falhou com `repomd.xml GPG signature verification error: Signing key not found` no repo `tailscale-stable`. Pode ser só falta de acesso às chaves sem root; **confirmar com `sudo dnf makecache`** antes de concluir que há problema.
 > - **Wi-Fi do servidor (`wlp3s0`): desligado** (`disconnected`). Só o Ethernet `enp2s0` está ativo. Isto contradiz a decisão de 2026-08-07 de manter o Wi-Fi como acesso de recurso; **o Ivan tem de confirmar** se foi intencional.
-> - **HDD externo 4,5 TB** (`/dev/sdb1`): está montado automaticamente em `/run/media/ivan/<uuid>`. **Não está no `/etc/fstab`** e `/mnt/dados` não existe.
+> - **HDD externo 5 TB** (`/dev/sdb1`, XFS): **montado em `/mnt/dados` pelo `/etc/fstab`** (UUID + `nofail`) desde 2026-10-11. Regra `udev` do `hdparm` recriada (APM 254 confirmado). Pastas: `filecloud/`, `backups/`, `arquivo/` (as de media foram removidas, estavam vazias). SMART saudável a 2026-10-11 (0 setores realocados/pendentes, teste curto sem erros; teste longo por fazer). Ver [infra/docs/04-storage-hdd-5tb.md](infra/docs/04-storage-hdd-5tb.md).
+> - **Backup do arquivo pessoal (decisão do Ivan, 2026-10-11):** este disco guarda a cópia local do `Arquivo` do SSD externo de 1 TB (`Ivan_SSD`) em `/mnt/dados/backups/Ivan_SSD/`. Motivo: o SSD era a única cópia local das fotos; o OneDrive é a cópia fora de casa. Alternativas recusadas: ligar o SSD diretamente ao servidor (o RHEL não traz suporte NTFS) e um disco novo (este tem 4,5 TB livres e SMART saudável).
 > - **Contentores:** o Podman está instalado (vem com o RHEL) e o Docker não. Falta decidir entre Docker e Podman para o FileCloud.
 > - **SSH:** a chave ED25519 funciona a partir do DAT-WS-IA-01 e do Omarchy. `PasswordAuthentication` continua ativo (valor por omissão); falta a decisão do Ivan.
 > - **Repositório público** (decisão do Ivan a 2026-10-08).
@@ -136,6 +137,7 @@ SSD interno
 HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados)
 ├── /mnt/dados/filecloud
 ├── /mnt/dados/backups
+│   └── Ivan_SSD/Arquivo   (cópia do arquivo pessoal do SSD externo, 2026-10-11 — ver infra/docs/08-backup-arquivo-ssd.md)
 └── /mnt/dados/arquivo
 ```
 
@@ -214,9 +216,12 @@ ssh -X ivan@hometail
 - [x] Testar acesso remoto via Tailscale/MagicDNS — confirmado a partir do DAT-WS-IA-01 (`ssh ivan@homeserver`); falta testar a partir dos restantes dispositivos
 - [ ] **Em configuração** (retomado 2026-08-09, decisão do Ivan — independente do TraderShark): X11 forwarding. Feito: `xorg-x11-xauth` já vinha instalado no servidor, `X11Forwarding yes` já ativo por omissão no `sshd_config`, VcXsrv instalado e a correr na DAT-WS-IA-01 (`vcxsrv.exe :0 -multiwindow -clipboard -wgl -ac`). Por fazer: importar a chave GPG do repo Tailscale (bloqueava o `dnf search`), encontrar alternativa ao `xorg-x11-apps` (não existe no RHEL 10) para testar com uma app gráfica leve, testar `ssh -X` de facto — ver [infra/docs/06-acesso-grafico-x11.md](infra/docs/06-acesso-grafico-x11.md)
 - [ ] ⏸️ **Pausado** (2026-08-07, decisão do Ivan): Instalar e configurar xrdp, abrir porta 3389 — ver [infra/docs/07-acesso-grafico-xrdp.md](infra/docs/07-acesso-grafico-xrdp.md). Nota: mantém-se um caso de uso futuro independente (tablet Android), a retomar quando fizer sentido
-- [ ] Ligar o HDD externo 5TB (já formatado/configurado) e confirmar montagem via `fstab` (UUID inalterado — não deve ser preciso reformatar). Estado a 2026-10-10: ligado (`/dev/sdb1`, 4,5 TB), mas montado automaticamente em `/run/media/ivan/<uuid>` e não pelo `fstab`
-- [ ] Reestruturar as pastas do HDD: remover/renomear `filmes`/`series`/`musica` (Jellyfin/Navidrome já não fazem parte do projeto) e criar `/mnt/dados/filecloud`, mantendo `/backups` e `/arquivo`
-- [ ] Confirmar regra `udev` do `hdparm` (`99-hdd-power.rules`) — recriar se necessário
+- [x] Ligar o HDD externo 5TB e montar via `fstab` em `/mnt/dados` — **feito a 2026-10-11** (UUID inalterado, sem reformatar). Ver [infra/docs/04-storage-hdd-5tb.md](infra/docs/04-storage-hdd-5tb.md), secção "Reposição em RHEL"
+- [x] Reestruturar as pastas do HDD — **feito a 2026-10-11**: `filmes`/`series`/`musica` removidas (estavam vazias), `/mnt/dados/filecloud` criada; `/backups` e `/arquivo` mantidas
+- [x] Regra `udev` do `hdparm` (`99-hdd-power.rules`) — **recriada a 2026-10-11** (não existia após a reinstalação), `APM_level = 254` confirmado
+- [ ] Confirmar com `sudo dnf makecache` se o repo `tailscale-stable` ainda falha a verificação GPG (visto sem `sudo` a 2026-10-11); se falhar com `sudo`, voltar a importar a chave
+- [ ] Testar reboot do servidor: o HDD tem de montar sozinho em `/mnt/dados` e a regra `udev` tem de aplicar `APM_level = 254`
+- [ ] Correr o teste SMART longo ao HDD (`sudo smartctl -t long /dev/sdb`, ~3h15) e ver o resultado com `sudo smartctl -l selftest /dev/sdb`
 - [ ] Instalar Docker ou Podman. Estado a 2026-10-10: o Podman já está instalado (vem com o RHEL) e o Docker não; falta decidir
 - [ ] Deploy FileCloud via Docker (apontado a `/mnt/dados/filecloud`) — ver [services/filecloud/docs/01-instalacao.md](services/filecloud/docs/01-instalacao.md)
 - [ ] Configurar portal de administração e primeira conta de utilizador no FileCloud
