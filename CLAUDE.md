@@ -106,7 +106,7 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr *
 | Telemóvel (pessoal, Redmi Note 14) | — | `100.78.250.58` |
 | Smart TV (Xiaomi) | `192.168.1.120` | — (sem Tailscale) |
 
-> Pool DHCP do router (Vodafone): `192.168.1.64–253`. Reservas DHCP dentro deste range. Homeserver com IP estático via `nmcli` fora do pool.
+> Pool DHCP do router (Vodafone): `192.168.1.64–253`. Reservas DHCP dentro deste range. Homeserver com IP estático via `nmcli` fora do pool. **Decisão do Ivan (reconfirmada a 2026-10-12):** o servidor fica com IP estático no SO, de propósito; é a exceção à regra de reservas DHCP, que continua a valer para os outros dispositivos. Motivo: o servidor deve ter o mesmo IP mesmo que o router seja trocado ou reposto.
 
 ### Acesso à tailnet
 
@@ -223,6 +223,8 @@ ssh -X ivan@hometail
 - [x] Testar reboot do servidor: **feito a 2026-10-12.** O HDD montou sozinho em `/mnt/dados`, a regra `udev` aplicou `APM_level = 254`, o `HandleLidSwitch` ficou `ignore` (tampa fechada, 0 mensagens de suspensão, logind a 0% de CPU), o `journalctl --list-boots` mostra 2 boots (journal persistente), o `traderscope.service` arrancou sozinho, o Wi-Fi ficou desligado (`autoconnect no`) e não há units `failed`
 - [x] Decidir o recurso Wi-Fi (`wlp3s0`): **abandonado, mas reativável** (2026-10-12, `autoconnect no` aplicado e confirmado). Ver "Estado atual"
 - [ ] Teste SMART longo ao HDD: **em curso**, arrancado a 2026-10-12 às 14:20, fim previsto às 17:46. Ver o resultado com `journalctl -u smartd | grep -i self-test` (sem sudo) ou `sudo smartctl -l selftest /dev/sdb`
+- [ ] Por volta de 2026-11-08: confirmar com `ls -lh /var/log/messages*` que o `logrotate` já removeu os `messages-2026*` antigos (~7 GB do loop do `logind`; decisão do Ivan: não apagar à mão). Ver [infra/docs/09-logind-journald.md](infra/docs/09-logind-journald.md)
+- [ ] Por volta de 2026-10-19: ver o crescimento real com `journalctl --disk-usage` e `ls -l /var/log/messages*` (deve ser KB/MB por dia, não GB)
 - [x] HDD vigiado pelo `smartd` (2026-10-12): linha própria no `smartd.conf` (o `DEVICESCAN` não apanhava o disco USB) e teste longo automático no dia 1 de cada mês às 03h. Ver [infra/docs/04-storage-hdd-5tb.md](infra/docs/04-storage-hdd-5tb.md)
 - [ ] Instalar Docker ou Podman. Estado a 2026-10-10: o Podman já está instalado (vem com o RHEL) e o Docker não; falta decidir
 - [ ] Deploy FileCloud via Docker (apontado a `/mnt/dados/filecloud`, pasta a criar neste passo com o dono e o contexto SELinux que o serviço precisar) — ver [services/filecloud/docs/01-instalacao.md](services/filecloud/docs/01-instalacao.md)
