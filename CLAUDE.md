@@ -1,15 +1,16 @@
 # Home Server + Tailscale — Contexto do Projeto
 
-## 🔄 Estado atual (verificado a 2026-10-10; HDD atualizado a 2026-10-11)
+## 🔄 Estado atual (verificado a 2026-10-10; HDD atualizado a 2026-10-11; logind/journal e Wi-Fi a 2026-10-12)
 
 > Prevalece sobre o texto histórico abaixo, quando houver diferença.
 >
 > - **Nomes do servidor** (renomeado a 2026-09-28): o hostname é `homelan` (LAN, mDNS `homelan.local`) e o nó Tailscale é `hometail` (FQDN MagicDNS completo omitido de propósito, porque o repositório é público). O nome `homeserver` deixou de existir na rede. Ficou apenas como alias SSH local (`~/.ssh/config`) no Omarchy.
 > - **ZenBook Duo UX482:** desde outubro de 2026 corre **Omarchy (Arch Linux + Hyprland)** e já não Windows 11 Home. O Tailscale **ainda não está instalado** no Omarchy, por isso o nó `ux482` (`100.81.2.53`) está parado na tailnet.
 > - **Avahi/mDNS:** ativo; `homelan.local` resolve na LAN. O serviço `mdns` foi aberto no firewalld a 2026-09-28.
-> - **Chave GPG do repositório Tailscale:** importada (`gpg-pubkey` presente). ⚠️ A 2026-10-11, um `dnf list --available` corrido **sem `sudo`** falhou com `repomd.xml GPG signature verification error: Signing key not found` no repo `tailscale-stable`. Pode ser só falta de acesso às chaves sem root; **confirmar com `sudo dnf makecache`** antes de concluir que há problema.
-> - **Wi-Fi do servidor (`wlp3s0`): desligado** (`disconnected`). Só o Ethernet `enp2s0` está ativo. Isto contradiz a decisão de 2026-08-07 de manter o Wi-Fi como acesso de recurso; **o Ivan tem de confirmar** se foi intencional.
-> - **HDD externo 5 TB** (`/dev/sdb1`, XFS): **montado em `/mnt/dados` pelo `/etc/fstab`** (UUID + `nofail`) desde 2026-10-11. Regra `udev` do `hdparm` recriada (APM 254 confirmado). Pastas: `filecloud/`, `backups/`, `arquivo/` (as de media foram removidas, estavam vazias). SMART saudável a 2026-10-11 (0 setores realocados/pendentes, teste curto sem erros; teste longo por fazer). Ver [infra/docs/04-storage-hdd-5tb.md](infra/docs/04-storage-hdd-5tb.md).
+> - **Chave GPG do repositório Tailscale:** importada (`gpg-pubkey` presente). O `sudo dnf makecache` de 2026-10-12 passou sem erros nos 3 repos (BaseOS, AppStream, Tailscale); o erro de 2026-10-11 era só por correr sem `sudo`.
+> - **Wi-Fi do servidor (`wlp3s0`): recurso abandonado (decisão do Ivan a 2026-10-12).** Substitui a decisão de 2026-08-07. Investigado a 2026-10-12: o Wi-Fi estava em baixo desde 2026-09-01 00:18 **sem ser intencional** (o NetworkManager esgotou as 4 tentativas de religação; a causa exata perdeu-se porque o journal era volátil). **Motivo:** o recurso só cobria falhas do cabo ou da porta Ethernet (usa o mesmo router), esteve morto 6 semanas sem ninguém dar por isso, e o acesso alternativo já está garantido pelo Tailscale e pelo mDNS. **Ficou reativável:** o perfil `Vodafone-C27A91 2.4G` mantém-se com a password guardada, só com `connection.autoconnect no`; o rádio continua ligado. Para reativar: `sudo nmcli connection modify "Vodafone-C27A91 2.4G" connection.autoconnect yes connection.autoconnect-retries 0 && sudo nmcli connection up "Vodafone-C27A91 2.4G"` (o `autoconnect-retries 0` evita repetir a falha de setembro) e criar a reserva DHCP para o MAC `80:a5:89:93:a6:fb`.
+> - **Loop de suspensão do `systemd-logind` corrigido a 2026-10-12.** O `/etc/systemd/logind.conf` criado em agosto não tinha `[Login]`, por isso a tampa fechada pedia `suspend` sem parar e o `suspend.target` mascarado recusava. Durante 66 dias o `logind` gastou ~82% de um core, gerou ~1,8 GB/semana de `/var/log/messages` e deixou o journal com só ~6 min de histórico. Corrigido com o drop-in `/etc/systemd/logind.conf.d/10-homeserver.conf` (o ficheiro antigo ficou como `logind.conf.bak-2026-10-12`); a máscara dos alvos de suspensão mantém-se. **Journal agora persistente** (`/etc/systemd/journald.conf.d/10-persistent.conf`, `SystemMaxUse=1G`). Os `/var/log/messages-2026*` antigos (~7 GB de lixo do loop) ficam a cargo do `logrotate` (decisão do Ivan a 2026-10-12: não apagar à mão; o último sai por volta de 2026-11-08). Ver [infra/docs/09-logind-journald.md](infra/docs/09-logind-journald.md).
+> - **HDD externo 5 TB** (`/dev/sdb1`, XFS): **montado em `/mnt/dados` pelo `/etc/fstab`** (UUID + `nofail`) desde 2026-10-11. Regra `udev` do `hdparm` recriada (APM 254 confirmado). Pastas: só `backups/` (o Ivan apagou `filecloud/` e `arquivo/`, que estavam vazias, a 2026-10-11; confirmado a 2026-10-12 que não fazem falta: a `filecloud/` cria-se com o próprio serviço FileCloud e a `arquivo/` ficou redundante com `backups/Ivan_SSD/Arquivo`). SMART saudável a 2026-10-11 (0 setores realocados/pendentes, teste curto sem erros); teste longo em curso a 2026-10-12; vigiado pelo `smartd` desde 2026-10-12. Ver [infra/docs/04-storage-hdd-5tb.md](infra/docs/04-storage-hdd-5tb.md).
 > - **Backup do arquivo pessoal (decisão do Ivan, 2026-10-11):** este disco guarda a cópia local do `Arquivo` do SSD externo de 1 TB (`Ivan_SSD`) em `/mnt/dados/backups/Ivan_SSD/`. Motivo: o SSD era a única cópia local das fotos; o OneDrive é a cópia fora de casa. Alternativas recusadas: ligar o SSD diretamente ao servidor (o RHEL não traz suporte NTFS) e um disco novo (este tem 4,5 TB livres e SMART saudável).
 > - **Contentores:** o Podman está instalado (vem com o RHEL) e o Docker não. Falta decidir entre Docker e Podman para o FileCloud.
 > - **SSH:** a chave ED25519 funciona a partir do DAT-WS-IA-01 e do Omarchy. `PasswordAuthentication` continua ativo (valor por omissão); falta a decisão do Ivan.
@@ -97,7 +98,7 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr *
 
 | Dispositivo | IP LAN | IP Tailscale |
 |---|---|---|
-| Servidor — homelan / hometail (ASUS X555L) | `192.168.1.2` (estático, Ethernet `enp2s0`, reconfirmado a 2026-10-10) · Wi-Fi `wlp3s0` desligado a 2026-10-10 (antes `192.168.1.146`, dinâmico) | `100.98.31.9` (novo node RHEL, confirmado a funcionar) |
+| Servidor — homelan / hometail (ASUS X555L) | `192.168.1.2` (estático, Ethernet `enp2s0`, reconfirmado a 2026-10-10) · Wi-Fi `wlp3s0` em baixo desde 2026-09-01, recurso abandonado a 2026-10-12, reativável (antes `192.168.1.146`, dinâmico) | `100.98.31.9` (novo node RHEL, confirmado a funcionar) |
 | DAT-WS-IA-01 — Wi-Fi | `192.168.1.100` | `100.124.224.123` |
 | DAT-WS-IA-01 — Ethernet | `192.168.1.101` | `100.124.224.123` |
 | ZenBook UX482 — Wi-Fi | `192.168.1.110` | `100.81.2.53` |
@@ -135,10 +136,9 @@ SSD interno
 └── Configurações e logs
 
 HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados)
-├── /mnt/dados/filecloud
 ├── /mnt/dados/backups
 │   └── Ivan_SSD/Arquivo   (cópia do arquivo pessoal do SSD externo, 2026-10-11 — ver infra/docs/08-backup-arquivo-ssd.md)
-└── /mnt/dados/arquivo
+└── /mnt/dados/filecloud   (planeada: criar no deploy do FileCloud, com dono/SELinux do serviço)
 ```
 
 > **Nota de armazenamento:** SSD M.2 2280 1TB (enclosure USB) usado como disco portátil de alta capacidade para transferência de ficheiros entre máquinas — não integrado no servidor. HDD 5TB WD My Passport escolhido pelo espaço; spin-down pode ser desativado via `hdparm` se causar delays de acesso.
@@ -206,7 +206,7 @@ ssh -X ivan@hometail
 - [x] Definir hostname `homeserver` (renomeado a 2026-09-28 para `homelan`; Tailscale `hometail`)
 - [x] Configurar IP estático no homeserver via `nmcli` (`192.168.1.2/24`) — **resolvido em 2026-08-09**: existiam dois perfis para `enp2s0` (`Wired connection 1`, automático/DHCP, e `enp2s0`, manual/estático, já configurado corretamente mas com `autoconnect: no`). Corrigido com `nmcli connection modify "Wired connection 1" connection.autoconnect no`, `nmcli connection modify enp2s0 connection.autoconnect yes` e `nmcli connection up enp2s0`. Confirmado via `ip -4 a show enp2s0` e `ip route show default`
 - [x] Criar utilizador `ivan`, não-root, com sudo
-- [x] Configurar modo headless (tampa fechada) — passos 1–2 concluídos (`logind.conf` + `systemctl mask` dos targets de suspensão, confirmado `sleep.target` como `masked`). Falta o teste final (fechar a tampa e confirmar SSH) — ver [infra/docs/02-modo-headless.md](infra/docs/02-modo-headless.md)
+- [x] Configurar modo headless (tampa fechada): passos 1 e 2 concluídos. ⚠️ **O passo 1 estava partido** (`logind.conf` sem `[Login]`); refeito a 2026-10-12 com um drop-in, e `HandleLidSwitch = ignore` confirmado com `busctl`. Ver [infra/docs/02-modo-headless.md](infra/docs/02-modo-headless.md) e [infra/docs/09-logind-journald.md](infra/docs/09-logind-journald.md)
 - [x] Instalar e configurar SSH — `sshd` ativo, porta aberta na firewall, ligação testada — ver [infra/docs/03-ssh.md](infra/docs/03-ssh.md)
 - [x] Configurar autenticação por chave SSH (ED25519) — **resolvido em 2026-08-09**: a causa real não era inconsistência, era ausência total — `~/.ssh` nem existia no servidor. Criado `~/.ssh` (`chmod 700`), `authorized_keys` (`chmod 600`) com a chave pública `id_ed25519` da DAT-WS-IA-01, e `restorecon -Rv ~/.ssh` para repor o contexto SELinux (`ssh_home_t`). Confirmado com ligação `ssh -o BatchMode=yes` bem-sucedida
 - [ ] Desativar autenticação por password SSH (`PasswordAuthentication no`) — bloqueio técnico resolvido (chave já 100% consistente); **falta só a decisão do Ivan** sobre avançar
@@ -217,13 +217,15 @@ ssh -X ivan@hometail
 - [ ] **Em configuração** (retomado 2026-08-09, decisão do Ivan — independente do TraderShark): X11 forwarding. Feito: `xorg-x11-xauth` já vinha instalado no servidor, `X11Forwarding yes` já ativo por omissão no `sshd_config`, VcXsrv instalado e a correr na DAT-WS-IA-01 (`vcxsrv.exe :0 -multiwindow -clipboard -wgl -ac`). Por fazer: importar a chave GPG do repo Tailscale (bloqueava o `dnf search`), encontrar alternativa ao `xorg-x11-apps` (não existe no RHEL 10) para testar com uma app gráfica leve, testar `ssh -X` de facto — ver [infra/docs/06-acesso-grafico-x11.md](infra/docs/06-acesso-grafico-x11.md)
 - [ ] ⏸️ **Pausado** (2026-08-07, decisão do Ivan): Instalar e configurar xrdp, abrir porta 3389 — ver [infra/docs/07-acesso-grafico-xrdp.md](infra/docs/07-acesso-grafico-xrdp.md). Nota: mantém-se um caso de uso futuro independente (tablet Android), a retomar quando fizer sentido
 - [x] Ligar o HDD externo 5TB e montar via `fstab` em `/mnt/dados` — **feito a 2026-10-11** (UUID inalterado, sem reformatar). Ver [infra/docs/04-storage-hdd-5tb.md](infra/docs/04-storage-hdd-5tb.md), secção "Reposição em RHEL"
-- [x] Reestruturar as pastas do HDD — **feito a 2026-10-11**: `filmes`/`series`/`musica` removidas (estavam vazias), `/mnt/dados/filecloud` criada; `/backups` e `/arquivo` mantidas
+- [x] Reestruturar as pastas do HDD — **feito a 2026-10-11**: `filmes`/`series`/`musica` removidas (estavam vazias), `/mnt/dados/filecloud` criada; `/backups` e `/arquivo` mantidas. **Atualização 2026-10-12:** `filecloud/` e `arquivo/` apagadas pelo Ivan (vazias); fica só `backups/`
 - [x] Regra `udev` do `hdparm` (`99-hdd-power.rules`) — **recriada a 2026-10-11** (não existia após a reinstalação), `APM_level = 254` confirmado
-- [ ] Confirmar com `sudo dnf makecache` se o repo `tailscale-stable` ainda falha a verificação GPG (visto sem `sudo` a 2026-10-11); se falhar com `sudo`, voltar a importar a chave
-- [ ] Testar reboot do servidor: o HDD tem de montar sozinho em `/mnt/dados` e a regra `udev` tem de aplicar `APM_level = 254`
-- [ ] Correr o teste SMART longo ao HDD (`sudo smartctl -t long /dev/sdb`, ~3h15) e ver o resultado com `sudo smartctl -l selftest /dev/sdb`
+- [x] Confirmar com `sudo dnf makecache` se o repo `tailscale-stable` ainda falha a verificação GPG: **passou a 2026-10-12** (os 3 repos sem erros). O erro de 2026-10-11 era só por correr sem `sudo`
+- [x] Testar reboot do servidor: **feito a 2026-10-12.** O HDD montou sozinho em `/mnt/dados`, a regra `udev` aplicou `APM_level = 254`, o `HandleLidSwitch` ficou `ignore` (tampa fechada, 0 mensagens de suspensão, logind a 0% de CPU), o `journalctl --list-boots` mostra 2 boots (journal persistente), o `traderscope.service` arrancou sozinho, o Wi-Fi ficou desligado (`autoconnect no`) e não há units `failed`
+- [x] Decidir o recurso Wi-Fi (`wlp3s0`): **abandonado, mas reativável** (2026-10-12, `autoconnect no` aplicado e confirmado). Ver "Estado atual"
+- [ ] Teste SMART longo ao HDD: **em curso**, arrancado a 2026-10-12 às 14:20, fim previsto às 17:46. Ver o resultado com `journalctl -u smartd | grep -i self-test` (sem sudo) ou `sudo smartctl -l selftest /dev/sdb`
+- [x] HDD vigiado pelo `smartd` (2026-10-12): linha própria no `smartd.conf` (o `DEVICESCAN` não apanhava o disco USB) e teste longo automático no dia 1 de cada mês às 03h. Ver [infra/docs/04-storage-hdd-5tb.md](infra/docs/04-storage-hdd-5tb.md)
 - [ ] Instalar Docker ou Podman. Estado a 2026-10-10: o Podman já está instalado (vem com o RHEL) e o Docker não; falta decidir
-- [ ] Deploy FileCloud via Docker (apontado a `/mnt/dados/filecloud`) — ver [services/filecloud/docs/01-instalacao.md](services/filecloud/docs/01-instalacao.md)
+- [ ] Deploy FileCloud via Docker (apontado a `/mnt/dados/filecloud`, pasta a criar neste passo com o dono e o contexto SELinux que o serviço precisar) — ver [services/filecloud/docs/01-instalacao.md](services/filecloud/docs/01-instalacao.md)
 - [ ] Configurar portal de administração e primeira conta de utilizador no FileCloud
 - [ ] ⏸️ **Pausado** (2026-08-07, decisão do Ivan — problemas na própria aplicação, projeto secundário sem urgência): Instalar e testar TraderShark. Ver [services/tradershark/README.md](services/tradershark/README.md)
 - [ ] Praticar RHCSA: utilizadores/grupos, permissões, LVM/storage, systemd, firewalld, SELinux, containers — maioritariamente via CLI
@@ -276,7 +278,7 @@ ssh -X ivan@hometail
 ## Notas Importantes
 
 - Servidor é **headless por padrão** — tampa fechada, sem monitor nem teclado, **exceto durante o uso do TraderShark** (sessão gráfica local, sensível a latência) — ⚠️ nota 2026-08-07: TraderShark pausado, ver checklist; o modo headless mantém-se como configuração base do servidor de qualquer forma
-- **Servidor com duas interfaces de rede ativas em permanência** (decisão de 2026-08-07): Ethernet (principal, ligado à rack, IP estático `192.168.1.2` confirmado) + Wi-Fi (IP dinâmico, atualmente `192.168.1.146`, fallback de acesso, decisão explícita do Ivan de não desligar — sem reserva DHCP por agora, decisão reconfirmada em 2026-08-09)
+- ~~**Servidor com duas interfaces de rede ativas em permanência** (decisão de 2026-08-07): Ethernet (principal, ligado à rack, IP estático `192.168.1.2` confirmado) + Wi-Fi (IP dinâmico, atualmente `192.168.1.146`, fallback de acesso, decisão explícita do Ivan de não desligar — sem reserva DHCP por agora, decisão reconfirmada em 2026-08-09)~~ **Superado a 2026-10-12:** o recurso Wi-Fi foi abandonado (reativável), ver "Estado atual"
 - A avaria na placa de som é **completamente irrelevante** para o funcionamento como servidor
 - O acesso remoto (terminal ou gráfico) é feito **exclusivamente via Tailscale** quando fora da rede local
 - **Smart TV sem papel definido no projeto** (desde 2026-08-05) — estava na tailnet/inventário só para aceder ao Jellyfin; com o Jellyfin removido, mantém-se como dispositivo de inventário de rede, mas sem função ativa até se decidir um novo uso
@@ -291,7 +293,7 @@ ssh -X ivan@hometail
 - **Limitação Azure AD + OpenSSH (Windows):** contas Windows "Azure AD Joined" cloud-only (sem AD on-premises por trás — SID `S-1-12-1-...`) não são resolvíveis pelo `sshd.exe` do Windows para autenticação (nenhum formato de username funciona: simples, `AzureAD\user`, ou SID direto). Confirmado na DAT-WS-IA-01. Antes de configurar chaves SSH num node Windows, confirmar primeiro o tipo de conta (`whoami /user` + `dsregcmd /status`) — se for Azure AD cloud-only, a chave SSH só funciona associada a uma conta local dedicada, não à conta principal do Ivan
 - **`subscription-manager status` mostrar "Registered" (não "Current") é o esperado** — RHEL 10 Developer usa Simple Content Access (SCA), que elimina o conceito de entitlements "Current"/"Expired"; basta estar registado numa org com SCA para os repositórios funcionarem (confirmado com `dnf repolist` a mostrar `appstream`/`baseos` populados). Não é um problema a corrigir
 - **Surfshark não instalado** — decisão de 2026-08-09: deixar por instalar por agora, já que estava ligado ao TraderShark (pausado). Reavaliar se/quando o TraderShark for retomado
-- **Reserva DHCP do Wi-Fi do servidor não criada** — decisão de 2026-08-09: manter IP dinâmico por agora (MAC confirmado: `80:a5:89:93:a6:fb`, para quando fizer sentido criar a reserva)
+- **Reserva DHCP do Wi-Fi do servidor não criada** (o recurso Wi-Fi foi abandonado a 2026-10-12; criar a reserva só se for reativado) — decisão de 2026-08-09: manter IP dinâmico por agora (MAC confirmado: `80:a5:89:93:a6:fb`, para quando fizer sentido criar a reserva)
 - **Devolutions RDM abandonado** — decidido não usar como gestor central de ligações. SSH fica no Warp (já usado, com IA), RDP fica no cliente nativo do Windows (`mstsc`, mesmo motor RDP que o RDM usaria por baixo). A centralização de ligações fica para o Guacamole (sub-projeto já planeado), que cobre o mesmo objetivo via browser e com acesso remoto pelo Cloudflare Tunnel
 
 ---
