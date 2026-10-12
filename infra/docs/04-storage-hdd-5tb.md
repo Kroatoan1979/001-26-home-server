@@ -280,7 +280,36 @@ Resultado: `APM_level = 254`.
 | Regra `udev` | `hdparm -B /dev/sdb` | `APM_level = 254` ✅ |
 | SMART | `smartctl -l selftest` | teste curto sem erros ✅ |
 
-**Por testar:** reboot do servidor, para confirmar que monta sozinho em `/mnt/dados` e que a regra `udev` se aplica no arranque. Teste SMART longo.
+**Reboot testado a 2026-10-12:** montou sozinho em `/mnt/dados` e a regra `udev` aplicou `APM_level = 254` no arranque ✅. **Teste SMART longo** arrancado a 2026-10-12 às 14:20, fim previsto às 17:46 (206 min). Resultado: _por registar_.
+
+### Monitorização contínua com `smartd` (2026-10-12)
+
+**Problema encontrado:** o `smartd` (ativo por omissão no RHEL) só vigiava o SSD interno `/dev/sda`. A linha `DEVICESCAN` **não apanha discos USB**, por isso o HDD com o backup do `Arquivo` nunca tinha sido monitorizado.
+
+**Correção:** uma linha explícita no `/etc/smartmontools/smartd.conf`, **antes** do `DEVICESCAN` (o `smartd` ignora as linhas que vêm depois do `DEVICESCAN`):
+
+```
+/dev/disk/by-id/ata-WDC_WD50NDZW-11BCSS0_WD-WXA2D333EEPF -d sat -a -n standby,10,q -s L/../01/./03 -m root -M exec /usr/libexec/smartmontools/smartdnotify
+```
+
+- `/dev/disk/by-id/ata-…`: nome estável, ligado ao número de série. Sem isto (`/dev/sdb`), a letra podia mudar se outro disco USB fosse ligado primeiro
+- `-d sat`: fala com o disco por SCSI-ATA Translation, através da bridge USB. Sem isto, o `smartd` tentava SCSI puro e não lia os atributos ATA
+- `-a`: monitoriza tudo (saúde, atributos, setores realocados e pendentes, registo de erros e de testes). Sem isto, só faria o que estivesse explicitamente indicado
+- `-n standby,10,q`: não acorda o disco se estiver em standby, até 10 verificações seguidas; `q` não regista no log quando salta uma verificação. Sem isto, o `smartd` acordava o disco a cada verificação (com o spin-down desligado pelo `hdparm -S 0` isto conta pouco, mas mantém a regra coerente com o `DEVICESCAN`)
+- `-s L/../01/./03`: agenda um teste **longo** (`L`) em qualquer mês (`..`), no dia `01`, em qualquer dia da semana (`.`), às `03`h. Sem isto, os testes só correm quando alguém se lembra
+- `-m root -M exec …/smartdnotify`: em caso de problema, avisa o `root` pelo script de notificação do RHEL. Sem isto, os problemas só ficavam no journal
+
+```bash
+sudo systemctl restart smartd
+journalctl -u smartd --since -5min
+```
+
+- `restart`: o `smartd` relê o `smartd.conf`
+- Validação: o journal mostrou `Adding to "monitor" list` para o WD50NDZW e `Monitoring 2 ATA/SATA … devices` (antes era 1) ✅. O `/dev/sdb` aparece como `same as /dev/disk/by-id/… ignored`, o que é correto: não fica duplicado
+
+**Vantagem prática:** o resultado dos testes fica no journal, que o utilizador `ivan` (grupo `wheel`) lê **sem sudo**: `journalctl -u smartd | grep -i "self-test"`.
+
+**Por melhorar:** o `-m root` entrega na caixa de correio local do `root`, que ninguém lê. Um aviso que chegue mesmo ao Ivan (email ou notificação) fica para quando se decidir um canal de alertas para o servidor.
 
 ---
 
@@ -291,6 +320,12 @@ Resultado: `APM_level = 254`.
 sudo smartctl -H /dev/sdb
 sudo smartctl -t long /dev/sdb
 sudo smartctl -l selftest /dev/sdb
+
+# Progresso de um teste em curso ("xx% of test remaining")
+sudo smartctl -c /dev/sdb | grep -A1 "Self-test execution"
+
+# O que o smartd registou (sem sudo)
+journalctl -u smartd --since today
 
 # Ver o estado de energia atual do disco (active/idle/standby)
 sudo hdparm -C /dev/sdb
