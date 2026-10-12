@@ -106,7 +106,7 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr *
 | Telemóvel (pessoal, Redmi Note 14) | — | `100.78.250.58` |
 | Smart TV (Xiaomi) | `192.168.1.120` | — (sem Tailscale) |
 
-> Pool DHCP do router (Vodafone): `192.168.1.64–253`. Reservas DHCP dentro deste range. Homeserver com IP estático via `nmcli` fora do pool. **Decisão do Ivan (reconfirmada a 2026-10-12):** o servidor fica com IP estático no SO, de propósito; é a exceção à regra de reservas DHCP, que continua a valer para os outros dispositivos. Motivo: o servidor deve ter o mesmo IP mesmo que o router seja trocado ou reposto.
+> Pool DHCP do router (Vodafone): `192.168.1.64–253`. Reservas DHCP dentro deste range. Homeserver com IP estático via `nmcli` fora do pool. **Decisão do Ivan (reconfirmada a 2026-10-12):** o servidor fica com IP estático no SO, de propósito; é a exceção à regra de reservas DHCP, que continua a valer para os outros dispositivos. Vantagem técnica (nota do Kody, não é motivo dado pelo Ivan): o IP não depende da configuração do router.
 
 ### Acesso à tailnet
 
