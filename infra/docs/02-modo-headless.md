@@ -8,22 +8,30 @@ Por omissão, o Linux suspende o sistema quando a tampa do portátil é fechada.
 
 ## 1. Configurar `systemd-logind`
 
+> ⚠️ **Corrigido a 2026-10-12.** A versão anterior deste passo mandava editar `/etc/systemd/logind.conf` e "adicionar ou descomentar" as linhas. No RHEL 10 esse ficheiro já não vem instalado, por isso o `vim` criou um ficheiro novo **sem a secção `[Login]`**, e o systemd ignorou as diretivas. Resultado: o `logind` passou dois meses em loop a tentar suspender. Diagnóstico e explicação completa em [09-logind-journald.md](09-logind-journald.md).
+
+Criar um drop-in (com a secção `[Login]`, obrigatória):
+
 ```bash
-sudo vim /etc/systemd/logind.conf
+sudo mkdir -p /etc/systemd/logind.conf.d
+sudo vim /etc/systemd/logind.conf.d/10-homeserver.conf
 ```
 
-Adicionar ou descomentar estas linhas:
-
 ```ini
+[Login]
 HandleLidSwitch=ignore
 HandleLidSwitchExternalPower=ignore
 HandleLidSwitchDocked=ignore
+HandleSuspendKey=ignore
+HandleHibernateKey=ignore
 ```
 
-Aplicar sem reiniciar:
+Aplicar sem reiniciar e **confirmar o valor real em vigor** (não basta testar a tampa: a máscara do passo 2 esconde um `logind.conf` partido):
 
 ```bash
-sudo systemctl restart systemd-logind
+sudo systemctl reload systemd-logind
+busctl get-property org.freedesktop.login1 /org/freedesktop/login1 org.freedesktop.login1.Manager HandleLidSwitch
+# Deve mostrar: s "ignore"
 ```
 
 ---
