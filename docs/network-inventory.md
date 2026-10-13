@@ -14,7 +14,7 @@
 | Pool DHCP | `192.168.1.64 – 192.168.1.253` |
 | Tailscale subnet | `100.x.x.x/8` |
 | DNS local | `192.168.1.1` (router) |
-| Conta Tailscale | `ivan.almeida@digitalltogether.com` (plano Free — trial de 14 dias desde 2026-07-07 terminado, decisão tomada em 2026-08-03 de manter esta conta no plano Free) |
+| Conta Tailscale | conta Google pessoal do Ivan, plano Personal — desde 2026-10-13 (antes `ivan.almeida@digitalltogether.com`, bloqueada com "Trial ended") |
 | Painel admin Tailscale | `https://login.tailscale.com/admin/machines` |
 
 ---
@@ -86,7 +86,7 @@
 | OS | **RHEL 10.2** (Coughlan) — reinstalação concluída em 2026-08-06/07, substitui o Rocky Linux 10 |
 | IP LAN (Ethernet, `enp2s0`) | `192.168.1.2` fixo via `nmcli`, **confirmado ativo em 2026-08-09** — causa do bug anterior: perfil `nmcli` errado (`Wired connection 1`, DHCP) estava ativo em vez do perfil `enp2s0` (manual), corrigido |
 | IP LAN (Wi-Fi, `wlp3s0`) | — (**recurso Wi-Fi abandonado**, decisão do Ivan a 2026-10-12; antes `192.168.1.146`, dinâmico). Perfil `Vodafone-C27A91 2.4G` mantido com a password, só com `autoconnect no`. Reativar: `sudo nmcli connection modify "Vodafone-C27A91 2.4G" connection.autoconnect yes connection.autoconnect-retries 0 && sudo nmcli connection up "Vodafone-C27A91 2.4G"` |
-| IP Tailscale | `100.98.31.9` (MagicDNS: `hometail`, renomeado a 2026-09-28; antes `homeserver`) — novo node, confirmado a funcionar (`ssh ivan@homeserver` testado com sucesso em 2026-08-07) |
+| IP Tailscale | `100.112.247.104` (MagicDNS: `homeserver`; LAN: `homeserver.local`; tailnet pessoal desde 2026-10-13, antes `100.98.31.9`; foi `hometail` de 2026-09-28 a 2026-10-13) — novo node, confirmado a funcionar (`ssh ivan@homeserver` testado com sucesso em 2026-08-07) |
 | MAC Address Ethernet | `9c:5c:8e:1e:d8:7e` (`enp2s0`) |
 | MAC Address Wi-Fi | `80:a5:89:93:a6:fb` (`wlp3s0`) |
 | DHCP Reservation | Ethernet: não aplicável (IP estático via SO, confirmado a funcionar) · Wi-Fi: nenhuma (recurso Wi-Fi abandonado a 2026-10-12; criar a reserva se for reativado) |
@@ -106,7 +106,7 @@
 | OS | Windows 11 Pro |
 | IP LAN Wi-Fi | `192.168.1.100` |
 | IP LAN Ethernet | `192.168.1.101` |
-| IP Tailscale | `100.124.224.123` (MagicDNS: `dat-ws-ia-01`) |
+| IP Tailscale | por migrar para a tailnet pessoal (na antiga: `100.124.224.123`, MagicDNS: `dat-ws-ia-01`) |
 | MAC Address Wi-Fi | `A0-02-A5-A1-A7-B6` (Killer Wi-Fi 6 AX1650i) |
 | MAC Address Ethernet | `74-D4-DD-55-D8-C1` (Killer E2600 Gigabit) |
 | DHCP Reservation | Concluída (Wi-Fi → `.100` · Ethernet → `.101`) |
@@ -121,12 +121,12 @@
 
 | Campo | Valor |
 |---|---|
-| Hostname | `UX482` |
+| Hostname | `asus` (desde 2026-10-13; antes `omarchy`; LAN: `asus.local`) |
 | Tipo / Papel | Portátil secundário |
 | OS | Windows 11 Home |
 | IP LAN Wi-Fi | `192.168.1.110` |
 | IP LAN Ethernet (USB-C) | `192.168.1.111` |
-| IP Tailscale | `100.81.2.53` (MagicDNS: `ux482`) |
+| IP Tailscale | `100.99.98.113` (MagicDNS: `asus`, desde 2026-10-13) |
 | MAC Address Wi-Fi | `38-FC-98-85-6F-88` (Intel Wi-Fi 6 AX200) |
 | MAC Address Ethernet (USB-C) | `00-E0-4C-4D-25-20` |
 | DHCP Reservation | Concluída (Wi-Fi → `.110` · Ethernet USB-C → `.111`) |
@@ -166,7 +166,7 @@
 | Tipo / Papel | Telemóvel pessoal |
 | OS | Android 16 |
 | IP LAN | Dinâmico (sem reserva) |
-| IP Tailscale | `100.78.250.58` (MagicDNS: `redmi-note-14`) |
+| IP Tailscale | `100.108.10.121` (MagicDNS: `redmi-note-14`, desde 2026-10-13) |
 | MAC Address | — *(a preencher)* |
 | DHCP Reservation | N/A — dispositivo portátil, cliente puro; IP LAN irrelevante |
 | Ligação | Wi-Fi / dados móveis |

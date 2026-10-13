@@ -66,8 +66,9 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 |---|---|---|
 | ASUS X555L (servidor) | RHEL (Developer Subscription) | SSH, X11 forwarding, xrdp |
 | DAT-WS-IA-01 | Windows 11 Pro | RDP / SSH |
-| ZenBook Duo UX482 | Windows 11 Home | — (não aceita RDP de entrada) |
-| Telemóvel (pessoal) | Android | App Tailscale |
+| ZenBook Duo UX482 (`asus`) | Omarchy (Arch Linux + Hyprland), desde 10/2026 | SSH (cliente) |
+| Telemóvel (pessoal, Xiaomi Redmi Note 14) | Android | App Tailscale + Termius |
+| Tablet (pessoal, Samsung Galaxy Tab S8) | Android | App Tailscale |
 
 > PC Kyndryl e Telemóvel Kyndryl excluídos do projeto — equipamentos corporativos, risco de violação de políticas de segurança da Kyndryl.
 
@@ -181,17 +182,17 @@ watch -n 2 sensors
 
 - [ ] Obter subscrição RHEL Developer e descarregar a ISO
 - [ ] Criar pen USB bootável com Rufus (modo DD Image)
-- [ ] Instalar RHEL no ASUS X555L ("Server with GUI")
-- [ ] `subscription-manager register`
-- [ ] Configurar modo headless (exceto uso do TraderShark)
-- [ ] Instalar e configurar SSH (autenticação por chave ED25519)
-- [ ] Configurar Avahi (mDNS) para resolução `homeserver.local`
-- [ ] Instalar Tailscale e integrar todos os dispositivos (novo node — remover o antigo)
+- [x] Instalar RHEL no ASUS X555L ("Server with GUI") — RHEL 10.2
+- [x] `subscription-manager register`
+- [x] Configurar modo headless (exceto uso do TraderShark) — corrigido a 2026-10-12
+- [x] Instalar e configurar SSH (autenticação por chave ED25519) — falta decidir desativar a password
+- [x] Configurar Avahi (mDNS) para resolução `homeserver.local` (2026-10-13; foi `homelan.local` de 2026-09-28 a 2026-10-13)
+- [ ] Instalar Tailscale e integrar todos os dispositivos — tailnet pessoal desde 2026-10-13: servidor, Asus, telemóvel e tablet feitos; **falta o Acer**
 - [ ] Instalar Docker
 - [x] Reestruturar pastas do HDD (`filmes`/`series`/`musica` → `/mnt/dados/filecloud`) — 2026-10-11
 - [ ] Instalar FileCloud via Docker e configurar portal de administração
 - [x] Configurar HDD externo 5TB (feito em Rocky Linux; reposto em RHEL a 2026-10-11: `fstab` + regra `udev`)
-- [ ] Testar acesso remoto via Tailscale de todos os dispositivos
+- [ ] Testar acesso remoto via Tailscale de todos os dispositivos — Asus e telemóvel (dados móveis) OK a 2026-10-14; falta o Acer
 - [ ] Configurar X11 forwarding e xrdp para acesso gráfico remoto
 - [ ] Instalar e testar o TraderShark localmente
 - [ ] Praticar RHCSA (CLI: utilizadores, permissões, LVM, systemd, firewalld, SELinux, containers)
@@ -202,7 +203,8 @@ watch -n 2 sensors
 
 ## Notas
 
-- Tailscale — conta `digitalltogether.com`, plano **Free** (decisão tomada em 2026-08-03, reconfirmada em 2026-08-05 para o servidor RHEL: mantém-se esta conta, sem plano pago)
+- Tailscale — conta Google pessoal do Ivan, plano **Personal** (gratuito, uso não comercial), desde 2026-10-13. A conta `digitalltogether.com` ficou bloqueada com "Trial ended"; motivo no `CLAUDE.md`
+- **Nomes:** `<nome>.local` = LAN (mDNS), `<nome>` = tailnet (MagicDNS) — `homeserver`, `asus` e, quando migrado, `acer`
 - **MagicDNS ativo** — dispositivos acessíveis pelo hostname (ex: `ssh ivan@homeserver`), sem precisar do IP Tailscale, mesmo fora da LAN
 - FileCloud **consolida o projeto que estava planeado na AWS** — deixou de ser uma instância separada
 - RHEL suporta sessões SSH **simultâneas ilimitadas**

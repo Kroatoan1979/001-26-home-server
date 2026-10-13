@@ -1,12 +1,13 @@
 # Home Server + Tailscale — Contexto do Projeto
 
-## 🔄 Estado atual (verificado a 2026-10-10; HDD atualizado a 2026-10-11; logind/journal e Wi-Fi a 2026-10-12)
+## 🔄 Estado atual (verificado a 2026-10-10; HDD atualizado a 2026-10-11; logind/journal e Wi-Fi a 2026-10-12; Tailscale a 2026-10-13)
 
 > Prevalece sobre o texto histórico abaixo, quando houver diferença.
 >
-> - **Nomes do servidor** (renomeado a 2026-09-28): o hostname é `homelan` (LAN, mDNS `homelan.local`) e o nó Tailscale é `hometail` (FQDN MagicDNS completo omitido de propósito, porque o repositório é público). O nome `homeserver` deixou de existir na rede. Ficou apenas como alias SSH local (`~/.ssh/config`) no Omarchy.
-> - **ZenBook Duo UX482:** desde outubro de 2026 corre **Omarchy (Arch Linux + Hyprland)** e já não Windows 11 Home. O Tailscale **ainda não está instalado** no Omarchy, por isso o nó `ux482` (`100.81.2.53`) está parado na tailnet.
-> - **Avahi/mDNS:** ativo; `homelan.local` resolve na LAN. O serviço `mdns` foi aberto no firewalld a 2026-09-28.
+> - **Convenção de nomes (decisão do Ivan, 2026-10-13; substitui `homelan`/`hometail` de 2026-09-28):** o mesmo nome nos dois caminhos e o sufixo diz qual se usa. **`<nome>.local` = LAN** (mDNS) e **`<nome>` sem sufixo = tailnet** (MagicDNS; FQDN completo omitido porque o repositório é público). Nomes: `homeserver` (servidor), `asus` (ZenBook, Omarchy) e `acer` (hoje DAT-WS-IA-01; por fazer quando o Ivan estiver no Acer. **Decidido a 2026-10-13:** muda também o nome do computador Windows para `acer`, para o `acer.local` funcionar na LAN; o nome `DAT-WS-IA-01` deixa de ser usado na rede). Telemóvel e tablet mantêm os nomes. **Alternativa recusada:** sufixos `.lan`/`.tail`. O Tailscale não aceita pontos no nome do nó, e o `.lan` exigiria um DNS local (`dnsmasq` + split DNS) com o servidor como ponto único de falha. **Avahi:** `deny-interfaces=tailscale0` no servidor e no Asus, porque sem isto o nome `.local` era anunciado também com o IP `100.x`. **SSH no Asus:** o alias `homeserver` do `~/.ssh/config` já não força a LAN (`HostKeyAlias homeserver` comum a todos os nomes). Validado a 2026-10-13: `ssh homeserver` (tailnet), `ssh homeserver.local` (LAN) e `asus.local` → `192.168.1.110` visto do servidor.
+> - **Tailnet migrada para a conta pessoal (decisão do Ivan, 2026-10-13).** A conta `digitalltogether.com` ficou bloqueada ("Trial ended": sem aprovar nem adicionar dispositivos). **Motivo:** a Tailscale trata um domínio próprio como uso empresarial; o homelab é pessoal, e o plano **Personal** (gratuito, só para uso não comercial) exige isso mesmo. Passou a usar a conta Google pessoal do Ivan (Gmail; endereço omitido porque o repositório é público). Alternativas recusadas: passar a tailnet da DAT para o Personal (ambíguo face aos termos, por ser um domínio da empresa), pagar o plano Starter (sem necessidade) e Headscale (obrigaria a expor o servidor; fica como possível estudo futuro). **Efeitos:** IPs `100.x` e sufixo MagicDNS novos; os nomes dos nós mantêm-se. Nós na tailnet nova: `homeserver`, `asus`, `tab-s8-de-ivan`, `redmi-note-14` (todos testados a 2026-10-13); `homeserver` com expiração da chave desativada. **Falta:** `dat-ws-ia-01` (quando o Ivan estiver no Acer) e apagar os nós da tailnet antiga.
+> - **ZenBook Duo UX482:** desde outubro de 2026 corre **Omarchy (Arch Linux + Hyprland)** e já não Windows 11 Home. Tailscale instalado e na tailnet nova desde 2026-10-13. Hostname `asus` (era `omarchy`), nó `asus` (`100.99.98.113`).
+> - **Avahi/mDNS:** ativo; `homeserver.local` resolve na LAN (até 2026-10-13 era `homelan.local`). O serviço `mdns` foi aberto no firewalld a 2026-09-28.
 > - **Chave GPG do repositório Tailscale:** importada (`gpg-pubkey` presente). O `sudo dnf makecache` de 2026-10-12 passou sem erros nos 3 repos (BaseOS, AppStream, Tailscale); o erro de 2026-10-11 era só por correr sem `sudo`.
 > - **Wi-Fi do servidor (`wlp3s0`): recurso abandonado (decisão do Ivan a 2026-10-12).** Substitui a decisão de 2026-08-07. Investigado a 2026-10-12: o Wi-Fi estava em baixo desde 2026-09-01 00:18 **sem ser intencional** (o NetworkManager esgotou as 4 tentativas de religação; a causa exata perdeu-se porque o journal era volátil). **Motivo:** o recurso só cobria falhas do cabo ou da porta Ethernet (usa o mesmo router), esteve morto 6 semanas sem ninguém dar por isso, e o acesso alternativo já está garantido pelo Tailscale e pelo mDNS. **Ficou reativável:** o perfil `Vodafone-C27A91 2.4G` mantém-se com a password guardada, só com `connection.autoconnect no`; o rádio continua ligado. Para reativar: `sudo nmcli connection modify "Vodafone-C27A91 2.4G" connection.autoconnect yes connection.autoconnect-retries 0 && sudo nmcli connection up "Vodafone-C27A91 2.4G"` (o `autoconnect-retries 0` evita repetir a falha de setembro) e criar a reserva DHCP para o MAC `80:a5:89:93:a6:fb`.
 > - **Loop de suspensão do `systemd-logind` corrigido a 2026-10-12.** O `/etc/systemd/logind.conf` criado em agosto não tinha `[Login]`, por isso a tampa fechada pedia `suspend` sem parar e o `suspend.target` mascarado recusava. Durante 66 dias o `logind` gastou ~82% de um core, gerou ~1,8 GB/semana de `/var/log/messages` e deixou o journal com só ~6 min de histórico. Corrigido com o drop-in `/etc/systemd/logind.conf.d/10-homeserver.conf` (o ficheiro antigo ficou como `logind.conf.bak-2026-10-12`); a máscara dos alvos de suspensão mantém-se. **Journal agora persistente** (`/etc/systemd/journald.conf.d/10-persistent.conf`, `SystemMaxUse=1G`). Os `/var/log/messages-2026*` antigos (~7 GB de lixo do loop) ficam a cargo do `logrotate` (decisão do Ivan a 2026-10-12: não apagar à mão; o último sai por volta de 2026-11-08). Ver [infra/docs/09-logind-journald.md](infra/docs/09-logind-journald.md).
@@ -35,7 +36,7 @@
 > **Não muda:**
 > - Hardware (ASUS X555L)
 > - HDD externo 5TB WD My Passport, estrutura `/mnt/dados`, `hdparm`
-> - Conta Tailscale `digitalltogether.com`, plano Free
+> - Conta Tailscale `digitalltogether.com`, plano Free *(mudou a 2026-10-13 — ver Estado atual)*
 > - IPs LAN, reservas DHCP, topologia de rede
 > - Política de SSH por chave (sem password)
 
@@ -72,7 +73,7 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr *
 |---|---|
 | SO | **RHEL 10** (Red Hat Developer Subscription for Individuals), instalação "Server with GUI" (GNOME) — versão confirmada em 2026-08-05 como a base atual do exame RHCSA |
 | Subscrição | `subscription-manager register` — conta gratuita developers.redhat.com, uso de desenvolvimento individual (não produção em equipa) |
-| VPN mesh | Tailscale — conta `digitalltogether.com`, plano **Free** (decisão tomada em 2026-08-03, reconfirmada em 2026-08-05 para o servidor RHEL: mantém-se esta conta, sem necessidade de plano pago nem de migrar para conta pessoal — cobre bem o caso de uso) |
+| VPN mesh | Tailscale — conta Google pessoal do Ivan (Gmail), plano **Personal** gratuito — migrada a 2026-10-13 a partir da conta `digitalltogether.com` (ver Estado atual). Antes: conta `digitalltogether.com`, plano Free (decisão de 2026-08-03, revertida a 2026-10-13) |
 | Contenção | Docker + docker-compose |
 | Partilha/sincronização de ficheiros | FileCloud Community Edition (portas 80/443) — consolida o projeto que estava planeado na AWS |
 | Trading (app gráfica) | TraderShark — nativo Linux, sensível a latência, uso local/LAN |
@@ -90,8 +91,9 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr *
 |---|---|---|
 | ASUS X555L (servidor) | RHEL (Developer Subscription) | SSH, X11 forwarding, xrdp |
 | DAT-WS-IA-01 (workstation Ivan) | Windows 11 Pro | RDP / SSH |
-| ZenBook Duo UX482 | Omarchy (Arch Linux + Hyprland), desde 10/2026 (antes: Windows 11 Home) | SSH; Tailscale ainda por instalar no Omarchy |
-| Telemóvel (pessoal) | Android | App Tailscale |
+| ZenBook Duo UX482 | Omarchy (Arch Linux + Hyprland), desde 10/2026 (antes: Windows 11 Home) | SSH |
+| Telemóvel (pessoal, Xiaomi Redmi Note 14) | Android | App Tailscale |
+| Tablet (pessoal, Samsung Galaxy Tab S8) | Android | App Tailscale |
 
 > PC Kyndryl e Telemóvel Kyndryl excluídos do projeto — equipamentos corporativos, risco de violação de políticas de segurança da Kyndryl.
 
@@ -99,32 +101,34 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr *
 
 | Dispositivo | IP LAN | IP Tailscale |
 |---|---|---|
-| Servidor — homelan / hometail (ASUS X555L) | `192.168.1.2` (estático, Ethernet `enp2s0`, reconfirmado a 2026-10-10) · Wi-Fi `wlp3s0` em baixo desde 2026-09-01, recurso abandonado a 2026-10-12, reativável (antes `192.168.1.146`, dinâmico) | `100.98.31.9` (novo node RHEL, confirmado a funcionar) |
-| DAT-WS-IA-01 — Wi-Fi | `192.168.1.100` | `100.124.224.123` |
-| DAT-WS-IA-01 — Ethernet | `192.168.1.101` | `100.124.224.123` |
-| ZenBook UX482 — Wi-Fi | `192.168.1.110` | `100.81.2.53` |
-| ZenBook UX482 — Ethernet USB-C | `192.168.1.111` | `100.81.2.53` |
-| Telemóvel (pessoal, Redmi Note 14) | — | `100.78.250.58` |
+| Servidor — homeserver (ASUS X555L) | `192.168.1.2` (estático, Ethernet `enp2s0`, reconfirmado a 2026-10-10) · Wi-Fi `wlp3s0` em baixo desde 2026-09-01, recurso abandonado a 2026-10-12, reativável (antes `192.168.1.146`, dinâmico) | `100.112.247.104` (tailnet pessoal, desde 2026-10-13; antes `100.98.31.9`) |
+| DAT-WS-IA-01 — Wi-Fi | `192.168.1.100` | por migrar (na tailnet antiga: `100.124.224.123`) |
+| DAT-WS-IA-01 — Ethernet | `192.168.1.101` | por migrar (na tailnet antiga: `100.124.224.123`) |
+| ZenBook UX482 — Wi-Fi | `192.168.1.110` | `100.99.98.113` |
+| ZenBook UX482 — Ethernet USB-C | `192.168.1.111` | `100.99.98.113` |
+| Telemóvel (pessoal, Redmi Note 14) | — | `100.108.10.121` |
+| Tablet (pessoal, Galaxy Tab S8) | — | `100.119.33.58` |
 | Smart TV (Xiaomi) | `192.168.1.120` | — (sem Tailscale) |
 
 > Pool DHCP do router (Vodafone): `192.168.1.64–253`. Reservas DHCP dentro deste range. Homeserver com IP estático via `nmcli` fora do pool. **Decisão do Ivan (reconfirmada a 2026-10-12):** o servidor fica com IP estático no SO, de propósito; é a exceção à regra de reservas DHCP, que continua a valer para os outros dispositivos. Vantagem técnica (nota do Kody, não é motivo dado pelo Ivan): o IP não depende da configuração do router.
 
 ### Acesso à tailnet
 
-- Conta Tailscale: `ivan.almeida@digitalltogether.com`
+- Conta Tailscale: conta Google pessoal do Ivan (Gmail), plano Personal — desde 2026-10-13 (antes `ivan.almeida@digitalltogether.com`)
 - Painel admin: `https://login.tailscale.com/admin/machines`
-- **MagicDNS ativo** — resolução por hostname dentro da tailnet, funciona em qualquer rede (Wi-Fi, dados móveis), sem precisar do IP Tailscale. Confirmado com `ssh ivan@homeserver` a partir do telemóvel via dados móveis (nome da altura; hoje é `ssh ivan@hometail`).
+- **MagicDNS ativo** — resolução por hostname dentro da tailnet, funciona em qualquer rede (Wi-Fi, dados móveis), sem precisar do IP Tailscale. Confirmado com `ssh ivan@homeserver` a partir do telemóvel via dados móveis (nome da altura; voltou a ser `ssh ivan@homeserver` a 2026-10-13).
 
 ### Nomes DNS dos nodes (MagicDNS)
 
 | Dispositivo | Hostname MagicDNS |
 |---|---|
-| Servidor (ASUS X555L) | `hometail` (era `homeserver` até 2026-09-28) |
+| Servidor (ASUS X555L) | `homeserver` (foi `hometail` de 2026-09-28 a 2026-10-13) |
 | DAT-WS-IA-01 | `dat-ws-ia-01` |
-| ZenBook UX482 | `ux482` (parado; o Tailscale ainda não está instalado no Omarchy) |
+| ZenBook UX482 | `asus` (era `ux482` até 2026-10-13) |
 | Telemóvel (Redmi Note 14) | `redmi-note-14` |
+| Tablet (Galaxy Tab S8) | `tab-s8-de-ivan` |
 
-> ⚠️ Nomes atribuídos automaticamente pelo Tailscale — **por rever**: avaliar se vale a pena renomear para consistência com o resto da documentação (ex: `ux482` pouco descritivo). Ver tarefa pendente.
+> Nomes revistos a 2026-10-13 (ver "Convenção de nomes" no Estado atual). O `dat-ws-ia-01` passa a `acer` quando for migrado.
 
 ---
 
@@ -152,11 +156,11 @@ HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados)
 
 ```bash
 # Ligar ao servidor via SSH (Tailscale / MagicDNS)
-ssh ivan@hometail
-# ou: ssh ivan@100.98.31.9
+ssh homeserver
+# ou: ssh ivan@100.112.247.104
 
 # Ligar ao servidor via SSH (LAN, mDNS — o .local é obrigatório)
-ssh ivan@homelan.local
+ssh homeserver.local
 
 # Ligar ao servidor via SSH (LAN, Ethernet, IP estático confirmado)
 ssh ivan@192.168.1.2
@@ -180,7 +184,7 @@ sudo dnf update -y
 sudo subscription-manager status
 
 # Ligação gráfica X11 forwarding (a partir do Windows, com VcXsrv a correr)
-ssh -X ivan@hometail
+ssh -X ivan@homeserver
 ```
 
 ---
@@ -190,7 +194,7 @@ ssh -X ivan@hometail
 > **Próximas tarefas prioritárias (por ordem) — continuar por aqui:**
 > - [x] **Importar a chave GPG do repositório Tailscale de forma persistente** (confirmado a 2026-10-10): `sudo rpm --import https://pkgs.tailscale.com/stable/rhel/10/repo.gpg` — sem isto, qualquer `dnf` que toque no repo `tailscale-stable` fica preso a pedir confirmação `[y/N]`
 > - [ ] **Encontrar alternativa ao `xorg-x11-apps` para testar o X11 forwarding:** o pacote não existe nos repositórios do RHEL 10 (descontinuado/renomeado) — pesquisar `dnf search xclock`/`xcalc`/`xterm` (com a chave GPG já importada) e instalar o que estiver disponível como app de teste leve
-> - [ ] **Testar `ssh -X ivan@hometail`** a partir da DAT-WS-IA-01 (ou, mais simples, do Omarchy, que é Linux e não precisa de VcXsrv) e confirmar que uma app gráfica (xclock ou equivalente) aparece no ecrã do Windows via VcXsrv — depois avançar para o TraderShark se fizer sentido
+> - [ ] **Testar `ssh -X ivan@homeserver`** a partir da DAT-WS-IA-01 (ou, mais simples, do Omarchy, que é Linux e não precisa de VcXsrv) e confirmar que uma app gráfica (xclock ou equivalente) aparece no ecrã do Windows via VcXsrv — depois avançar para o TraderShark se fizer sentido
 > - [ ] Decidir se avança já a desativação de `PasswordAuthentication` no SSH do homeserver — o bloqueio original (chave inconsistente) já está resolvido, por isso deixou de haver motivo técnico para adiar; falta só a decisão do Ivan
 > - [x] Atualização de memória geral Claude no UX482: concluída a 2026-10-10. Os protocolos DAT estão no `CLAUDE.md` global e a memória sincroniza entre os PCs pelo repositório privado `claude-memoria`.
 
@@ -204,14 +208,16 @@ ssh -X ivan@hometail
 - [x] Instalar RHEL no ASUS X555L, modo "Server with GUI" (GNOME)
 - [x] `subscription-manager register` — **sem `--auto-attach`** (opção removida no RHEL 10, usa Simple Content Access) — ver [infra/docs/05-subscription-manager.md](infra/docs/05-subscription-manager.md)
 - [x] `dnf update -y` — confirmado indiretamente (sistema já em RHEL 10.2 "Coughlan", kernel atualizado)
-- [x] Definir hostname `homeserver` (renomeado a 2026-09-28 para `homelan`; Tailscale `hometail`)
+- [x] Definir hostname `homeserver` (foi `homelan`/`hometail` de 2026-09-28 a 2026-10-13; voltou a `homeserver` nos dois)
 - [x] Configurar IP estático no homeserver via `nmcli` (`192.168.1.2/24`) — **resolvido em 2026-08-09**: existiam dois perfis para `enp2s0` (`Wired connection 1`, automático/DHCP, e `enp2s0`, manual/estático, já configurado corretamente mas com `autoconnect: no`). Corrigido com `nmcli connection modify "Wired connection 1" connection.autoconnect no`, `nmcli connection modify enp2s0 connection.autoconnect yes` e `nmcli connection up enp2s0`. Confirmado via `ip -4 a show enp2s0` e `ip route show default`
 - [x] Criar utilizador `ivan`, não-root, com sudo
 - [x] Configurar modo headless (tampa fechada): passos 1 e 2 concluídos. ⚠️ **O passo 1 estava partido** (`logind.conf` sem `[Login]`); refeito a 2026-10-12 com um drop-in, e `HandleLidSwitch = ignore` confirmado com `busctl`. Ver [infra/docs/02-modo-headless.md](infra/docs/02-modo-headless.md) e [infra/docs/09-logind-journald.md](infra/docs/09-logind-journald.md)
 - [x] Instalar e configurar SSH — `sshd` ativo, porta aberta na firewall, ligação testada — ver [infra/docs/03-ssh.md](infra/docs/03-ssh.md)
 - [x] Configurar autenticação por chave SSH (ED25519) — **resolvido em 2026-08-09**: a causa real não era inconsistência, era ausência total — `~/.ssh` nem existia no servidor. Criado `~/.ssh` (`chmod 700`), `authorized_keys` (`chmod 600`) com a chave pública `id_ed25519` da DAT-WS-IA-01, e `restorecon -Rv ~/.ssh` para repor o contexto SELinux (`ssh_home_t`). Confirmado com ligação `ssh -o BatchMode=yes` bem-sucedida
-- [ ] Desativar autenticação por password SSH (`PasswordAuthentication no`) — bloqueio técnico resolvido (chave já 100% consistente); **falta só a decisão do Ivan** sobre avançar
-- [x] Configurar Avahi (mDNS) no homeserver: ativo, resolve `homelan.local` desde 2026-09-28 (firewalld `mdns` aberto). Ver [network/docs/00-avahi-mdns.md](network/docs/00-avahi-mdns.md)
+- [ ] Migrar o `dat-ws-ia-01` para a tailnet pessoal (no Acer: tray → Log out → Log in com a conta Google pessoal), renomear o computador Windows e o nó para `acer` (decidido a 2026-10-13), confirmar `acer.local` na LAN e atualizar o IP Tailscale nesta documentação
+- [ ] Depois disso, apagar os nós da tailnet antiga (`digitalltogether.com`) no admin console
+- [ ] Desativar autenticação por password SSH (`PasswordAuthentication no`) — bloqueio técnico resolvido (chave já 100% consistente); **falta só a decisão do Ivan** sobre avançar. ⚠️ **Antes:** juntar uma chave do telemóvel (Termius) ao `authorized_keys`, porque o telemóvel entra por password (confirmado a 2026-10-14); sem isso perde-se o acesso pelo telemóvel
+- [x] Configurar Avahi (mDNS) no homeserver: ativo desde 2026-09-28, resolve `homeserver.local` (era `homelan.local` até 2026-10-13; `deny-interfaces=tailscale0` desde essa data) (firewalld `mdns` aberto). Ver [network/docs/00-avahi-mdns.md](network/docs/00-avahi-mdns.md)
 - [x] Remover o node antigo "homeserver" (Rocky Linux) no admin console do Tailscale
 - [x] Instalar Tailscale no RHEL e autenticar (`tailscale up --hostname=homeserver`) — novo IP `100.98.31.9`. Ver [network/docs/01-tailscale-instalacao.md](network/docs/01-tailscale-instalacao.md)
 - [x] Testar acesso remoto via Tailscale/MagicDNS — confirmado a partir do DAT-WS-IA-01 (`ssh ivan@homeserver`); falta testar a partir dos restantes dispositivos
