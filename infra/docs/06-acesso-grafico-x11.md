@@ -80,9 +80,19 @@ xclock
 
 ## Teste de validação
 
-> Por executar — atualizar esta secção com o resultado real assim que os dois obstáculos acima forem resolvidos.
+### 2026-10-14 — a partir do Omarchy (`asus`, cliente Linux, sem VcXsrv)
 
-- [ ] `xclock` (ou app equivalente) aparece no ecrã do Windows via VcXsrv
+```bash
+ssh -Y homeserver gnome-calculator
+```
+
+- Resultado: a janela da calculadora do servidor abre no ecrã local (XWayland no Hyprland; confirmado pelo Ivan). O comando termina quando se fecha a janela.
+- Os dois obstáculos de 2026-08-09 ficaram resolvidos: não é preciso o `xorg-x11-apps` (a `gnome-calculator` e o `gnome-text-editor` já vêm no "Server with GUI"), e a chave GPG do Tailscale foi importada.
+- **`-X` não funciona com apps GTK4:** o modo *untrusted* esconde a extensão XInput2 e a app termina com "XInput2 support not found". Com `-Y` (*trusted*) funciona. Risco do `-Y`: a app remota pode ler o teclado e o ecrã do X local, por isso só se usa com hosts de confiança (este servidor é do Ivan).
+
+### Por testar
+
+- [ ] App de teste aparece no ecrã do Windows (`acer`) via VcXsrv
 - [ ] TraderShark corre via X11 forwarding sem erros gráficos relevantes (aceitando alguma latência de renderização) — nota: TraderShark continua pausado, este ponto só se aplica se/quando for retomado
 
 ---
