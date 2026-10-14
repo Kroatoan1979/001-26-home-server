@@ -17,8 +17,8 @@ graph TB
     end
 
     subgraph Tailnet["Tailscale Mesh — 100.x.x.x/8"]
-        WS["DAT-WS-IA-01\nWindows 11 Pro"]
-        ZB["ZenBook Duo UX482\nWindows 11 Home"]
+        WS["acer (Acer Predator)\nWindows 11 Pro"]
+        ZB["asus (ZenBook Duo UX482)\nOmarchy"]
         TM1["Telemóvel (pessoal)\nAndroid"]
     end
 

@@ -1,11 +1,11 @@
 # Home Server + Tailscale — Contexto do Projeto
 
-## 🔄 Estado atual (verificado a 2026-10-10; HDD atualizado a 2026-10-11; logind/journal e Wi-Fi a 2026-10-12; Tailscale a 2026-10-13)
+## 🔄 Estado atual (verificado a 2026-10-10; HDD atualizado a 2026-10-11; logind/journal e Wi-Fi a 2026-10-12; Tailscale a 2026-10-13; Acer a 2026-10-14)
 
 > Prevalece sobre o texto histórico abaixo, quando houver diferença.
 >
-> - **Convenção de nomes (decisão do Ivan, 2026-10-13; substitui `homelan`/`hometail` de 2026-09-28):** o mesmo nome nos dois caminhos e o sufixo diz qual se usa. **`<nome>.local` = LAN** (mDNS) e **`<nome>` sem sufixo = tailnet** (MagicDNS; FQDN completo omitido porque o repositório é público). Nomes: `homeserver` (servidor), `asus` (ZenBook, Omarchy) e `acer` (hoje DAT-WS-IA-01; por fazer quando o Ivan estiver no Acer. **Decidido a 2026-10-13:** muda também o nome do computador Windows para `acer`, para o `acer.local` funcionar na LAN; o nome `DAT-WS-IA-01` deixa de ser usado na rede). Telemóvel e tablet mantêm os nomes. **Alternativa recusada:** sufixos `.lan`/`.tail`. O Tailscale não aceita pontos no nome do nó, e o `.lan` exigiria um DNS local (`dnsmasq` + split DNS) com o servidor como ponto único de falha. **Avahi:** `deny-interfaces=tailscale0` no servidor e no Asus, porque sem isto o nome `.local` era anunciado também com o IP `100.x`. **SSH no Asus:** o alias `homeserver` do `~/.ssh/config` já não força a LAN (`HostKeyAlias homeserver` comum a todos os nomes). Validado a 2026-10-13: `ssh homeserver` (tailnet), `ssh homeserver.local` (LAN) e `asus.local` → `192.168.1.110` visto do servidor.
-> - **Tailnet migrada para a conta pessoal (decisão do Ivan, 2026-10-13).** A conta `digitalltogether.com` ficou bloqueada ("Trial ended": sem aprovar nem adicionar dispositivos). **Motivo:** a Tailscale trata um domínio próprio como uso empresarial; o homelab é pessoal, e o plano **Personal** (gratuito, só para uso não comercial) exige isso mesmo. Passou a usar a conta Google pessoal do Ivan (Gmail; endereço omitido porque o repositório é público). Alternativas recusadas: passar a tailnet da DAT para o Personal (ambíguo face aos termos, por ser um domínio da empresa), pagar o plano Starter (sem necessidade) e Headscale (obrigaria a expor o servidor; fica como possível estudo futuro). **Efeitos:** IPs `100.x` e sufixo MagicDNS novos; os nomes dos nós mantêm-se. Nós na tailnet nova: `homeserver`, `asus`, `tab-s8-de-ivan`, `redmi-note-14` (todos testados a 2026-10-13); `homeserver` com expiração da chave desativada. **Falta:** `dat-ws-ia-01` (quando o Ivan estiver no Acer) e apagar os nós da tailnet antiga.
+> - **Convenção de nomes (decisão do Ivan, 2026-10-13; substitui `homelan`/`hometail` de 2026-09-28):** o mesmo nome nos dois caminhos e o sufixo diz qual se usa. **`<nome>.local` = LAN** (mDNS) e **`<nome>` sem sufixo = tailnet** (MagicDNS; FQDN completo omitido porque o repositório é público). Nomes: `homeserver` (servidor), `asus` (ZenBook, Omarchy) e `acer` (Acer Predator, Windows 11; era `DAT-WS-IA-01`. **Decidido a 2026-10-13, feito a 2026-10-14:** o nome do computador Windows também passou a `acer`, para o `acer.local` funcionar na LAN; o nome `DAT-WS-IA-01` deixou de ser usado na rede). Telemóvel e tablet mantêm os nomes. **Alternativa recusada:** sufixos `.lan`/`.tail`. O Tailscale não aceita pontos no nome do nó, e o `.lan` exigiria um DNS local (`dnsmasq` + split DNS) com o servidor como ponto único de falha. **Avahi:** `deny-interfaces=tailscale0` no servidor e no Asus, porque sem isto o nome `.local` era anunciado também com o IP `100.x`. **SSH no Asus:** o alias `homeserver` do `~/.ssh/config` já não força a LAN (`HostKeyAlias homeserver` comum a todos os nomes). Validado a 2026-10-13: `ssh homeserver` (tailnet), `ssh homeserver.local` (LAN) e `asus.local` → `192.168.1.110` visto do servidor.
+> - **Tailnet migrada para a conta pessoal (decisão do Ivan, 2026-10-13).** A conta `digitalltogether.com` ficou bloqueada ("Trial ended": sem aprovar nem adicionar dispositivos). **Motivo:** a Tailscale trata um domínio próprio como uso empresarial; o homelab é pessoal, e o plano **Personal** (gratuito, só para uso não comercial) exige isso mesmo. Passou a usar a conta Google pessoal do Ivan (Gmail; endereço omitido porque o repositório é público). Alternativas recusadas: passar a tailnet da DAT para o Personal (ambíguo face aos termos, por ser um domínio da empresa), pagar o plano Starter (sem necessidade) e Headscale (obrigaria a expor o servidor; fica como possível estudo futuro). **Efeitos:** IPs `100.x` e sufixo MagicDNS novos; os nomes dos nós mantêm-se. Nós na tailnet nova: `homeserver`, `asus`, `tab-s8-de-ivan`, `redmi-note-14` (todos testados a 2026-10-13) e `acer` (2026-10-14: `tailscale ping acer` direto pela LAN, `acer.local` → `192.168.1.100`); `homeserver` com expiração da chave desativada. Nós da tailnet antiga apagados pelo Ivan a 2026-10-14: a migração está concluída.
 > - **ZenBook Duo UX482:** desde outubro de 2026 corre **Omarchy (Arch Linux + Hyprland)** e já não Windows 11 Home. Tailscale instalado e na tailnet nova desde 2026-10-13. Hostname `asus` (era `omarchy`), nó `asus` (`100.99.98.113`).
 > - **Avahi/mDNS:** ativo; `homeserver.local` resolve na LAN (até 2026-10-13 era `homelan.local`). O serviço `mdns` foi aberto no firewalld a 2026-09-28.
 > - **Chave GPG do repositório Tailscale:** importada (`gpg-pubkey` presente). O `sudo dnf makecache` de 2026-10-12 passou sem erros nos 3 repos (BaseOS, AppStream, Tailscale); o erro de 2026-10-11 era só por correr sem `sudo`.
@@ -15,7 +15,7 @@
 > - **Backup do arquivo pessoal (decisão do Ivan, 2026-10-11):** este disco guarda a cópia local do `Arquivo` do SSD externo de 1 TB (`Ivan_SSD`) em `/mnt/dados/backups/Ivan_SSD/`. Motivo: o SSD era a única cópia local das fotos; o OneDrive é a cópia fora de casa. Alternativas recusadas: ligar o SSD diretamente ao servidor (o RHEL não traz suporte NTFS) e um disco novo (este tem 4,5 TB livres e SMART saudável).
 > - **TraderScope removida do servidor a 2026-10-12** (decisão do Ivan): serviço, `/opt/traderscope`, porta `8765/tcp` no firewalld, `tailscale serve`, operador do Tailscale (`ivan`) e deploy key. A app passa a ser desenvolvida só localmente (Acer + ZenBook) e volta ao servidor 24/7 quando estiver sólida. Ver `PLANO.md` (M7) no repositório `002-26-traderscope`. Nota: sem operador, os comandos `tailscale serve`/`set` voltam a precisar de `sudo`.
 > - **Contentores:** o Podman está instalado (vem com o RHEL) e o Docker não. Falta decidir entre Docker e Podman para o FileCloud.
-> - **SSH:** a chave ED25519 funciona a partir do DAT-WS-IA-01 e do Omarchy. `PasswordAuthentication` continua ativo (valor por omissão); falta a decisão do Ivan.
+> - **SSH:** a chave ED25519 funciona a partir do Acer (então `DAT-WS-IA-01`) e do Omarchy. `PasswordAuthentication` continua ativo (valor por omissão); falta a decisão do Ivan.
 > - **Repositório público** (decisão do Ivan a 2026-10-08).
 > - **Memória do Claude:** sincronizada entre o Omarchy e o Windows pelo repositório privado `claude-memoria` (concluído a 2026-10-10).
 
@@ -90,7 +90,7 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr *
 | Dispositivo | OS | Protocolo de acesso |
 |---|---|---|
 | ASUS X555L (servidor) | RHEL (Developer Subscription) | SSH, X11 forwarding, xrdp |
-| DAT-WS-IA-01 (workstation Ivan) | Windows 11 Pro | RDP / SSH |
+| Acer Predator — `acer` (workstation Ivan; era DAT-WS-IA-01) | Windows 11 Pro | RDP / SSH |
 | ZenBook Duo UX482 | Omarchy (Arch Linux + Hyprland), desde 10/2026 (antes: Windows 11 Home) | SSH |
 | Telemóvel (pessoal, Xiaomi Redmi Note 14) | Android | App Tailscale |
 | Tablet (pessoal, Samsung Galaxy Tab S8) | Android | App Tailscale |
@@ -102,8 +102,8 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr *
 | Dispositivo | IP LAN | IP Tailscale |
 |---|---|---|
 | Servidor — homeserver (ASUS X555L) | `192.168.1.2` (estático, Ethernet `enp2s0`, reconfirmado a 2026-10-10) · Wi-Fi `wlp3s0` em baixo desde 2026-09-01, recurso abandonado a 2026-10-12, reativável (antes `192.168.1.146`, dinâmico) | `100.112.247.104` (tailnet pessoal, desde 2026-10-13; antes `100.98.31.9`) |
-| DAT-WS-IA-01 — Wi-Fi | `192.168.1.100` | por migrar (na tailnet antiga: `100.124.224.123`) |
-| DAT-WS-IA-01 — Ethernet | `192.168.1.101` | por migrar (na tailnet antiga: `100.124.224.123`) |
+| acer (Acer Predator) — Wi-Fi | `192.168.1.100` | `100.82.47.47` (tailnet pessoal, desde 2026-10-14; antes `100.124.224.123`) |
+| acer (Acer Predator) — Ethernet | `192.168.1.101` | `100.82.47.47` |
 | ZenBook UX482 — Wi-Fi | `192.168.1.110` | `100.99.98.113` |
 | ZenBook UX482 — Ethernet USB-C | `192.168.1.111` | `100.99.98.113` |
 | Telemóvel (pessoal, Redmi Note 14) | — | `100.108.10.121` |
@@ -123,12 +123,12 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr *
 | Dispositivo | Hostname MagicDNS |
 |---|---|
 | Servidor (ASUS X555L) | `homeserver` (foi `hometail` de 2026-09-28 a 2026-10-13) |
-| DAT-WS-IA-01 | `dat-ws-ia-01` |
+| Acer Predator | `acer` (era `dat-ws-ia-01` até 2026-10-14) |
 | ZenBook UX482 | `asus` (era `ux482` até 2026-10-13) |
 | Telemóvel (Redmi Note 14) | `redmi-note-14` |
 | Tablet (Galaxy Tab S8) | `tab-s8-de-ivan` |
 
-> Nomes revistos a 2026-10-13 (ver "Convenção de nomes" no Estado atual). O `dat-ws-ia-01` passa a `acer` quando for migrado.
+> Nomes revistos a 2026-10-13 (ver "Convenção de nomes" no Estado atual). O `dat-ws-ia-01` passou a `acer` a 2026-10-14.
 
 ---
 
@@ -214,7 +214,8 @@ ssh -X ivan@homeserver
 - [x] Configurar modo headless (tampa fechada): passos 1 e 2 concluídos. ⚠️ **O passo 1 estava partido** (`logind.conf` sem `[Login]`); refeito a 2026-10-12 com um drop-in, e `HandleLidSwitch = ignore` confirmado com `busctl`. Ver [infra/docs/02-modo-headless.md](infra/docs/02-modo-headless.md) e [infra/docs/09-logind-journald.md](infra/docs/09-logind-journald.md)
 - [x] Instalar e configurar SSH — `sshd` ativo, porta aberta na firewall, ligação testada — ver [infra/docs/03-ssh.md](infra/docs/03-ssh.md)
 - [x] Configurar autenticação por chave SSH (ED25519) — **resolvido em 2026-08-09**: a causa real não era inconsistência, era ausência total — `~/.ssh` nem existia no servidor. Criado `~/.ssh` (`chmod 700`), `authorized_keys` (`chmod 600`) com a chave pública `id_ed25519` da DAT-WS-IA-01, e `restorecon -Rv ~/.ssh` para repor o contexto SELinux (`ssh_home_t`). Confirmado com ligação `ssh -o BatchMode=yes` bem-sucedida
-- [ ] Migrar o `dat-ws-ia-01` para a tailnet pessoal (no Acer: tray → Log out → Log in com a conta Google pessoal), renomear o computador Windows e o nó para `acer` (decidido a 2026-10-13), confirmar `acer.local` na LAN e atualizar o IP Tailscale nesta documentação
+- [x] Migrar o `dat-ws-ia-01` para a tailnet pessoal, renomear o computador Windows e o nó para `acer`, confirmar `acer.local` na LAN e atualizar o IP Tailscale nesta documentação — **2026-10-14** (`Rename-Computer` num PowerShell elevado; o primeiro login no Tailscale não ficou na conta pessoal e teve de ser repetido)
+- [x] Apagar os nós da tailnet antiga (`digitalltogether.com`) — 2026-10-14
 - [ ] Depois disso, apagar os nós da tailnet antiga (`digitalltogether.com`) no admin console
 - [ ] Desativar autenticação por password SSH (`PasswordAuthentication no`) — bloqueio técnico resolvido (chave já 100% consistente); **falta só a decisão do Ivan** sobre avançar. ⚠️ **Antes:** juntar uma chave do telemóvel (Termius) ao `authorized_keys`, porque o telemóvel entra por password (confirmado a 2026-10-14); sem isso perde-se o acesso pelo telemóvel
 - [x] Configurar Avahi (mDNS) no homeserver: ativo desde 2026-09-28, resolve `homeserver.local` (era `homelan.local` até 2026-10-13; `deny-interfaces=tailscale0` desde essa data) (firewalld `mdns` aberto). Ver [network/docs/00-avahi-mdns.md](network/docs/00-avahi-mdns.md)
@@ -257,10 +258,10 @@ ssh -X ivan@homeserver
 - [x] Replicar a configuração de `administrators_authorized_keys` no DAT-WS-IA-01 (chave própria ED25519 adicionada, ACLs corrigidas — `SYSTEM:F` + `BUILTIN\Administrators:F`) — **mas autenticação por chave ainda não funciona, ver bloqueio abaixo**
 - [ ] ⚠️ **Bloqueio descoberto:** a conta Windows da DAT-WS-IA-01 é Azure AD cloud-only (`azuread\ivanalmeida`, SID `S-1-12-1-...`), e o `sshd` do Windows não consegue resolver esta identidade para login (`LookupAccountName`/`LogonUser` falham) — testados username simples, `AzureAD\user` e o SID direto, todos rejeitados como `Invalid user` no log do Event Viewer (`OpenSSH/Operational`), mesmo com a chave pública corretamente instalada. É uma limitação conhecida da plataforma (contas Azure AD Joined "cloud-only", sem AD on-premises por trás), não um erro de configuração. Contorno recomendado: criar conta local dedicada ao SSH. **Decisão pendente** até se confirmar se a ZenBook tem o mesmo problema
 - [~] ~~Verificar se a ZenBook tem o mesmo problema de conta Azure AD cloud-only (`whoami /user` — SID a começar por `S-1-12-1-` confirma; `dsregcmd /status` — `AzureAdJoined : YES` confirma) antes de decidir a estratégia de contorno para autenticação por chave SSH nas duas máquinas Windows~~ **Obsoleto (2026-10-10): a ZenBook deixou de ter Windows (agora Omarchy).**
-- [ ] Rever todos os nodes da tailnet (homeserver, ZenBook, DAT-WS-IA-01; nota de 2026-10-12: o ZenBook corre Omarchy sem Tailscale, por isso está offline na tailnet até se decidir instalá-lo) para confirmar que a autenticação SSH por chave está corretamente configurada em todos
+- [ ] Rever todos os nodes da tailnet (homeserver, ZenBook/`asus`, `acer`; nota de 2026-10-12: o ZenBook corre Omarchy sem Tailscale, por isso está offline na tailnet até se decidir instalá-lo) para confirmar que a autenticação SSH por chave está corretamente configurada em todos
 - [ ] Avaliar node a node se a autenticação por password deve ser desativada, ou mantida ativa como failsafe (decisão manual por node, não automática)
 - [x] Desinstalar Devolutions RDM na ZenBook (confirmado via `winget list` — já não aparece instalada)
-- [ ] Verificar se a Devolutions RDM está instalada no DAT-WS-IA-01 e desinstalar se aplicável
+- [ ] Verificar se a Devolutions RDM está instalada no `acer` (ex-DAT-WS-IA-01) e desinstalar se aplicável
 - [ ] Adicionar tablet à tailnet e à documentação — dispositivo já adicionado ao Tailscale (2026-08-03), acesso remoto por design (mesmo padrão do telemóvel pessoal, sem IP fixo necessário). Falta: confirmar acesso fora da rede local (teste do Ivan pendente) e depois preencher IP Tailscale/hostname MagicDNS/modelo em `CLAUDE.md`, `README.md`, `network/README.md`, `docs/network-inventory.md` e `docs/diagrama-rede.md`
 
 > Nota: instalação de Docker/FileCloud e teste de acesso remoto via Tailscale ficam repostos a pendente na secção "Migração Rocky Linux → RHEL" acima, por dependerem do SO do servidor. A Smart TV deixa de ter um papel definido no projeto — estava só ligada ao Jellyfin, que saiu do âmbito (ver Notas Importantes).

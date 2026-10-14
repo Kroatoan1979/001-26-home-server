@@ -33,8 +33,8 @@
 │                 (servidores, switches, APs, etc.)
 │
 ├── .64 – .253  → pool DHCP do router Vodafone
-│   ├── .100    → DAT-WS-IA-01 Wi-Fi        (reserva DHCP por MAC)
-│   ├── .101    → DAT-WS-IA-01 Ethernet     (reserva DHCP por MAC)
+│   ├── .100    → acer Wi-Fi                (reserva DHCP por MAC)
+│   ├── .101    → acer Ethernet             (reserva DHCP por MAC)
 │   ├── .110    → ZenBook UX482 Wi-Fi       (reserva DHCP por MAC)
 │   ├── .111    → ZenBook UX482 Ethernet USB-C (reserva DHCP por MAC)
 │   ├── .120    → Smart TV Xiaomi           (reserva DHCP por MAC — Ethernet)
@@ -97,16 +97,16 @@
 
 ---
 
-### Workstation — DAT-WS-IA-01
+### Workstation — acer (Acer Predator; era DAT-WS-IA-01)
 
 | Campo | Valor |
 |---|---|
-| Hostname | `DAT-WS-IA-01` |
+| Hostname | `acer` (até 2026-10-14: `DAT-WS-IA-01`) |
 | Tipo / Papel | Workstation principal (Ivan) |
 | OS | Windows 11 Pro |
 | IP LAN Wi-Fi | `192.168.1.100` |
 | IP LAN Ethernet | `192.168.1.101` |
-| IP Tailscale | por migrar para a tailnet pessoal (na antiga: `100.124.224.123`, MagicDNS: `dat-ws-ia-01`) |
+| IP Tailscale | `100.82.47.47`, MagicDNS `acer` (tailnet pessoal, desde 2026-10-14; na antiga: `100.124.224.123`, `dat-ws-ia-01`) |
 | MAC Address Wi-Fi | `A0-02-A5-A1-A7-B6` (Killer Wi-Fi 6 AX1650i) |
 | MAC Address Ethernet | `74-D4-DD-55-D8-C1` (Killer E2600 Gigabit) |
 | DHCP Reservation | Concluída (Wi-Fi → `.100` · Ethernet → `.101`) |

@@ -14,7 +14,7 @@ Camada de rede do home server. O Tailscale cria uma rede privada virtual (mesh) 
 | Tailscale instalado no servidor | [x] Concluído — 2026-08-07, RHEL 10.2 |
 | Servidor autenticado na tailnet | [x] Concluído — node `homeserver` (foi `hometail` até 2026-10-13), IP `100.112.247.104` (tailnet pessoal, 2026-10-13; antes `100.98.31.9`), expiração da chave desativada |
 | MagicDNS testado (`ssh ivan@homeserver`) | [x] Concluído — 2026-08-07, confirmado a partir do DAT-WS-IA-01 |
-| DAT-WS-IA-01 na tailnet | [ ] Por migrar para a tailnet pessoal (continua na antiga: `100.124.224.123`) |
+| Acer (`acer`, ex-DAT-WS-IA-01) na tailnet | [x] Concluído — `100.82.47.47` (2026-10-14; na antiga era `100.124.224.123`) |
 | ZenBook Duo UX482 na tailnet | [x] Concluído — `100.99.98.113` (2026-10-13) |
 | Telemóvel (pessoal) na tailnet | [x] Concluído — `100.108.10.121` (2026-10-13) |
 | Tablet (pessoal) na tailnet | [x] Concluído — `100.119.33.58` (2026-10-13) |
@@ -36,7 +36,7 @@ Camada de rede do home server. O Tailscale cria uma rede privada virtual (mesh) 
 - **Plano:** Personal (gratuito, uso não comercial) — conta Google pessoal do Ivan, desde 2026-10-13. A conta anterior (`digitalltogether.com`, Free desde 2026-08-03) ficou bloqueada com "Trial ended"; motivo e alternativas no `CLAUDE.md` (Estado atual)
 - **Email:** conta Gmail pessoal (omitida — repositório público)
 - **Painel admin:** `https://login.tailscale.com/admin/machines`
-- **MagicDNS ativo** — resolução por hostname (`homeserver`, `asus`, `dat-ws-ia-01` → `acer` por migrar, `redmi-note-14`, `tab-s8-de-ivan`; LAN pelo mesmo nome com `.local`) dentro da tailnet, confirmada mesmo fora da LAN (dados móveis)
+- **MagicDNS ativo** — resolução por hostname (`homeserver`, `asus`, `acer`, `redmi-note-14`, `tab-s8-de-ivan`; LAN pelo mesmo nome com `.local`) dentro da tailnet, confirmada mesmo fora da LAN (dados móveis)
 
 ---
 
@@ -58,7 +58,7 @@ O tráfego entre dispositivos é peer-to-peer via WireGuard quando possível. O 
 | Dispositivo | IP Tailscale | MagicDNS |
 |---|---|---|
 | ASUS X555L (servidor) | `100.112.247.104` | `homeserver` |
-| DAT-WS-IA-01 | por migrar | `dat-ws-ia-01` |
+| Acer Predator | `100.82.47.47` | `acer` |
 | ZenBook Duo UX482 | `100.99.98.113` | `asus` |
 | Telemóvel (Redmi Note 14) | `100.108.10.121` | `redmi-note-14` |
 | Tablet (Galaxy Tab S8) | `100.119.33.58` | `tab-s8-de-ivan` |

@@ -4,12 +4,16 @@ Cada dispositivo precisa de instalar o cliente Tailscale e autenticar com a mesm
 
 ---
 
-## Windows (Acer — DAT-WS-IA-01, a renomear para `acer`)
+## Windows (Acer — `acer`, era DAT-WS-IA-01)
 
 1. Descarregar o cliente: [tailscale.com/download/windows](https://tailscale.com/download/windows)
 2. Instalar e iniciar
 3. Clicar em **Sign in** → autenticar com Google
 4. O dispositivo aparece automaticamente no painel admin
+
+**Cuidado (2026-10-14):** no login, confirmar que o browser usa a conta Google **pessoal**. Na migração do Acer o primeiro login não deixou o nó na tailnet pessoal e teve de ser repetido. Confirmar com `tailscale whoami` no PowerShell.
+
+**Mudar o nome do computador** (feito no Acer a 2026-10-14, antes de entrar na tailnet, para o nó herdar o nome): `Rename-Computer -NewName "acer" -Restart` num PowerShell **elevado** (sem elevação dá "acesso negado").
 
 Verificar no painel: `https://login.tailscale.com/admin/machines`
 
@@ -100,7 +104,7 @@ O mesmo nome nos dois caminhos; **o sufixo diz qual se usa**. É a estratégia d
 |---|---|---|
 | Servidor | `homeserver.local` | `homeserver` |
 | Asus (Omarchy) | `asus.local` | `asus` |
-| Acer (Windows) | `acer.local` (por fazer) | `acer` (por fazer) |
+| Acer (Windows) | `acer.local` | `acer` |
 | Telemóvel / tablet | — (só clientes) | `redmi-note-14` / `tab-s8-de-ivan` |
 
 Em casa, mesmo pelo nome da tailnet, o tráfego segue **direto pela LAN** (`tailscale ping` mostra `via 192.168.1.x:41641`). Por isso, o nome sem sufixo serve em qualquer lado; o `.local` é o recurso quando o Tailscale está em baixo.
@@ -153,7 +157,13 @@ sudo systemctl restart avahi-daemon
 | Termius no telemóvel (dados móveis) → `homeserver` | OK, entrada a partir de `100.108.10.121` (2026-10-14). Autenticação **por password**: o telemóvel não tem chave em `authorized_keys` |
 | Surfshark + Tailscale ligados no Asus | OK: regra do Tailscale (5270, tabela 52) antes da do Surfshark (31317); `.ts.net` resolvido por `100.100.100.100`; internet sai pelo Surfshark; ligação ao servidor passa uns segundos pelo DERP depois de o Surfshark ligar e volta a ser direta |
 
-**Falta testar:** o Acer depois da migração (`acer`, `acer.local`).
+| Acer na tailnet (2026-10-14) | `tailscale ping acer` → `via 192.168.1.100:41641` (direto); `acer.local` → `192.168.1.100`; `DAT-WS-IA-01.local` já não resolve. O `ping` ICMP ao Acer não responde (firewall do Windows por omissão, esperado) |
+
+| SSH do Acer (PowerShell) → servidor (2026-10-14) | `ssh ivan@homeserver` → origem `100.82.47.47` (tailnet); `ssh ivan@homeserver.local` → origem IPv6 da LAN (direto). Sem avisos de host key |
+
+**Nota:** o banner do SSH ainda mostra `Web console: https://homelan:9090/`, porque o `/run/cockpit/issue` é gerado no arranque e o servidor não reinicia desde 2026-10-12. Corrige-se no próximo reboot (ou `sudo systemctl restart cockpit-issue`).
+
+**Falta testar:** RDP a partir do Acer.
 
 ### Referência e troubleshooting
 
