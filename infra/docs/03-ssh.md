@@ -2,6 +2,8 @@
 
 O SSH é o principal método de administração do servidor após a instalação. Objetivos: serviço ativo no arranque, acesso por chave (sem password), e configuração segura básica.
 
+> **Estado a 2026-10-15:** só por chave (secção 7) e acessível só a partir da LAN e da tailnet (secção 8). As secções 2 e 5 ficam como histórico da instalação; onde houver diferença, prevalecem as secções 7 e 8.
+
 ---
 
 ## 1. Ativar o serviço SSH
@@ -110,6 +112,88 @@ Host homeserver
 ```
 
 Depois basta usar: `ssh homeserver-lan` ou `ssh homeserver`
+
+---
+
+## 7. Só por chave: password desligada (2026-10-15)
+
+### Chaves autorizadas
+
+Uma chave ED25519 por dispositivo. O comentário no fim de cada linha diz de onde é, para se poder revogar a chave certa se um dispositivo se perder:
+
+| Comentário | Dispositivo | Como foi gerada |
+|---|---|---|
+| `ivan@acer` | Acer Predator (Windows) | `ssh-keygen` (era `ivan@DAT-WS-IA-01`) |
+| `ivan@asus` | ZenBook Duo (Omarchy) | `ssh-keygen` (era `ivan@zenbook`) |
+| `ivan@redmi-note-14` | Telemóvel (Termius) | Termius: Keychain → Generate Key (ED25519) → "Export to host" |
+
+O "Export to host" do Termius junta a chave ao `authorized_keys` sem comentário; o nome dado na app fica só na app. Os comentários foram acertados à mão a 2026-10-15 (as chaves ficaram iguais, byte a byte; backup em `~/.ssh/authorized_keys.bak-2026-10-15`).
+
+No Termius, o host tem de usar a chave **e não ter a password guardada**; caso contrário, o teste não prova que a chave funciona.
+
+### Desligar a password
+
+Só depois de as três chaves estarem testadas (o telemóvel por Wi-Fi e só com dados móveis) e **com uma sessão SSH aberta** como rede de segurança:
+
+```bash
+sudo tee /etc/ssh/sshd_config.d/10-sem-password.conf <<'EOF2'
+# 2026-10-15: só autenticação por chave (acer, asus, redmi-note-14)
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+EOF2
+sudo sshd -t && sudo systemctl reload sshd
+```
+
+- Drop-in em `sshd_config.d` em vez de editar o `sshd_config`: as atualizações do pacote não o tocam. No `sshd`, o **primeiro** valor lido ganha, e os ficheiros do diretório são lidos por ordem alfabética, daí o prefixo `10-`.
+- `KbdInteractiveAuthentication no` também é preciso: sem ele, o PAM pode continuar a pedir a password por outro método.
+- `sshd -t` valida a configuração e o `&&` só deixa recarregar se não houver erros.
+
+### Validação
+
+```bash
+# No servidor: os dois a "no"
+sudo sshd -T | grep -iE '^(passwordauthentication|kbdinteractiveauthentication)'
+
+# Num cliente: a chave entra, a password forçada é recusada
+ssh homeserver 'echo OK'
+ssh -o PubkeyAuthentication=no -o BatchMode=yes homeserver true
+# → Permission denied (publickey,gssapi-keyex,gssapi-with-mic)
+```
+
+Resultado a 2026-10-15: `sshd -T` com os dois a `no`; a partir do Asus, a chave entra e a password é recusada tanto por `homeserver` (tailnet) como por `homeserver.local` (LAN). O `gssapi-*` é Kerberos, ligado de origem no RHEL; sem um KDC não dá acesso a ninguém.
+
+**Recuperação se se perderem todas as chaves:** consola física do servidor ou terminal do Cockpit (que autentica pelo PAM e continua a aceitar password, só a partir da LAN e da tailnet).
+
+---
+
+## 8. Firewall: SSH e Cockpit só a partir da LAN e da tailnet (2026-10-15)
+
+O servidor tem um endereço **IPv6 global** em `enp2s0`. Em IPv6 não há NAT, por isso os serviços abertos na zona `public` ficavam alcançáveis da Internet se a firewall do router deixasse passar. O Cockpit era o caso grave: continua a aceitar password.
+
+Os serviços `ssh` e `cockpit` saíram da zona e passaram a entrar só por *rich rules* com origem:
+
+```bash
+for svc in cockpit ssh; do
+  sudo firewall-cmd --permanent --zone=public --add-rich-rule="rule family=\"ipv4\" source address=\"192.168.1.0/24\" service name=\"$svc\" accept"
+  sudo firewall-cmd --permanent --zone=public --add-rich-rule="rule family=\"ipv4\" source address=\"100.64.0.0/10\" service name=\"$svc\" accept"
+  sudo firewall-cmd --permanent --zone=public --add-rich-rule="rule family=\"ipv6\" source address=\"fd7a:115c:a1e0::/48\" service name=\"$svc\" accept"
+  sudo firewall-cmd --permanent --zone=public --remove-service=$svc
+done
+sudo firewall-cmd --reload
+sudo firewall-cmd --list-all --zone=public
+```
+
+| Origem | Rede |
+|---|---|
+| LAN IPv4 | `192.168.1.0/24` |
+| Tailnet IPv4 (CGNAT da Tailscale) | `100.64.0.0/10` |
+| Tailnet IPv6 (ULA da Tailscale) | `fd7a:115c:a1e0::/48` |
+
+- O IPv6 global da LAN **não** entra, de propósito: o prefixo é do ISP e pode mudar, e uma regra com ele deixaria de valer sem aviso. O `homeserver.local` também resolve para esse endereço, mas o alvo `default` da zona responde com uma recusa imediata e os clientes voltam ao IPv4 sem se notar.
+- A `tailscale0` não tem zona (`firewall-cmd --get-zone-of-interface=tailscale0` → `no zone`); aplica-se a `public`, a zona por omissão.
+- Ficam abertos na zona só `dhcpv6-client` e `mdns`.
+
+**Validado a 2026-10-15 a partir do Asus:** SSH e Cockpit (`https://…:9090`) funcionam por `homeserver.local`, `192.168.1.2`, `homeserver`, IP `100.x` e IP `fd7a:…` da tailnet; pelo IPv6 global, o Cockpit dá *connection refused* e o SSH *Permission denied* na ligação. **Por testar (opcional):** se o router também bloqueia IPv6 vindo da Internet (telemóvel só com dados móveis e sem Tailscale, abrir `https://[IPv6 global]:9090`).
 
 ---
 

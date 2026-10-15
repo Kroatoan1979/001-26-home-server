@@ -185,7 +185,7 @@ watch -n 2 sensors
 - [x] Instalar RHEL no ASUS X555L ("Server with GUI") — RHEL 10.2
 - [x] `subscription-manager register`
 - [x] Configurar modo headless (exceto uso do TraderShark) — corrigido a 2026-10-12
-- [x] Instalar e configurar SSH (autenticação por chave ED25519) — falta decidir desativar a password
+- [x] Instalar e configurar SSH (autenticação por chave ED25519) — só por chave desde 2026-10-15 (password desligada); Cockpit e SSH limitados à LAN e à tailnet na firewall
 - [x] Configurar Avahi (mDNS) para resolução `homeserver.local` (2026-10-13; foi `homelan.local` de 2026-09-28 a 2026-10-13)
 - [x] Instalar Tailscale e integrar todos os dispositivos — tailnet pessoal desde 2026-10-13: servidor, Asus, telemóvel, tablet e Acer (2026-10-14) feitos; nós da tailnet antiga apagados a 2026-10-14
 - [ ] Instalar Docker
