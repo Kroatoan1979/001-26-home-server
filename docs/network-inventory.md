@@ -113,7 +113,7 @@
 | Ligação | Wi-Fi (Ethernet disponível) |
 | Serviços expostos | RDP `:3389`, SSH `:22` |
 | Acesso remoto | RDP, SSH (servidor instalado 2026-07-08; autenticação por chave ainda bloqueada — ver nota abaixo) |
-| Notas | VirtualBox, Hyper-V (WSL2), Surfshark VPN instalados. IPs diferentes por adaptador (limitação do router). Perfil de rede Wi-Fi corrigido de `Public` para `Private` (2026-07-08) para a regra de firewall do OpenSSH se aplicar. ⚠️ Conta Windows é Azure AD cloud-only (`azuread\ivanalmeida`) — `sshd` não resolve esta identidade para login, chave SSH não autentica ainda (ver `CLAUDE.md`, secção "Limitação Azure AD + OpenSSH"). |
+| Notas | VirtualBox, Hyper-V (WSL2), Surfshark VPN instalados. IPs diferentes por adaptador (limitação do router). Perfil de rede Wi-Fi corrigido de `Public` para `Private` (2026-07-08) para a regra de firewall do OpenSSH se aplicar. ⚠️ Conta Windows é Azure AD cloud-only (`azuread\ivanalmeida`) — `sshd` não resolve esta identidade para login, chave SSH não autentica ainda (ver `CLAUDE.md`, secção "Limitação Azure AD + OpenSSH"). **2026-10-15:** OpenSSH Server parado e `Disabled`, regra `OpenSSH-Server-In-TCP` desligada (decisão de 2026-10-14: sem SSH de entrada nos portáteis); o acer só é cliente SSH. |
 
 ---
 
