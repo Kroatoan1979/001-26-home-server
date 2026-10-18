@@ -126,8 +126,9 @@ Uma chave ED25519 por dispositivo. O comentário no fim de cada linha diz de ond
 | `ivan@acer` | Acer Predator (Windows) | `ssh-keygen` (era `ivan@DAT-WS-IA-01`) |
 | `ivan@asus` | ZenBook Duo (Omarchy) | `ssh-keygen` (era `ivan@zenbook`) |
 | `ivan@redmi-note-14` | Telemóvel (Termius) | Termius: Keychain → Generate Key (ED25519) → "Export to host" |
+| `ivan@acer-kali` | Acer Predator, WSL Kali Linux | `ssh-keygen -t ed25519 -C "ivan@acer-kali"` (2026-10-18; acrescentada a partir do `asus`) |
 
-O "Export to host" do Termius junta a chave ao `authorized_keys` sem comentário; o nome dado na app fica só na app. Os comentários foram acertados à mão a 2026-10-15 (as chaves ficaram iguais, byte a byte; backup em `~/.ssh/authorized_keys.bak-2026-10-15`).
+O "Export to host" do Termius junta a chave ao `authorized_keys` sem comentário; o nome dado na app fica só na app. Os comentários foram acertados à mão a 2026-10-15 (as chaves ficaram iguais, byte a byte; backup em `~/.ssh/authorized_keys.bak-2026-10-15`, apagado a 2026-10-18 depois de confirmar que as três chaves estavam no ficheiro atual).
 
 No Termius, o host tem de usar a chave **e não ter a password guardada**; caso contrário, o teste não prova que a chave funciona.
 
@@ -192,8 +193,9 @@ sudo firewall-cmd --list-all --zone=public
 - O IPv6 global da LAN **não** entra, de propósito: o prefixo é do ISP e pode mudar, e uma regra com ele deixaria de valer sem aviso. O `homeserver.local` também resolve para esse endereço, mas o alvo `default` da zona responde com uma recusa imediata e os clientes voltam ao IPv4 sem se notar.
 - A `tailscale0` não tem zona (`firewall-cmd --get-zone-of-interface=tailscale0` → `no zone`); aplica-se a `public`, a zona por omissão.
 - Ficam abertos na zona só `dhcpv6-client` e `mdns`.
+- Documento de estudo (cada opção explicada, alternativas, troubleshooting): [network/docs/03-firewalld-restricao-origem.md](../../network/docs/03-firewalld-restricao-origem.md).
 
-**Validado a 2026-10-15 a partir do Asus:** SSH e Cockpit (`https://…:9090`) funcionam por `homeserver.local`, `192.168.1.2`, `homeserver`, IP `100.x` e IP `fd7a:…` da tailnet; pelo IPv6 global, o Cockpit dá *connection refused* e o SSH *Permission denied* na ligação. **Por testar (opcional):** se o router também bloqueia IPv6 vindo da Internet (telemóvel só com dados móveis e sem Tailscale, abrir `https://[IPv6 global]:9090`).
+**Validado a 2026-10-15 a partir do Asus:** SSH e Cockpit (`https://…:9090`) funcionam por `homeserver.local`, `192.168.1.2`, `homeserver`, IP `100.x` e IP `fd7a:…` da tailnet; pelo IPv6 global, o Cockpit dá *connection refused* e o SSH *Permission denied* na ligação. Teste a partir da Internet (dados móveis, sem Tailscale): abandonado pelo Ivan a 2026-10-18; revalidação a partir do Asus no mesmo dia com o mesmo resultado.
 
 ---
 

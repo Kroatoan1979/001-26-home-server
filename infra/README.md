@@ -13,8 +13,8 @@ Camada de infraestrutura do servidor: sistema operativo, modo headless, SSH, ace
 | RHEL instalado | [ ] Pendente (substitui o Rocky Linux 10) |
 | Registo `subscription-manager` | [ ] Pendente |
 | Modo headless configurado | [ ] Pendente (exceto durante uso do TraderShark) |
-| SSH operacional | [ ] Pendente (autenticação por chave ED25519 — nova chave de host) |
-| Acesso gráfico remoto (X11 / xrdp) | [ ] Pendente |
+| SSH operacional | [x] Só por chave ED25519 desde 2026-10-15 (acer, asus, redmi-note-14; acer-kali desde 2026-10-18); só LAN e tailnet |
+| Acesso gráfico remoto (X11 / xrdp) | [~] X11 concluído (asus 2026-10-14, acer pelo WSL 2026-10-18); xrdp pendente (pausado) |
 | HDD externo 5TB montado | [x] Reposto em RHEL a 2026-10-11 (`/mnt/dados`, XFS, fstab, regra `udev` do hdparm recriada) |
 
 ---

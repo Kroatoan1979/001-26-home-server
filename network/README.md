@@ -28,6 +28,7 @@ Camada de rede do home server. O Tailscale cria uma rede privada virtual (mesh) 
 | [00-avahi-mdns.md](docs/00-avahi-mdns.md) | Avahi (mDNS) — resolução `homeserver.local` independente do Tailscale |
 | [01-tailscale-instalacao.md](docs/01-tailscale-instalacao.md) | Instalar e configurar Tailscale no servidor RHEL |
 | [02-tailscale-dispositivos.md](docs/02-tailscale-dispositivos.md) | Adicionar todos os dispositivos à tailnet |
+| [03-firewalld-restricao-origem.md](docs/03-firewalld-restricao-origem.md) | firewalld: SSH e Cockpit só da LAN e da tailnet (rich rules por origem) — estudo |
 
 ---
 

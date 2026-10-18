@@ -79,6 +79,8 @@ sudo firewall-cmd --list-all
 
 Se necessário:
 
+> **Nota (2026-10-18): não se aplica a este servidor.** A `tailscale0` ficou sem zona (avaliada pela `public`), e o acesso da tailnet é feito por rich rules só para SSH e Cockpit. A zona `trusted` aceitaria tudo em todas as portas. Ver [03-firewalld-restricao-origem.md](03-firewalld-restricao-origem.md).
+
 ```bash
 sudo firewall-cmd --zone=trusted --add-interface=tailscale0 --permanent
 sudo firewall-cmd --reload

@@ -193,7 +193,7 @@ watch -n 2 sensors
 - [ ] Instalar FileCloud via Docker e configurar portal de administração
 - [x] Configurar HDD externo 5TB (feito em Rocky Linux; reposto em RHEL a 2026-10-11: `fstab` + regra `udev`)
 - [ ] Testar acesso remoto via Tailscale de todos os dispositivos — Asus e telemóvel (dados móveis) OK a 2026-10-14; Acer OK a 2026-10-14 (`ssh ivan@homeserver` pela tailnet e `ssh ivan@homeserver.local` pela LAN, sem avisos de host key); falta o RDP
-- [ ] Configurar X11 forwarding e xrdp para acesso gráfico remoto — X11 a partir do Omarchy OK a 2026-10-14 (`ssh -Y`); falta o Acer (VcXsrv) e o xrdp (pausado)
+- [ ] Configurar X11 forwarding e xrdp para acesso gráfico remoto — X11 a partir do Omarchy OK a 2026-10-14 (`ssh -Y`) e do Acer a 2026-10-18 (WSL Kali + WSLg, `ssh -X`); falta o xrdp (pausado)
 - [ ] Instalar e testar o TraderShark localmente
 - [ ] Praticar RHCSA (CLI: utilizadores, permissões, LVM, systemd, firewalld, SELinux, containers)
 

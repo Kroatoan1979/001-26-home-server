@@ -1,6 +1,6 @@
 # X11 Forwarding — Acesso Gráfico Remoto (Windows)
 
-> **Estado: em configuração (2026-08-09).** Retomado por decisão do Ivan, independente do TraderShark (que continua pausado). Passos 1–3 concluídos, teste final (`ssh -X` + app gráfica) ainda por fazer — dois obstáculos novos encontrados pelo caminho, ver secção de progresso real abaixo.
+> **Estado: concluído (2026-10-18).** Funciona a partir do Omarchy (`ssh -Y`, 2026-10-14) e do `acer` pelo WSL Kali + WSLg (`ssh -X`, 2026-10-18). O VcXsrv deixou de ser preciso e foi desinstalado do Windows a 2026-10-18. As secções sobre o VcXsrv ficam como histórico. Por testar só o TraderShark (pausado).
 
 ---
 
@@ -90,9 +90,25 @@ ssh -Y homeserver gnome-calculator
 - Os dois obstáculos de 2026-08-09 ficaram resolvidos: não é preciso o `xorg-x11-apps` (a `gnome-calculator` e o `gnome-text-editor` já vêm no "Server with GUI"), e a chave GPG do Tailscale foi importada.
 - **`-X` não funciona com apps GTK4:** o modo *untrusted* esconde a extensão XInput2 e a app termina com "XInput2 support not found". Com `-Y` (*trusted*) funciona. Risco do `-Y`: a app remota pode ler o teclado e o ecrã do X local, por isso só se usa com hosts de confiança (este servidor é do Ivan).
 
+### 2026-10-18 — a partir do `acer`, pelo WSL (Kali Linux + WSLg, sem VcXsrv)
+
+O WSLg (servidor gráfico do WSL2, incluído no Windows 11) faz de X server local, por isso o VcXsrv deixou de ser preciso. A Kali tem chave SSH própria (`ivan@acer-kali`, ver [03-ssh.md](03-ssh.md)).
+
+```bash
+# 1. Canal X11 (sem app gráfica)
+ssh -X homeserver 'echo "homeserver DISPLAY=$DISPLAY"; xauth list'
+# 2. Janela real
+ssh -X homeserver xterm
+```
+
+- Passo 1: `DISPLAY=localhost:10.0` e um cookie `MIT-MAGIC-COOKIE-1`. O aviso `No xauth data; using fake authentication data` é inofensivo: o WSLg não cria `~/.Xauthority` na Kali, e o ssh gera um cookie próprio.
+- Passo 2: a janela do `xterm` abriu no Windows e `hostname` respondeu `homeserver` (confirmado pelo Ivan). As letras ficam pequenas (fontes bitmap `misc` num ecrã com escala alta), o que é só estético.
+- Instalou-se o `xterm` (`sudo dnf install -y xterm`, AppStream; entra com `libXaw`, `mkfontscale` e `xorg-x11-fonts-misc`, 8,4 MB) por ser X11 puro: funciona com `-X` (*untrusted*), ao contrário das apps GTK4, que precisam de `-Y`. O `xeyes`, o `xclock` e o `xlogo` não existem nos repositórios do RHEL 10.
+- O VcXsrv instalado no Windows em 2026-08-09 ficou sem uso e o Ivan desinstalou-o a 2026-10-18 (`winget uninstall --id marha.VcXsrv -e`).
+
 ### Por testar
 
-- [ ] App de teste aparece no ecrã do Windows (`acer`) via VcXsrv
+- [x] App de teste aparece no ecrã do `acer` — 2026-10-18, pelo WSL/WSLg (ver acima), não pelo VcXsrv
 - [ ] TraderShark corre via X11 forwarding sem erros gráficos relevantes (aceitando alguma latência de renderização) — nota: TraderShark continua pausado, este ponto só se aplica se/quando for retomado
 
 ---
