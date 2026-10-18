@@ -156,10 +156,10 @@ watch -n 2 sensors
 
 ## Checklist de Progresso
 
-> Migração Rocky Linux → RHEL em curso — instalação, SSH, headless, Avahi e Tailscale do servidor repostos a pendente porque serão refeitos do zero. O HDD externo mantém-se inalterado.
+> Migração Rocky Linux → RHEL concluída na parte de base (SO, SSH, headless, Avahi, Tailscale, HDD). Pendentes: prática RHCSA e o regresso do TraderScope.
 
-- [ ] Obter subscrição RHEL Developer e descarregar a ISO
-- [ ] Criar pen USB bootável com Rufus (modo DD Image)
+- [x] Obter subscrição RHEL Developer e descarregar a ISO
+- [x] Criar pen USB bootável com Rufus (modo DD Image)
 - [x] Instalar RHEL no ASUS X555L ("Server with GUI") — RHEL 10.2
 - [x] `subscription-manager register`
 - [x] Configurar modo headless — corrigido a 2026-10-12
@@ -168,7 +168,7 @@ watch -n 2 sensors
 - [x] Instalar Tailscale e integrar todos os dispositivos — tailnet pessoal desde 2026-10-13: servidor, Asus, telemóvel, tablet e Acer (2026-10-14) feitos; nós da tailnet antiga apagados a 2026-10-14
 - [x] Reestruturar pastas do HDD — 2026-10-11 (fica só `backups/`)
 - [x] Configurar HDD externo 5TB (feito em Rocky Linux; reposto em RHEL a 2026-10-11: `fstab` + regra `udev`)
-- [ ] Testar acesso remoto via Tailscale de todos os dispositivos — Asus e telemóvel (dados móveis) OK a 2026-10-14; Acer OK a 2026-10-14 (`ssh ivan@homeserver` pela tailnet e `ssh ivan@homeserver.local` pela LAN, sem avisos de host key); falta o RDP
+- [x] Testar acesso remoto via Tailscale de todos os dispositivos — Asus e telemóvel (dados móveis) OK a 2026-10-14; Acer OK a 2026-10-14 (`ssh ivan@homeserver` pela tailnet e `ssh ivan@homeserver.local` pela LAN, sem avisos de host key); só por chave desde 2026-10-15
 - [x] Configurar X11 forwarding para acesso gráfico remoto — Omarchy OK a 2026-10-14 (`ssh -Y`) e Acer a 2026-10-18 (WSL Kali + WSLg, `ssh -X`)
 - [ ] Redeploy do TraderScope em 24/7, quando estiver sólido localmente
 - [ ] Praticar RHCSA (CLI: utilizadores, permissões, LVM, systemd, firewalld, SELinux, containers com Podman)
