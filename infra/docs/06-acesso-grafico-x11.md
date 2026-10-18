@@ -1,6 +1,6 @@
 # X11 Forwarding — Acesso Gráfico Remoto (Windows)
 
-> **Estado: concluído (2026-10-18).** Funciona a partir do Omarchy (`ssh -Y`, 2026-10-14) e do `acer` pelo WSL Kali + WSLg (`ssh -X`, 2026-10-18). O VcXsrv deixou de ser preciso e foi desinstalado do Windows a 2026-10-18. As secções sobre o VcXsrv ficam como histórico. Por testar só o TraderShark (pausado).
+> **Estado: concluído (2026-10-18).** Funciona a partir do Omarchy (`ssh -Y`, 2026-10-14) e do `acer` pelo WSL Kali + WSLg (`ssh -X`, 2026-10-18). O VcXsrv deixou de ser preciso e foi desinstalado do Windows a 2026-10-18. As secções sobre o VcXsrv ficam como histórico. O TraderShark e o xrdp referidos abaixo saíram do plano a 2026-10-18; essas partes ficam como histórico.
 
 ---
 
@@ -109,7 +109,7 @@ ssh -X homeserver xterm
 ### Por testar
 
 - [x] App de teste aparece no ecrã do `acer` — 2026-10-18, pelo WSL/WSLg (ver acima), não pelo VcXsrv
-- [ ] TraderShark corre via X11 forwarding sem erros gráficos relevantes (aceitando alguma latência de renderização) — nota: TraderShark continua pausado, este ponto só se aplica se/quando for retomado
+- [~] ~~TraderShark corre via X11 forwarding sem erros gráficos relevantes~~ **Obsoleto (2026-10-18): o TraderShark saiu do plano.**
 
 ---
 

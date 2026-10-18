@@ -10,11 +10,11 @@ Camada de infraestrutura do servidor: sistema operativo, modo headless, SSH, ace
 
 | Componente | Estado |
 |---|---|
-| RHEL instalado | [ ] Pendente (substitui o Rocky Linux 10) |
-| Registo `subscription-manager` | [ ] Pendente |
-| Modo headless configurado | [ ] Pendente (exceto durante uso do TraderShark) |
+| RHEL instalado | [x] RHEL 10.2 (substitui o Rocky Linux 10) |
+| Registo `subscription-manager` | [x] Registado (Simple Content Access) |
+| Modo headless configurado | [x] Corrigido a 2026-10-12 (drop-in do `logind`) |
 | SSH operacional | [x] Só por chave ED25519 desde 2026-10-15 (acer, asus, redmi-note-14; acer-kali desde 2026-10-18); só LAN e tailnet |
-| Acesso gráfico remoto (X11 / xrdp) | [~] X11 concluído (asus 2026-10-14, acer pelo WSL 2026-10-18); xrdp pendente (pausado) |
+| Acesso gráfico remoto (X11) | [x] asus 2026-10-14, acer pelo WSL 2026-10-18 (o xrdp saiu do plano a 2026-10-18) |
 | HDD externo 5TB montado | [x] Reposto em RHEL a 2026-10-11 (`/mnt/dados`, XFS, fstab, regra `udev` do hdparm recriada) |
 
 ---
@@ -24,12 +24,11 @@ Camada de infraestrutura do servidor: sistema operativo, modo headless, SSH, ace
 | Documento | Descrição |
 |---|---|
 | [01-instalacao-rhel.md](docs/01-instalacao-rhel.md) | Instalação do SO — RHEL Developer Subscription, "Server with GUI", particionamento, utilizador |
-| [02-modo-headless.md](docs/02-modo-headless.md) | Configurar o portátil para operar com tampa fechada (exceto uso do TraderShark) |
+| [02-modo-headless.md](docs/02-modo-headless.md) | Configurar o portátil para operar com tampa fechada |
 | [03-ssh.md](docs/03-ssh.md) | Setup SSH, primeiro acesso remoto, autenticação por chave |
-| [04-storage-hdd-5tb.md](docs/04-storage-hdd-5tb.md) | Montar o HDD externo 5TB, estrutura de pastas para o FileCloud, gestão de energia (hdparm+udev), SMART e reposição em RHEL |
+| [04-storage-hdd-5tb.md](docs/04-storage-hdd-5tb.md) | Montar o HDD externo 5TB, estrutura de pastas, gestão de energia (hdparm+udev), SMART e reposição em RHEL |
 | [05-subscription-manager.md](docs/05-subscription-manager.md) | Registo da subscrição RHEL Developer (`subscription-manager`) |
 | [06-acesso-grafico-x11.md](docs/06-acesso-grafico-x11.md) | X11 forwarding — sessão gráfica remota a partir do Windows |
-| [07-acesso-grafico-xrdp.md](docs/07-acesso-grafico-xrdp.md) | xrdp — acesso gráfico remoto a partir do tablet Android |
 | [08-backup-arquivo-ssd.md](docs/08-backup-arquivo-ssd.md) | Backup do arquivo pessoal (SSD externo NTFS) para `/mnt/dados/backups` com `rsync` por SSH e verificação SHA-256 |
 
 ---
@@ -39,8 +38,8 @@ Camada de infraestrutura do servidor: sistema operativo, modo headless, SSH, ace
 - **Modelo:** ASUS X555L
 - **CPU:** Intel Core i7 (4ª/5ª geração)
 - **RAM:** 8 GB DDR3
-- **Disco interno:** SSD (RHEL + serviços Docker)
-- **Disco externo:** HDD 5TB WD My Passport — `/mnt/dados` (FileCloud + backups)
+- **Disco interno:** SSD (RHEL + serviços)
+- **Disco externo:** HDD 5TB WD My Passport — `/mnt/dados` (backups)
 - **Rede:** Ethernet ao router doméstico
 
 ---

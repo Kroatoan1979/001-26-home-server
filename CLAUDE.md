@@ -1,6 +1,6 @@
 # Home Server + Tailscale — Contexto do Projeto
 
-## 🔄 Estado atual (verificado a 2026-10-10; HDD atualizado a 2026-10-11; logind/journal e Wi-Fi a 2026-10-12; Tailscale a 2026-10-13; Acer a 2026-10-14; SSH e firewall a 2026-10-15)
+## 🔄 Estado atual (verificado a 2026-10-10; HDD atualizado a 2026-10-11; logind/journal e Wi-Fi a 2026-10-12; Tailscale a 2026-10-13; Acer a 2026-10-14; SSH e firewall a 2026-10-15; âmbito a 2026-10-18)
 
 > Prevalece sobre o texto histórico abaixo, quando houver diferença.
 >
@@ -11,16 +11,18 @@
 > - **Chave GPG do repositório Tailscale:** importada (`gpg-pubkey` presente). O `sudo dnf makecache` de 2026-10-12 passou sem erros nos 3 repos (BaseOS, AppStream, Tailscale); o erro de 2026-10-11 era só por correr sem `sudo`.
 > - **Wi-Fi do servidor (`wlp3s0`): recurso abandonado (decisão do Ivan a 2026-10-12).** Substitui a decisão de 2026-08-07. Investigado a 2026-10-12: o Wi-Fi estava em baixo desde 2026-09-01 00:18 **sem ser intencional** (o NetworkManager esgotou as 4 tentativas de religação; a causa exata perdeu-se porque o journal era volátil). **Motivo:** o recurso só cobria falhas do cabo ou da porta Ethernet (usa o mesmo router), esteve morto 6 semanas sem ninguém dar por isso, e o acesso alternativo já está garantido pelo Tailscale e pelo mDNS. **Ficou reativável:** o perfil `Vodafone-C27A91 2.4G` mantém-se com a password guardada, só com `connection.autoconnect no`; o rádio continua ligado. Para reativar: `sudo nmcli connection modify "Vodafone-C27A91 2.4G" connection.autoconnect yes connection.autoconnect-retries 0 && sudo nmcli connection up "Vodafone-C27A91 2.4G"` (o `autoconnect-retries 0` evita repetir a falha de setembro) e criar a reserva DHCP para o MAC `80:a5:89:93:a6:fb`.
 > - **Loop de suspensão do `systemd-logind` corrigido a 2026-10-12.** O `/etc/systemd/logind.conf` criado em agosto não tinha `[Login]`, por isso a tampa fechada pedia `suspend` sem parar e o `suspend.target` mascarado recusava. Durante 66 dias o `logind` gastou ~82% de um core, gerou ~1,8 GB/semana de `/var/log/messages` e deixou o journal com só ~6 min de histórico. Corrigido com o drop-in `/etc/systemd/logind.conf.d/10-homeserver.conf` (o ficheiro antigo ficou como `logind.conf.bak-2026-10-12`); a máscara dos alvos de suspensão mantém-se. **Journal agora persistente** (`/etc/systemd/journald.conf.d/10-persistent.conf`, `SystemMaxUse=1G`). Os `/var/log/messages-2026*` antigos (~7 GB de lixo do loop) ficam a cargo do `logrotate` (decisão do Ivan a 2026-10-12: não apagar à mão; o último sai por volta de 2026-11-08). Ver [infra/docs/09-logind-journald.md](infra/docs/09-logind-journald.md).
-> - **HDD externo 5 TB** (`/dev/sdb1`, XFS): **montado em `/mnt/dados` pelo `/etc/fstab`** (UUID + `nofail`) desde 2026-10-11. Regra `udev` do `hdparm` recriada (APM 254 confirmado). Pastas: só `backups/` (o Ivan apagou `filecloud/` e `arquivo/`, que estavam vazias, a 2026-10-11; confirmado a 2026-10-12 que não fazem falta: a `filecloud/` cria-se com o próprio serviço FileCloud e a `arquivo/` ficou redundante com `backups/Ivan_SSD/Arquivo`). SMART saudável a 2026-10-11 (0 setores realocados/pendentes, teste curto sem erros); teste longo em curso a 2026-10-12; vigiado pelo `smartd` desde 2026-10-12. Ver [infra/docs/04-storage-hdd-5tb.md](infra/docs/04-storage-hdd-5tb.md).
+> - **HDD externo 5 TB** (`/dev/sdb1`, XFS): **montado em `/mnt/dados` pelo `/etc/fstab`** (UUID + `nofail`) desde 2026-10-11. Regra `udev` do `hdparm` recriada (APM 254 confirmado). Pastas: só `backups/` (o Ivan apagou `filecloud/` e `arquivo/`, que estavam vazias, a 2026-10-11; confirmado a 2026-10-12 que não fazem falta: a `filecloud/` deixou de ter uso com a saída do FileCloud do plano a 2026-10-18 e a `arquivo/` ficou redundante com `backups/Ivan_SSD/Arquivo`). SMART saudável a 2026-10-11 (0 setores realocados/pendentes, teste curto sem erros); teste longo em curso a 2026-10-12; vigiado pelo `smartd` desde 2026-10-12. Ver [infra/docs/04-storage-hdd-5tb.md](infra/docs/04-storage-hdd-5tb.md).
 > - **Backup do arquivo pessoal (decisão do Ivan, 2026-10-11):** este disco guarda a cópia local do `Arquivo` do SSD externo de 1 TB (`Ivan_SSD`) em `/mnt/dados/backups/Ivan_SSD/`. Motivo: o SSD era a única cópia local das fotos; o OneDrive é a cópia fora de casa. Alternativas recusadas: ligar o SSD diretamente ao servidor (o RHEL não traz suporte NTFS) e um disco novo (este tem 4,5 TB livres e SMART saudável).
 > - **TraderScope removida do servidor a 2026-10-12** (decisão do Ivan): serviço, `/opt/traderscope`, porta `8765/tcp` no firewalld, `tailscale serve`, operador do Tailscale (`ivan`) e deploy key. A app passa a ser desenvolvida só localmente (Acer + ZenBook) e volta ao servidor 24/7 quando estiver sólida. Ver `PLANO.md` (M7) no repositório `002-26-traderscope`. Nota: sem operador, os comandos `tailscale serve`/`set` voltam a precisar de `sudo`.
-> - **Contentores:** o Podman está instalado (vem com o RHEL) e o Docker não. Falta decidir entre Docker e Podman para o FileCloud.
+> - **Âmbito reduzido ao TraderScope (decisão do Ivan, 2026-10-18).** O único projeto planeado para o servidor passa a ser o **regresso do TraderScope em 24/7**, quando a app estiver sólida localmente (tarefa 13(e); antes disso, autenticação no `live_server`, que estava aberto à LAN). **Saem do plano, com tudo o que deles dependia:** FileCloud (e a decisão Docker vs Podman, que só existia por causa dele), sub-projeto Web Server + Cloudflare Tunnel (incluindo a passagem do DNS do `digitalltogether.xyz` para a Cloudflare), sub-projeto Guacamole, xrdp (tablet Android) e TraderShark. Nada disto chegou a ser instalado no servidor (verificado a 2026-10-18: `xrdp` e `docker-ce` ausentes, `/mnt/dados` só com `backups/`). Foram apagados `services/filecloud/`, `services/tradershark/`, `services/web-server/` e `infra/docs/07-acesso-grafico-xrdp.md` (ficam no histórico do git). O Podman continua instalado por vir com o RHEL; serve para a prática de contentores do RHCSA. **Por reavaliar:** a instalação "Server with GUI" foi escolhida por causa do TraderShark; o GNOME fica por agora (o X11 forwarding usa as apps gráficas do servidor).
 > - **SSH: só por chave desde 2026-10-15** (decisão do Ivan). Três chaves ED25519 no `authorized_keys`, com o comentário a dizer o dispositivo: `ivan@acer`, `ivan@asus` e `ivan@redmi-note-14` (Termius, gerada na app e enviada com "Export to host"; testada por Wi-Fi e só com dados móveis). **2026-10-18:** quarta chave, `ivan@acer-kali` (WSL Kali Linux do acer, que substituiu o Ubuntu), para o X11 forwarding pelo WSLg. Os comentários antigos `ivan@DAT-WS-IA-01` e `ivan@zenbook` foram renomeados no mesmo dia (as chaves ficaram iguais). A password foi desligada com o drop-in `/etc/ssh/sshd_config.d/10-sem-password.conf` (`PasswordAuthentication no`, `KbdInteractiveAuthentication no`); o `sshd -T` confirma os dois a `no` e, a partir do Asus, um login forçado por password é recusado pela LAN e pela tailnet. Nos portáteis não há SSH de entrada (decisão de 2026-10-14). **Incoerência corrigida a 2026-10-15:** o OpenSSH Server do `acer` estava `Running`/`Automatic`; foi parado, passou a `Disabled` e a regra `OpenSSH-Server-In-TCP` da firewall do Windows foi desligada (desativado, não desinstalado: volta com `Set-Service sshd -StartupType Automatic; Start-Service sshd` e `Enable-NetFirewallRule`). A porta 22 do `acer` não responde, vista do Asus por `acer` e `acer.local`. No Asus (Omarchy), o `sshd` está inativo e desativado, sem nada à escuta na porta 22 (confirmado a 2026-10-15). Ver [infra/docs/03-ssh.md](infra/docs/03-ssh.md).
 > - **Firewall: Cockpit e SSH só a partir da LAN e da tailnet (2026-10-15).** **Motivo:** o servidor tem um endereço **IPv6 global** em `enp2s0` (prefixo do ISP, omitido porque o repositório é público). Em IPv6 não há NAT, e os serviços `cockpit` e `ssh` estavam abertos a qualquer origem na zona `public`, o que deixava a proteção só a cargo da firewall do router. O Cockpit era o único acesso que ainda aceitava password. **Agora:** os serviços `cockpit` e `ssh` saíram da zona `public` e entram só por *rich rules* de origem: `192.168.1.0/24` (LAN), `100.64.0.0/10` (tailnet IPv4) e `fd7a:115c:a1e0::/48` (tailnet IPv6). O IPv6 global da LAN fica recusado de propósito, porque o prefixo do ISP pode mudar; o `homeserver.local` também resolve para esse endereço, mas a recusa é imediata e os clientes voltam ao IPv4. **Validado a partir do Asus:** Cockpit e SSH funcionam por `homeserver.local`, `192.168.1.2`, `homeserver` e pelos IPs da tailnet (v4 e v6); pelo IPv6 global são recusados. A `tailscale0` não tem zona atribuída (aplica-se a `public`, a zona por omissão). Por testar (opcional): se o router bloqueia IPv6 vindo da Internet (telemóvel só com dados móveis, sem Tailscale).
 > - **Repositório público** (decisão do Ivan a 2026-10-08).
 > - **Memória do Claude:** sincronizada entre o Omarchy e o Windows pelo repositório privado `claude-memoria` (concluído a 2026-10-10).
 
 ## ⚠️ Migração em curso: Rocky Linux → RHEL Developer
+
+> **Nota de 2026-10-18:** o texto desta secção é histórico. O TraderShark, o FileCloud e o xrdp nela referidos saíram do plano (ver "Âmbito reduzido ao TraderScope" no Estado atual).
 
 > **Decisão tomada em 2026-08-05.** O servidor vai ser **recriado do zero** com **RHEL (Red Hat Developer Subscription for Individuals)**, substituindo o Rocky Linux 10 atualmente instalado. Motivo principal: usar o SO oficial da certificação **RHCSA** para estudo/prática, e não um rebuild binário. Aproveita-se também para instalar o **TraderShark** (app nativa de trading desportivo, sensível a latência).
 >
@@ -45,12 +47,12 @@
 
 ## Objetivo
 
-Transformar um portátil antigo (ASUS X555L) num home server headless a correr **RHEL (Red Hat Developer Subscription for Individuals)**, acessível remotamente via Tailscale. Além do papel de servidor doméstico, o projeto serve quatro objetivos adicionais:
+Transformar um portátil antigo (ASUS X555L) num home server headless a correr **RHEL (Red Hat Developer Subscription for Individuals)**, acessível remotamente via Tailscale. Além do papel de servidor doméstico, o projeto serve estes objetivos (âmbito revisto a 2026-10-18):
 
-- **Estudo e prática para a certificação RHCSA** (Red Hat Certified System Administrator) — maioritariamente via CLI (utilizadores/grupos, permissões, LVM/storage, systemd, firewalld, SELinux, containers)
-- **TraderShark** — app gráfica nativa Linux de trading desportivo em modo ladder, sensível a latência, para uso local/LAN
-- **FileCloud** — partilha e sincronização de ficheiros (self-hosted, tipo Dropbox/ownCloud) em Docker, com armazenamento em HDD externo 5TB. Consolida aqui o que estava planeado como projeto separado na AWS
-- Acesso gráfico remoto: X11 forwarding (Windows 11) e xrdp (tablet Android)
+- **Estudo e prática para a certificação RHCSA** (Red Hat Certified System Administrator) — maioritariamente via CLI (utilizadores/grupos, permissões, LVM/storage, systemd, firewalld, SELinux, containers com Podman)
+- **TraderScope em 24/7** — único serviço planeado; volta ao servidor quando estiver sólido localmente (repositório `002-26-traderscope`, `PLANO.md` M7)
+- **Backup local do arquivo pessoal** no HDD externo 5TB (`/mnt/dados/backups`)
+- Acesso gráfico pontual por X11 forwarding (Omarchy e WSL do acer)
 
 ---
 
@@ -62,7 +64,7 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr *
 | CPU | Intel Core i7 (4ª ou 5ª geração) |
 | RAM | 8 GB DDR3 |
 | Disco interno | SSD (SO + serviços) |
-| Disco externo | HDD 5TB WD My Passport (armazenamento FileCloud + backups — uso 24/7 aceitável para home server de uso familiar) |
+| Disco externo | HDD 5TB WD My Passport (backups — uso 24/7 aceitável para home server de uso familiar) |
 | Rede | Ethernet ao router doméstico |
 | Avaria | Placa de som — irrelevante para servidor |
 
@@ -75,11 +77,10 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr *
 | SO | **RHEL 10** (Red Hat Developer Subscription for Individuals), instalação "Server with GUI" (GNOME) — versão confirmada em 2026-08-05 como a base atual do exame RHCSA |
 | Subscrição | `subscription-manager register` — conta gratuita developers.redhat.com, uso de desenvolvimento individual (não produção em equipa) |
 | VPN mesh | Tailscale — conta Google pessoal do Ivan (Gmail), plano **Personal** gratuito — migrada a 2026-10-13 a partir da conta `digitalltogether.com` (ver Estado atual). Antes: conta `digitalltogether.com`, plano Free (decisão de 2026-08-03, revertida a 2026-10-13) |
-| Contenção | Docker + docker-compose |
-| Partilha/sincronização de ficheiros | FileCloud Community Edition (portas 80/443) — consolida o projeto que estava planeado na AWS |
-| Trading (app gráfica) | TraderShark — nativo Linux, sensível a latência, uso local/LAN |
+| Contentores | Podman (vem com o RHEL; só prática RHCSA, nenhum serviço em contentor) |
+| Serviço planeado | TraderScope (24/7, quando estiver sólido localmente) |
 | Acesso remoto Linux (terminal) | SSH |
-| Acesso remoto Linux (gráfico) | X11 forwarding (`ssh -Y` a partir do Omarchy; `ssh -X` a partir do WSL do acer, via WSLg), xrdp (tablet Android + Microsoft Remote Desktop) |
+| Acesso remoto Linux (gráfico) | X11 forwarding (`ssh -Y` a partir do Omarchy; `ssh -X` a partir do WSL do acer, via WSLg) |
 | Gestão de pacotes | `dnf` (não `apt`) |
 
 ---
@@ -90,7 +91,7 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr *
 
 | Dispositivo | OS | Protocolo de acesso |
 |---|---|---|
-| ASUS X555L (servidor) | RHEL (Developer Subscription) | SSH, X11 forwarding, xrdp |
+| ASUS X555L (servidor) | RHEL (Developer Subscription) | SSH, X11 forwarding |
 | Acer Predator — `acer` (workstation Ivan; era DAT-WS-IA-01) | Windows 11 Pro | RDP / SSH |
 | ZenBook Duo UX482 | Omarchy (Arch Linux + Hyprland), desde 10/2026 (antes: Windows 11 Home) | SSH |
 | Telemóvel (pessoal, Xiaomi Redmi Note 14) | Android | App Tailscale |
@@ -138,13 +139,12 @@ Transformar um portátil antigo (ASUS X555L) num home server headless a correr *
 ```
 SSD interno
 ├── RHEL (Developer Subscription)
-├── Docker + serviços (FileCloud, Tailscale)
+├── Serviços (Tailscale; TraderScope quando voltar)
 └── Configurações e logs
 
 HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados)
-├── /mnt/dados/backups
-│   └── Ivan_SSD/Arquivo   (cópia do arquivo pessoal do SSD externo, 2026-10-11 — ver infra/docs/08-backup-arquivo-ssd.md)
-└── /mnt/dados/filecloud   (planeada: criar no deploy do FileCloud, com dono/SELinux do serviço)
+└── /mnt/dados/backups
+    └── Ivan_SSD/Arquivo   (cópia do arquivo pessoal do SSD externo, 2026-10-11 — ver infra/docs/08-backup-arquivo-ssd.md)
 ```
 
 > **Nota de armazenamento:** SSD M.2 2280 1TB (enclosure USB) usado como disco portátil de alta capacidade para transferência de ficheiros entre máquinas — não integrado no servidor. HDD 5TB WD My Passport escolhido pelo espaço; spin-down pode ser desativado via `hdparm` se causar delays de acesso.
@@ -171,12 +171,6 @@ sudo tailscale status
 
 # Verificar temperatura (headless)
 watch -n 2 sensors
-
-# Gerir contentores (hoje só existe Podman; Docker por decidir)
-podman ps
-docker-compose up -d
-docker-compose down
-docker ps
 
 # Atualizar sistema
 sudo dnf update -y
@@ -224,7 +218,6 @@ ssh -X homeserver xterm
 - [x] Instalar Tailscale no RHEL e autenticar (`tailscale up --hostname=homeserver`) — novo IP `100.98.31.9` (hoje `100.112.247.104`, tailnet pessoal desde 2026-10-13). Ver [network/docs/01-tailscale-instalacao.md](network/docs/01-tailscale-instalacao.md)
 - [x] Testar acesso remoto via Tailscale/MagicDNS — confirmado a partir do DAT-WS-IA-01 (`ssh ivan@homeserver`); **restantes dispositivos testados a 2026-10-15**: `asus` e `acer` (LAN e tailnet) e telemóvel (Termius, Wi-Fi e só dados móveis), todos por chave
 - [x] X11 forwarding funcional a partir do Omarchy — **2026-10-14** (`ssh -Y`; o `-X` falha com GTK4). Do Acer: **OK a 2026-10-18 pelo WSL Kali + WSLg** (`ssh -X homeserver xterm`; o VcXsrv deixou de ser preciso). Ver [infra/docs/06-acesso-grafico-x11.md](infra/docs/06-acesso-grafico-x11.md)
-- [ ] ⏸️ **Pausado** (2026-08-07, decisão do Ivan): Instalar e configurar xrdp, abrir porta 3389 — ver [infra/docs/07-acesso-grafico-xrdp.md](infra/docs/07-acesso-grafico-xrdp.md). Nota: mantém-se um caso de uso futuro independente (tablet Android), a retomar quando fizer sentido
 - [x] Ligar o HDD externo 5TB e montar via `fstab` em `/mnt/dados` — **feito a 2026-10-11** (UUID inalterado, sem reformatar). Ver [infra/docs/04-storage-hdd-5tb.md](infra/docs/04-storage-hdd-5tb.md), secção "Reposição em RHEL"
 - [x] Reestruturar as pastas do HDD — **feito a 2026-10-11**: `filmes`/`series`/`musica` removidas (estavam vazias), `/mnt/dados/filecloud` criada; `/backups` e `/arquivo` mantidas. **Atualização 2026-10-12:** `filecloud/` e `arquivo/` apagadas pelo Ivan (vazias); fica só `backups/`
 - [x] Regra `udev` do `hdparm` (`99-hdd-power.rules`) — **recriada a 2026-10-11** (não existia após a reinstalação), `APM_level = 254` confirmado
@@ -235,12 +228,9 @@ ssh -X homeserver xterm
 - [ ] Por volta de 2026-11-08: confirmar com `ls -lh /var/log/messages*` que o `logrotate` já removeu os `messages-2026*` antigos (~7 GB do loop do `logind`; decisão do Ivan: não apagar à mão). Ver [infra/docs/09-logind-journald.md](infra/docs/09-logind-journald.md)
 - [ ] Por volta de 2026-10-19: ver o crescimento real com `journalctl --disk-usage` e `ls -l /var/log/messages*` (deve ser KB/MB por dia, não GB)
 - [x] HDD vigiado pelo `smartd` (2026-10-12): linha própria no `smartd.conf` (o `DEVICESCAN` não apanhava o disco USB) e teste longo automático no dia 1 de cada mês às 03h. Ver [infra/docs/04-storage-hdd-5tb.md](infra/docs/04-storage-hdd-5tb.md)
-- [ ] Instalar Docker ou Podman. Estado a 2026-10-10: o Podman já está instalado (vem com o RHEL) e o Docker não; falta decidir
-- [ ] Deploy FileCloud via Docker (apontado a `/mnt/dados/filecloud`, pasta a criar neste passo com o dono e o contexto SELinux que o serviço precisar) — ver [services/filecloud/docs/01-instalacao.md](services/filecloud/docs/01-instalacao.md)
-- [ ] Configurar portal de administração e primeira conta de utilizador no FileCloud
-- [ ] ⏸️ **Pausado** (2026-08-07, decisão do Ivan — problemas na própria aplicação, projeto secundário sem urgência): Instalar e testar TraderShark. Ver [services/tradershark/README.md](services/tradershark/README.md)
-- [ ] Praticar RHCSA: utilizadores/grupos, permissões, LVM/storage, systemd, firewalld, SELinux, containers — maioritariamente via CLI
-- [ ] Checklist de validação final: SSH, Tailscale, X11, xrdp, FileCloud, TraderShark, a partir de todos os dispositivos. **Parte SSH/Tailscale/X11 feita a 2026-10-15:** SSH só por chave a partir de `asus`, `acer` e telemóvel (LAN e tailnet; password e IPv6 global recusados); `tailscale ping` direto pela LAN; X11 com `ssh -Y` a partir do `asus` e com `ssh -X` a partir do `acer` (WSL Kali + WSLg, 2026-10-18). Falta: xrdp, FileCloud e TraderShark (pausados ou por instalar)
+- [ ] Redeploy do TraderScope em 24/7, só quando estiver sólido localmente (tarefa 13(e); primeiro, autenticação no `live_server`). Ver `PLANO.md` (M7) no repositório `002-26-traderscope`
+- [ ] Praticar RHCSA: utilizadores/grupos, permissões, LVM/storage, systemd, firewalld, SELinux, containers (Podman) — maioritariamente via CLI
+- [x] Checklist de validação final: SSH, Tailscale e X11 a partir de todos os dispositivos. **Feita a 2026-10-15:** SSH só por chave a partir de `asus`, `acer` e telemóvel (LAN e tailnet; password e IPv6 global recusados); `tailscale ping` direto pela LAN; X11 com `ssh -Y` a partir do `asus` e com `ssh -X` a partir do `acer` (WSL Kali + WSLg, 2026-10-18). xrdp, FileCloud e TraderShark saíram do plano a 2026-10-18; o TraderScope terá validação própria quando voltar
 
 ### Independente do SO (não afetado pela reinstalação; tem itens concluídos e pendentes)
 
@@ -265,30 +255,13 @@ ssh -X homeserver xterm
 - [ ] Verificar se a Devolutions RDM está instalada no `acer` (ex-DAT-WS-IA-01) e desinstalar se aplicável
 - [ ] Adicionar tablet à tailnet e à documentação — dispositivo já adicionado ao Tailscale (2026-08-03), acesso remoto por design (mesmo padrão do telemóvel pessoal, sem IP fixo necessário). Falta: confirmar acesso fora da rede local (teste do Ivan pendente) e depois preencher IP Tailscale/hostname MagicDNS/modelo em `CLAUDE.md`, `README.md`, `network/README.md`, `docs/network-inventory.md` e `docs/diagrama-rede.md`
 
-> Nota: instalação de Docker/FileCloud e teste de acesso remoto via Tailscale ficam repostos a pendente na secção "Migração Rocky Linux → RHEL" acima, por dependerem do SO do servidor. A Smart TV deixa de ter um papel definido no projeto — estava só ligada ao Jellyfin, que saiu do âmbito (ver Notas Importantes).
-
-### Sub-projeto: Web Server + Cloudflare
-- [ ] Sessão de estudo: conceitos de proxy e reverse proxy
-- [ ] Decidir qual o web server a usar (Caddy / Nginx / Traefik)
-- [ ] Transferir gestão DNS do `digitalltogether.xyz` da Hostinger para a Cloudflare
-- [ ] Configurar Cloudflare Tunnel no home server
-- [ ] Instalar e configurar o web server escolhido via Docker
-- [ ] Configurar reverse proxy para expor o web server via `digitalltogether.xyz`
-- [ ] Testar acesso público ao site de estudo
-
-### Sub-projeto: Guacamole (Gestão de Ligações Web)
-> Pré-requisitos: Docker operacional + Cloudflare Tunnel configurado
-- [ ] Estudar arquitetura do Apache Guacamole (guacd + guacamole-client)
-- [ ] Instalar Guacamole via Docker no homeserver
-- [ ] Configurar ligações SSH e RDP para todos os nodes da rede
-- [ ] Expor via Cloudflare Tunnel (ex: `remoto.digitalltogether.xyz`)
-- [ ] Testar acesso via browser de dentro e fora da rede
+> Nota: o teste de acesso remoto via Tailscale ficou reposto a pendente na secção "Migração Rocky Linux → RHEL" acima, por depender do SO do servidor. A Smart TV deixa de ter um papel definido no projeto — estava só ligada ao Jellyfin, que saiu do âmbito (ver Notas Importantes). Os sub-projetos Web Server + Cloudflare e Guacamole foram retirados a 2026-10-18 (ver Estado atual).
 
 ---
 
 ## Notas Importantes
 
-- Servidor é **headless por padrão** — tampa fechada, sem monitor nem teclado, **exceto durante o uso do TraderShark** (sessão gráfica local, sensível a latência) — ⚠️ nota 2026-08-07: TraderShark pausado, ver checklist; o modo headless mantém-se como configuração base do servidor de qualquer forma
+- Servidor é **headless** — tampa fechada, sem monitor nem teclado (a exceção para o TraderShark caiu com a saída dele do plano, a 2026-10-18)
 - ~~**Servidor com duas interfaces de rede ativas em permanência** (decisão de 2026-08-07): Ethernet (principal, ligado à rack, IP estático `192.168.1.2` confirmado) + Wi-Fi (IP dinâmico, atualmente `192.168.1.146`, fallback de acesso, decisão explícita do Ivan de não desligar — sem reserva DHCP por agora, decisão reconfirmada em 2026-08-09)~~ **Superado a 2026-10-12:** o recurso Wi-Fi foi abandonado (reativável), ver "Estado atual"
 - A avaria na placa de som é **completamente irrelevante** para o funcionamento como servidor
 - O acesso remoto (terminal ou gráfico) é feito **exclusivamente via Tailscale** quando fora da rede local
@@ -299,13 +272,12 @@ ssh -X homeserver xterm
 - A GUI instalada (GNOME, modo "Server with GUI") **não interfere** com o SSH — são serviços independentes
 - A subscrição RHEL Developer cobre uso de **desenvolvimento individual**, não produção em equipa
 - Para o RHCSA, a prática deve manter-se maioritariamente em CLI, mesmo com o GNOME instalado
-- O **TraderShark é sensível a latência** (modo ladder) — recomendado correr localmente ou em LAN por ethernet, evitando X11/xrdp pela internet durante trading ativo
 - **Política de autenticação SSH:** preferência do Ivan é sempre chave SSH, nunca password, em todos os nodes da tailnet. Ao configurar SSH num node novo (ou rever um existente), a chave é a opção por defeito — não propor password como alternativa igualmente válida. Password authentication só se mantém ativa como failsafe mediante avaliação manual e explícita por node (não é o default). Homeserver cumpria isto em Rocky Linux (chave ED25519, password desativada) — **a repetir do zero após a reinstalação em RHEL**; nos portáteis (`asus`, `acer`) **não há SSH de entrada** (decisão de 2026-10-14): só são clientes
 - **Limitação Azure AD + OpenSSH (Windows):** contas Windows "Azure AD Joined" cloud-only (sem AD on-premises por trás — SID `S-1-12-1-...`) não são resolvíveis pelo `sshd.exe` do Windows para autenticação (nenhum formato de username funciona: simples, `AzureAD\user`, ou SID direto). Confirmado na DAT-WS-IA-01. Antes de configurar chaves SSH num node Windows, confirmar primeiro o tipo de conta (`whoami /user` + `dsregcmd /status`) — se for Azure AD cloud-only, a chave SSH só funciona associada a uma conta local dedicada, não à conta principal do Ivan
 - **`subscription-manager status` mostrar "Registered" (não "Current") é o esperado** — RHEL 10 Developer usa Simple Content Access (SCA), que elimina o conceito de entitlements "Current"/"Expired"; basta estar registado numa org com SCA para os repositórios funcionarem (confirmado com `dnf repolist` a mostrar `appstream`/`baseos` populados). Não é um problema a corrigir
-- **Surfshark não instalado** — decisão de 2026-08-09: deixar por instalar por agora, já que estava ligado ao TraderShark (pausado). Reavaliar se/quando o TraderShark for retomado
+- **Surfshark não instalado** — decisão de 2026-08-09; só fazia falta ao TraderShark, que saiu do plano a 2026-10-18
 - **Reserva DHCP do Wi-Fi do servidor não criada** (o recurso Wi-Fi foi abandonado a 2026-10-12; criar a reserva só se for reativado) — decisão de 2026-08-09: manter IP dinâmico por agora (MAC confirmado: `80:a5:89:93:a6:fb`, para quando fizer sentido criar a reserva)
-- **Devolutions RDM abandonado** — decidido não usar como gestor central de ligações. SSH fica no Warp (já usado, com IA), RDP fica no cliente nativo do Windows (`mstsc`, mesmo motor RDP que o RDM usaria por baixo). A centralização de ligações fica para o Guacamole (sub-projeto já planeado), que cobre o mesmo objetivo via browser e com acesso remoto pelo Cloudflare Tunnel
+- **Devolutions RDM abandonado** — decidido não usar como gestor central de ligações. SSH fica no Warp (já usado, com IA), RDP fica no cliente nativo do Windows (`mstsc`, mesmo motor RDP que o RDM usaria por baixo). A centralização de ligações chegou a estar prevista no Guacamole, retirado do plano a 2026-10-18
 
 ---
 
@@ -322,7 +294,7 @@ ssh -X homeserver xterm
 
 > Segue o protocolo global "Documentos de Estudo por Serviço/Integração" (memória geral do Ivan) — **perguntar sempre antes de criar**, nunca criar automaticamente. Este projeto não é exceção a essa regra.
 
-Sempre que se instala/configura um **serviço ou capacidade nova e significativa** no projeto (ex: Avahi, Tailscale, Docker, FileCloud, montagem de disco, hardening SSH, Cloudflare Tunnel, Guacamole), **perguntar ao Ivan** se quer um documento de estudo dedicado antes de o criar. **Não aplicar a comandos triviais ou correções pontuais** — só a trabalho que introduz algo novo e relevante ao projeto.
+Sempre que se instala/configura um **serviço ou capacidade nova e significativa** no projeto (ex: Avahi, Tailscale, montagem de disco, hardening SSH, firewalld, TraderScope em 24/7), **perguntar ao Ivan** se quer um documento de estudo dedicado antes de o criar. **Não aplicar a comandos triviais ou correções pontuais** — só a trabalho que introduz algo novo e relevante ao projeto.
 
 **Localização:** `<área>/docs/NN-nome-do-topico.md` (ex: `network/docs/00-avahi-mdns.md`, `infra/docs/03-ssh.md`), seguindo a numeração sequencial já usada em cada pasta. Serviços em `services/<nome>/` recebem também a sua própria subpasta `docs/`.
 

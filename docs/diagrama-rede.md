@@ -33,7 +33,7 @@ graph TB
 
     WS -->|"SSH :22"| Server
     ZB -->|"SSH :22"| Server
-    TM1 -->|"FileCloud :443"| Server
+    TM1 -->|"SSH :22 (Termius)"| Server
 
     classDef linux fill:#2d6a4f,color:#fff,stroke:#1b4332
     classDef windows fill:#0d6efd,color:#fff,stroke:#084298
@@ -62,34 +62,29 @@ graph TB
         Tailscaled["tailscaled\nVPN mesh"]
         SSHD["sshd\n:22"]
 
-        subgraph Docker["Docker Engine"]
-            FileCloud["FileCloud\n:80 / :443\nPartilha de ficheiros"]
-        end
+        Cockpit["Cockpit\n:9090\nsó LAN + tailnet"]
+        TraderScope["TraderScope\n(planeado, 24/7)"]
     end
 
     subgraph Storage["Armazenamento"]
-        SSD_int["SSD Interno\nSO + Docker + configs"]
+        SSD_int["SSD Interno\nSO + serviços + configs"]
         subgraph HDD_ext["HDD Externo 5TB — /mnt/dados"]
-            FCData["/mnt/dados/filecloud"]
             Backups["/mnt/dados/backups"]
-            Arquivo["/mnt/dados/arquivo"]
         end
     end
 
-    Docker -.->|"instalado em"| SSD_int
+    TraderScope -.->|"instalado em"| SSD_int
 
-    FileCloud -->|"volume"| FCData
-
-    WinPC["Windows PC\nTailscale SSH"] -->|"SSH"| SSHD
-    Phone["Telemóvel\nTailscale"] -->|"HTTPS"| FileCloud
-    Browser["Browser\nqualquer dispositivo"] -->|"HTTP/HTTPS"| FileCloud
+    WinPC["acer / asus\nTailscale ou LAN"] -->|"SSH / X11"| SSHD
+    Phone["Telemóvel\nTailscale"] -->|"SSH"| SSHD
+    Browser["Browser\nLAN ou tailnet"] -->|"HTTPS"| Cockpit
 
     classDef service fill:#2d6a4f,color:#fff,stroke:#1b4332
     classDef storage fill:#6c757d,color:#fff,stroke:#343a40
     classDef client fill:#0d6efd,color:#fff,stroke:#084298
 
-    class FileCloud,SSHD,Tailscaled service
-    class SSD_int,FCData,Backups,Arquivo storage
+    class Cockpit,SSHD,Tailscaled,TraderScope service
+    class SSD_int,Backups storage
     class WinPC,Phone,Browser client
 ```
 
@@ -118,9 +113,9 @@ sequenceDiagram
         S-->>D: Resposta via DERP
     end
 
-    D->>S: SSH / RDP / HTTP(S) FileCloud (encriptado)
+    D->>S: SSH / X11 / HTTPS Cockpit (encriptado)
 ```
 
 ---
 
-*Atualizado em 2026-08-05 — Kody para Ivan / DAT — labels do servidor atualizados de Rocky Linux 10 para RHEL; Jellyfin/Navidrome substituídos por FileCloud; Smart TV marcada como sem função ativa*
+*Atualizado em 2026-10-18 — Kody para Ivan / DAT — FileCloud, xrdp e restantes projetos retirados; o único serviço planeado é o TraderScope (antes: 2026-08-05, Rocky Linux 10 → RHEL, Jellyfin/Navidrome → FileCloud)*

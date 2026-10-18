@@ -75,10 +75,6 @@ ssh ivan@homeserver.local    # LAN (mDNS)
 - Porta: 22
 - Utilizador: ivan
 
-### Telemóvel → FileCloud (após instalação do serviço)
-- Browser (portal de utilizador FileCloud)
-- URL: `http://100.x.x.x` (porta 80) ou `https://100.x.x.x` (porta 443)
-
 ---
 
 ## Migração de tailnet e convenção de nomes (2026-10-13)

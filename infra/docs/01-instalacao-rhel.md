@@ -1,6 +1,6 @@
 # Instalação — RHEL 10 (Red Hat Developer Subscription for Individuals)
 
-> Substitui o Rocky Linux 10 anteriormente instalado — decisão de 2026-08-05, motivada pela certificação RHCSA (que usa o RHEL oficial, não um rebuild binário) e pela necessidade de sessão gráfica local para o TraderShark.
+> Substitui o Rocky Linux 10 anteriormente instalado — decisão de 2026-08-05, motivada pela certificação RHCSA (que usa o RHEL oficial, não um rebuild binário) e pela necessidade de sessão gráfica local para o TraderShark (que saiu do plano a 2026-10-18).
 >
 > **Versão:** RHEL 10, confirmado em 2026-08-05 como a versão atual e base do exame RHCSA — antes de agendar o exame, confirmar sempre a versão ativa na página oficial de agendamento da Red Hat, já que pode variar por região/data.
 
@@ -42,8 +42,8 @@ No instalador Anaconda, configurar:
 - Layout de teclado: **Portuguese** (verificar depois com `localectl`)
 
 ### Software
-- Base Environment: **Server with GUI** (GNOME) — não Minimal, porque o TraderShark é uma app gráfica nativa que precisa de correr localmente
-- Não adicionar pacotes adicionais nesta fase (o resto é instalado depois via `dnf`/Docker)
+- Base Environment: **Server with GUI** (GNOME) — não Minimal, porque o TraderShark (fora do plano desde 2026-10-18) era uma app gráfica nativa que precisava de correr localmente
+- Não adicionar pacotes adicionais nesta fase (o resto é instalado depois via `dnf`)
 
 ### Destino de instalação
 - Selecionar o **SSD interno**

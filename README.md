@@ -1,10 +1,10 @@
 # Home Server + Tailscale
 
-Infraestrutura pessoal baseada num portátil antigo transformado em servidor headless com **RHEL**, com acesso remoto seguro via VPN mesh (Tailscale), partilha/sincronização de ficheiros via **FileCloud**, e ambiente de prática para a certificação **RHCSA**.
+Infraestrutura pessoal baseada num portátil antigo transformado em servidor headless com **RHEL**, com acesso remoto seguro via VPN mesh (Tailscale) e ambiente de prática para a certificação **RHCSA**. O único serviço planeado é o regresso do **TraderScope** em 24/7, quando a app estiver sólida localmente.
 
 > ⚠️ **Migração em curso (decisão de 2026-08-05):** o servidor está a ser recriado do zero, de Rocky Linux 10 para **RHEL (Red Hat Developer Subscription for Individuals)**. Ver detalhe completo em [CLAUDE.md](CLAUDE.md).
 >
-> ⚠️ **Mudança de serviços (mesma data):** Jellyfin e Navidrome saíram do projeto. O serviço principal passa a ser o **FileCloud**, que consolida aqui o que estava planeado como projeto separado na AWS.
+> ⚠️ **Âmbito reduzido (2026-10-18, decisão do Ivan):** FileCloud, Web Server + Cloudflare, Guacamole, xrdp e TraderShark saíram do plano. Fica só o TraderScope. Detalhe em [CLAUDE.md](CLAUDE.md).
 
 ---
 
@@ -13,10 +13,9 @@ Infraestrutura pessoal baseada num portátil antigo transformado em servidor hea
 Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevante para servidor) para criar uma infraestrutura doméstica robusta e de baixo custo, com:
 
 - Acesso remoto seguro a todos os dispositivos de casa
-- Partilha e sincronização de ficheiros própria, via **FileCloud** — sem depender de Dropbox/Google Drive
-- Controlo total dos dados — sem dependência de serviços cloud de terceiros
+- Cópia local do arquivo pessoal no HDD externo (`/mnt/dados/backups`)
 - Ambiente oficial de estudo/prática para a certificação **RHCSA** (o RHEL Developer é o mesmo SO usado no exame, ao contrário do Rocky Linux que é apenas um rebuild binário)
-- Execução do **TraderShark** (app nativa Linux de trading desportivo em modo ladder)
+- Execução do **TraderScope** em 24/7 (planeado, quando estiver sólido localmente)
 
 ---
 
@@ -28,9 +27,9 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 | CPU | Intel Core i7 (4ª ou 5ª geração) |
 | RAM | 8 GB DDR3 |
 | Disco interno | SSD (SO + serviços) |
-| Disco externo | HDD 5TB WD My Passport (FileCloud + backups) |
+| Disco externo | HDD 5TB WD My Passport (backups) |
 | Rede | Ethernet ao router doméstico |
-| Modo de operação | Headless por padrão — tampa fechada, sem monitor, exceto durante o uso do TraderShark |
+| Modo de operação | Headless — tampa fechada, sem monitor |
 
 ---
 
@@ -42,7 +41,7 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 - Criação de pen bootável: **Rufus** (Windows) → modo DD Image
 - Registo obrigatório pós-instalação: `subscription-manager register`
 - Gestão de pacotes: `dnf`
-- GUI (GNOME) necessária para correr o TraderShark localmente — não interfere com o SSH nem com a prática RHCSA (maioritariamente CLI)
+- GUI (GNOME) instalada; escolhida a pensar no TraderShark (fora do plano desde 2026-10-18), mantém-se por agora para as apps gráficas por X11 forwarding — não interfere com o SSH nem com a prática RHCSA (maioritariamente CLI)
 
 ---
 
@@ -51,10 +50,9 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 | Serviço | Função | Porta |
 |---|---|---|
 | **Tailscale** | VPN mesh — acesso remoto seguro | — |
-| **Docker** | Plataforma de contenção para os serviços | — |
-| **FileCloud** | Partilha e sincronização de ficheiros (self-hosted) | 80 / 443 |
-| **TraderShark** | App nativa de trading desportivo (modo ladder), sensível a latência | — |
-| **X11 forwarding / xrdp** | Acesso gráfico remoto (Windows / tablet Android) | 3389 (xrdp) |
+| **Cockpit** | Administração web (só LAN e tailnet) | 9090 |
+| **X11 forwarding** | Acesso gráfico pontual pelo SSH (Omarchy / WSL do acer) | — |
+| **TraderScope** | Planeado: app de trading desportivo em 24/7, quando estiver sólida localmente | — |
 
 ---
 
@@ -64,7 +62,7 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 
 | Dispositivo | OS | Acesso |
 |---|---|---|
-| ASUS X555L (servidor) | RHEL (Developer Subscription) | SSH, X11 forwarding, xrdp |
+| ASUS X555L (servidor) | RHEL (Developer Subscription) | SSH, X11 forwarding |
 | Acer Predator (`acer`; era DAT-WS-IA-01) | Windows 11 Pro | RDP / SSH |
 | ZenBook Duo UX482 (`asus`) | Omarchy (Arch Linux + Hyprland), desde 10/2026 | SSH (cliente) |
 | Telemóvel (pessoal, Xiaomi Redmi Note 14) | Android | App Tailscale + Termius |
@@ -93,13 +91,11 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 ```
 SSD interno
 ├── RHEL (Developer Subscription)
-├── Docker + serviços (FileCloud, Tailscale)
+├── Serviços (Tailscale; TraderScope quando voltar)
 └── Configurações e logs
 
 HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados)
-├── /mnt/dados/filecloud
-├── /mnt/dados/backups
-└── /mnt/dados/arquivo
+└── /mnt/dados/backups
 ```
 
 ---
@@ -110,7 +106,7 @@ HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados)
 
 ```bash
 # Arrancar pela pen USB (BIOS: F2 → boot order)
-# Selecionar: Server with GUI (GNOME) — não Minimal, por causa do TraderShark
+# Selecionar: Server with GUI (GNOME) — não Minimal (escolha feita a pensar no TraderShark, entretanto fora do plano)
 # Criar utilizador: ivan
 # Ativar rede durante instalação
 ```
@@ -148,25 +144,7 @@ sudo tailscale up
 # Verificar IP atribuído: sudo tailscale ip
 ```
 
-### 5. Instalar Docker
-
-```bash
-sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
-sudo dnf install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y
-sudo systemctl enable --now docker
-sudo usermod -aG docker ivan
-```
-
-### 6. Instalar FileCloud
-
-```bash
-mkdir -p /mnt/dados/filecloud
-# Ver services/filecloud/config/docker-compose.yml
-cd services/filecloud/config
-docker compose up -d
-```
-
-### 7. Monitorizar temperatura
+### 5. Monitorizar temperatura
 
 ```bash
 sudo dnf install lm_sensors -y
@@ -184,18 +162,16 @@ watch -n 2 sensors
 - [ ] Criar pen USB bootável com Rufus (modo DD Image)
 - [x] Instalar RHEL no ASUS X555L ("Server with GUI") — RHEL 10.2
 - [x] `subscription-manager register`
-- [x] Configurar modo headless (exceto uso do TraderShark) — corrigido a 2026-10-12
+- [x] Configurar modo headless — corrigido a 2026-10-12
 - [x] Instalar e configurar SSH (autenticação por chave ED25519) — só por chave desde 2026-10-15 (password desligada); Cockpit e SSH limitados à LAN e à tailnet na firewall
 - [x] Configurar Avahi (mDNS) para resolução `homeserver.local` (2026-10-13; foi `homelan.local` de 2026-09-28 a 2026-10-13)
 - [x] Instalar Tailscale e integrar todos os dispositivos — tailnet pessoal desde 2026-10-13: servidor, Asus, telemóvel, tablet e Acer (2026-10-14) feitos; nós da tailnet antiga apagados a 2026-10-14
-- [ ] Instalar Docker
-- [x] Reestruturar pastas do HDD (`filmes`/`series`/`musica` → `/mnt/dados/filecloud`) — 2026-10-11
-- [ ] Instalar FileCloud via Docker e configurar portal de administração
+- [x] Reestruturar pastas do HDD — 2026-10-11 (fica só `backups/`)
 - [x] Configurar HDD externo 5TB (feito em Rocky Linux; reposto em RHEL a 2026-10-11: `fstab` + regra `udev`)
 - [ ] Testar acesso remoto via Tailscale de todos os dispositivos — Asus e telemóvel (dados móveis) OK a 2026-10-14; Acer OK a 2026-10-14 (`ssh ivan@homeserver` pela tailnet e `ssh ivan@homeserver.local` pela LAN, sem avisos de host key); falta o RDP
-- [ ] Configurar X11 forwarding e xrdp para acesso gráfico remoto — X11 a partir do Omarchy OK a 2026-10-14 (`ssh -Y`) e do Acer a 2026-10-18 (WSL Kali + WSLg, `ssh -X`); falta o xrdp (pausado)
-- [ ] Instalar e testar o TraderShark localmente
-- [ ] Praticar RHCSA (CLI: utilizadores, permissões, LVM, systemd, firewalld, SELinux, containers)
+- [x] Configurar X11 forwarding para acesso gráfico remoto — Omarchy OK a 2026-10-14 (`ssh -Y`) e Acer a 2026-10-18 (WSL Kali + WSLg, `ssh -X`)
+- [ ] Redeploy do TraderScope em 24/7, quando estiver sólido localmente
+- [ ] Praticar RHCSA (CLI: utilizadores, permissões, LVM, systemd, firewalld, SELinux, containers com Podman)
 
 > Checklist detalhado e sempre atualizado: ver `CLAUDE.md`.
 
@@ -206,11 +182,9 @@ watch -n 2 sensors
 - Tailscale — conta Google pessoal do Ivan, plano **Personal** (gratuito, uso não comercial), desde 2026-10-13. A conta `digitalltogether.com` ficou bloqueada com "Trial ended"; motivo no `CLAUDE.md`
 - **Nomes:** `<nome>.local` = LAN (mDNS), `<nome>` = tailnet (MagicDNS) — `homeserver`, `asus` e `acer`
 - **MagicDNS ativo** — dispositivos acessíveis pelo hostname (ex: `ssh ivan@homeserver`), sem precisar do IP Tailscale, mesmo fora da LAN
-- FileCloud **consolida o projeto que estava planeado na AWS** — deixou de ser uma instância separada
 - RHEL suporta sessões SSH **simultâneas ilimitadas**
 - Windows 11 Pro limita a **1 sessão RDP** simultânea
 - Latência local (mesmo router) < 1ms
-- O **TraderShark é sensível a latência** — recomendado uso local/LAN, não X11/xrdp pela internet durante trading ativo
 
 ---
 

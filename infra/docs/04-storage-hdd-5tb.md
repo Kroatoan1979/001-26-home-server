@@ -24,7 +24,7 @@ Este fluxo aplica-se a qualquer disco externo USB (HDD ou SSD) ligado a um servi
 
 ## Pertinência para este projeto
 
-O SSD interno do homeserver (223,6 GB) chega para o sistema operativo e para os containers Docker, mas não para armazenamento de dados em volume. Este HDD externo de 5TB (WD My Passport) é o armazenamento dedicado ao FileCloud e a backups.
+O SSD interno do homeserver (223,6 GB) chega para o sistema operativo e para os containers Docker, mas não para armazenamento de dados em volume. Este HDD externo de 5TB (WD My Passport) é o armazenamento dedicado a backups (o FileCloud, para o qual também estava pensado, saiu do plano a 2026-10-18).
 
 > ⚠️ **Atualização de 2026-08-05:** este disco foi montado e formatado originalmente a pensar no Jellyfin/Navidrome (media server). Esses serviços saíram do projeto — o disco e a formatação (XFS, UUID, `hdparm`) mantêm-se inalterados, mas a estrutura de pastas é reorganizada (ver secção 8 abaixo) para servir o FileCloud em vez de bibliotecas de media.
 
@@ -123,6 +123,8 @@ df -h /mnt/dados
 ### 8. Estrutura de pastas
 
 > ⚠️ Estrutura original (Jellyfin/Navidrome, 2026-08): `{filmes,series,musica,backups,arquivo}`. Reestruturada em 2026-08-05 para o FileCloud — comandos abaixo já refletem a estrutura nova; ao reinstalar o servidor (ver [01-instalacao-rhel.md](01-instalacao-rhel.md)), as pastas antigas de media não são recriadas.
+>
+> **Atualização de 2026-10-18:** o FileCloud saiu do plano e a `arquivo/` ficou redundante; numa reinstalação basta `sudo mkdir -p /mnt/dados/backups`. O comando abaixo fica como exemplo da expansão `{a,b,c}`.
 
 ```bash
 sudo mkdir -p /mnt/dados/{filecloud,backups,arquivo}

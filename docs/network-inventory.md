@@ -81,7 +81,7 @@
 | Campo | Valor |
 |---|---|
 | Hostname | `homeserver` |
-| Tipo / Papel | Home Server (FileCloud + serviços) |
+| Tipo / Papel | Home Server (prática RHCSA, backups; TraderScope 24/7 planeado) |
 | Hardware | ASUS X555L |
 | OS | **RHEL 10.2** (Coughlan) — reinstalação concluída em 2026-08-06/07, substitui o Rocky Linux 10 |
 | IP LAN (Ethernet, `enp2s0`) | `192.168.1.2` fixo via `nmcli`, **confirmado ativo em 2026-08-09** — causa do bug anterior: perfil `nmcli` errado (`Wired connection 1`, DHCP) estava ativo em vez do perfil `enp2s0` (manual), corrigido |
@@ -93,7 +93,7 @@
 | Ligação | Só Ethernet (ligado à rack em 2026-08-07). Wi-Fi desativado mas reativável (ver IP LAN Wi-Fi) |
 | Serviços expostos | SSH `:22` |
 | Acesso remoto | SSH por chave, **confirmado consistente em 2026-08-09** |
-| Notas | Modo headless configurado (drop-in `logind.conf.d/10-homeserver.conf` + `systemctl mask` dos targets de suspensão). O `logind.conf` original estava partido (sem `[Login]`) e foi refeito a 2026-10-12; reboot de tampa fechada testado nesse dia sem suspensões (ver `infra/docs/09-logind-journald.md`). Journal persistente desde 2026-10-12. Autenticação SSH por chave corrigida em 2026-08-09 (causa real: `~/.ssh` não existia no servidor, não uma inconsistência — recriado com permissões e SELinux corretos). `subscription-manager status` mostrar "Registered" é o esperado em Simple Content Access (SCA), repositórios confirmados a funcionar via `dnf repolist`. Surfshark não instalado (decisão: deixar por agora). TraderShark: **projeto pausado** (decisão do Ivan em 2026-08-07, problemas na própria aplicação) — X11 forwarding **retomado em 2026-08-09** (independente do TraderShark, em configuração), xrdp continua pausado. HDD externo 5TB WD My Passport montado em `/mnt/dados` pelo `fstab` desde 2026-10-11 (montagem automática confirmada no reboot de 2026-10-12); hoje só tem `backups/`, a `filecloud/` cria-se no deploy do FileCloud. Vigiado pelo `smartd` desde 2026-10-12. |
+| Notas | Modo headless configurado (drop-in `logind.conf.d/10-homeserver.conf` + `systemctl mask` dos targets de suspensão). O `logind.conf` original estava partido (sem `[Login]`) e foi refeito a 2026-10-12; reboot de tampa fechada testado nesse dia sem suspensões (ver `infra/docs/09-logind-journald.md`). Journal persistente desde 2026-10-12. Autenticação SSH por chave corrigida em 2026-08-09 (causa real: `~/.ssh` não existia no servidor, não uma inconsistência — recriado com permissões e SELinux corretos). `subscription-manager status` mostrar "Registered" é o esperado em Simple Content Access (SCA), repositórios confirmados a funcionar via `dnf repolist`. Surfshark não instalado (decisão: deixar por agora). TraderShark: **fora do plano desde 2026-10-18** (antes pausado por decisão do Ivan em 2026-08-07, problemas na própria aplicação) — X11 forwarding **retomado em 2026-08-09** (independente do TraderShark, em configuração), xrdp fora do plano desde 2026-10-18. HDD externo 5TB WD My Passport montado em `/mnt/dados` pelo `fstab` desde 2026-10-11 (montagem automática confirmada no reboot de 2026-10-12); hoje só tem `backups/`, a `filecloud/` deixou de ter uso (FileCloud fora do plano desde 2026-10-18). Vigiado pelo `smartd` desde 2026-10-12. |
 
 ---
 
@@ -172,7 +172,7 @@
 | Ligação | Wi-Fi / dados móveis |
 | Serviços expostos | — |
 | Acesso remoto | App Tailscale, Termius (SSH via MagicDNS/IP Tailscale) |
-| Notas | Acede aos serviços (ex: FileCloud), não os serve. Conectividade Tailscale confirmada também via dados móveis (fora da LAN). |
+| Notas | Acede ao servidor (SSH por Termius), não serve nada. Conectividade Tailscale confirmada também via dados móveis (fora da LAN). |
 
 ---
 
