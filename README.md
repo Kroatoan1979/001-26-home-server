@@ -170,6 +170,7 @@ watch -n 2 sensors
 - [x] Configurar HDD externo 5TB (feito em Rocky Linux; reposto em RHEL a 2026-10-11: `fstab` + regra `udev`)
 - [x] Testar acesso remoto via Tailscale de todos os dispositivos — Asus e telemóvel (dados móveis) OK a 2026-10-14; Acer OK a 2026-10-14 (`ssh ivan@homeserver` pela tailnet e `ssh ivan@homeserver.local` pela LAN, sem avisos de host key); só por chave desde 2026-10-15
 - [x] Configurar X11 forwarding para acesso gráfico remoto — Omarchy OK a 2026-10-14 (`ssh -Y`) e Acer a 2026-10-18 (WSL Kali + WSLg, `ssh -X`)
+- [ ] Canal de alertas: ntfy no telemóvel + heartbeat no healthchecks.io (decidido a 2026-10-18, em curso; ver `CLAUDE.md`)
 - [ ] Redeploy do TraderScope em 24/7, quando estiver sólido localmente
 - [ ] Praticar RHCSA (CLI: utilizadores, permissões, LVM, systemd, firewalld, SELinux, containers com Podman)
 

@@ -282,7 +282,7 @@ Resultado: `APM_level = 254`.
 | Regra `udev` | `hdparm -B /dev/sdb` | `APM_level = 254` ✅ |
 | SMART | `smartctl -l selftest` | teste curto sem erros ✅ |
 
-**Reboot testado a 2026-10-12:** montou sozinho em `/mnt/dados` e a regra `udev` aplicou `APM_level = 254` no arranque ✅. **Teste SMART longo** arrancado a 2026-10-12 às 14:20, fim previsto às 17:46 (206 min). Resultado: _por registar_.
+**Reboot testado a 2026-10-12:** montou sozinho em `/mnt/dados` e a regra `udev` aplicou `APM_level = 254` no arranque ✅. **Teste SMART longo** arrancado a 2026-10-12 às 14:20, fim previsto às 17:46 (206 min). Resultado: **concluído sem erros** às 18:20 (`journalctl -u smartd`: "previous self-test completed without error", verificado a 2026-10-18).
 
 ### Monitorização contínua com `smartd` (2026-10-12)
 
@@ -311,7 +311,7 @@ journalctl -u smartd --since -5min
 
 **Vantagem prática:** o resultado dos testes fica no journal, que o utilizador `ivan` (grupo `wheel`) lê **sem sudo**: `journalctl -u smartd | grep -i "self-test"`.
 
-**Por melhorar:** o `-m root` entrega na caixa de correio local do `root`, que ninguém lê. Um aviso que chegue mesmo ao Ivan (email ou notificação) fica para quando se decidir um canal de alertas para o servidor.
+**Por melhorar:** o `-m root` entrega na caixa de correio local do `root`, que ninguém lê. **Canal decidido a 2026-10-18 (tarefa 21):** ntfy no telemóvel + heartbeat no healthchecks.io; o `smartd` passa por um wrapper que mantém o `smartdnotify` e acrescenta o ntfy. Ver o `CLAUDE.md` (checklist) e, quando estiver escrito, `infra/docs/10-alertas-ntfy-healthchecks.md`.
 
 ---
 
