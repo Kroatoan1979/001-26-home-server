@@ -1,0 +1,16 @@
+#!/bin/bash
+# /usr/local/sbin/alerta-heartbeat — ping ao healthchecks.io (heartbeat externo).
+# Tarefa 21 (home-server). Corre a cada 5 min (alerta-heartbeat.timer). Se os pings
+# pararem (servidor morto, sem rede, sem corrente), é o healthchecks.io que avisa,
+# por ntfy e email. Sai sempre com 0: uma falha pontual não deve gerar também um
+# alerta OnFailure (quem avisa é o healthchecks.io, ao fim de 10 min sem ping).
+set -u
+# shellcheck source=/dev/null
+source /etc/alerta.conf
+if [[ -z ${HC_PING_URL:-} ]]; then
+  logger -t alerta-heartbeat -p user.err "falta HC_PING_URL em /etc/alerta.conf"
+  exit 0
+fi
+curl -fsS -m 10 --retry 3 --retry-all-errors -o /dev/null "$HC_PING_URL" ||
+  logger -t alerta-heartbeat -p user.warning "ping ao healthchecks.io falhou"
+exit 0

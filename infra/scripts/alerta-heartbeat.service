@@ -1,0 +1,9 @@
+# Tarefa 21 (home-server): ping ao healthchecks.io. Ver alerta-heartbeat.timer.
+[Unit]
+Description=Heartbeat para o healthchecks.io
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/alerta-heartbeat
