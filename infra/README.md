@@ -30,6 +30,8 @@ Camada de infraestrutura do servidor: sistema operativo, modo headless, SSH, ace
 | [05-subscription-manager.md](docs/05-subscription-manager.md) | Registo da subscrição RHEL Developer (`subscription-manager`) |
 | [06-acesso-grafico-x11.md](docs/06-acesso-grafico-x11.md) | X11 forwarding — sessão gráfica remota a partir do Windows |
 | [08-backup-arquivo-ssd.md](docs/08-backup-arquivo-ssd.md) | Backup do arquivo pessoal (SSD externo NTFS) para `/mnt/dados/backups` com `rsync` por SSH e verificação SHA-256 |
+| [09-logind-journald.md](docs/09-logind-journald.md) | Tampa fechada sem loops (`logind` por drop-in) e journal persistente |
+| [10-alertas-ntfy-healthchecks.md](docs/10-alertas-ntfy-healthchecks.md) | Alertas para o telemóvel: ntfy, healthchecks.io, smartd, `OnFailure=` global, disco e corrente |
 
 ---
 
