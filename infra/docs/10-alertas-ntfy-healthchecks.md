@@ -230,11 +230,6 @@ Corrente: `/sys/class/power_supply/AC0/online` (`1` = com corrente) e `/sys/clas
 
 **Lição do "Não incomodar":** um alerta de prioridade 5 "não chegou"; estava na app, mas o Não incomodar escondeu a notificação. Quando um alerta parece não chegar, ver primeiro **dentro da app**.
 
-**Por testar:**
-- [ ] **Corrente:** desligar o carregador ~2 min e confirmar "Sem corrente desde as …" e "Corrente reposta às …" (tarefa 30(c), junto com o teste da bateria a 2%).
-- [ ] **Servidor em baixo de verdade:** desligar a rede ou o servidor > 15 min e confirmar o "homeserver is DOWN" do healthchecks.io (e o "UP" no regresso).
-- [ ] **Aviso de bateria a 20%:** só num corte longo, ou no teste dos 2%.
-
 ---
 
 ## Comandos de referência e troubleshooting
