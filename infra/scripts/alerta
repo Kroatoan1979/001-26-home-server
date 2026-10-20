@@ -1,0 +1,55 @@
+#!/bin/bash
+# /usr/local/sbin/alerta — envia um alerta para o telemóvel do Ivan via ntfy.
+# Tarefa 21 (home-server). Corre como root: o /etc/alerta.conf é root:root 600.
+#
+# Uso: alerta [-p prioridade] [-t etiquetas] "Título" ["Mensagem"]
+#   -p  1 (mínima) a 5 (urgente); por defeito 4 (alta)
+#   -t  etiquetas ntfy separadas por vírgulas (ex.: warning,floppy_disk)
+#   Sem "Mensagem", lê o texto do stdin (útil para logs: journalctl ... | alerta "X").
+#
+# O título leva sempre o nome da máquina à frente. Cada envio fica no journal
+# com a etiqueta "alerta" (journalctl -t alerta).
+
+set -u
+CONF=/etc/alerta.conf
+prioridade=4
+etiquetas=""
+
+uso() { echo "Uso: alerta [-p 1-5] [-t etiquetas] \"Título\" [\"Mensagem\"]" >&2; exit 2; }
+
+while getopts "p:t:h" opt; do
+  case $opt in
+    p) prioridade=$OPTARG ;;
+    t) etiquetas=$OPTARG ;;
+    *) uso ;;
+  esac
+done
+shift $((OPTIND - 1))
+[[ $# -ge 1 ]] || uso
+[[ $prioridade =~ ^[1-5]$ ]] || { echo "alerta: prioridade tem de ser 1 a 5" >&2; exit 2; }
+
+titulo="[$(hostname -s)] $1"
+if [[ $# -ge 2 ]]; then
+  mensagem=$2
+elif [[ ! -t 0 ]]; then
+  mensagem=$(head -c 3500)   # o ntfy corta mensagens acima de 4 KB
+else
+  mensagem="(sem detalhe)"
+fi
+
+[[ -r $CONF ]] || { echo "alerta: não consigo ler $CONF (corre como root)" >&2; exit 1; }
+# shellcheck source=/dev/null
+source "$CONF"
+[[ -n ${NTFY_URL:-} && -n ${NTFY_TOPICO:-} ]] || { echo "alerta: falta NTFY_URL ou NTFY_TOPICO em $CONF" >&2; exit 1; }
+
+args=(--silent --show-error --fail --max-time 15 --retry 3 --retry-delay 5 --retry-all-errors
+      --url-query "title=$titulo" --url-query "priority=$prioridade")
+[[ -n $etiquetas ]] && args+=(--url-query "tags=$etiquetas")
+
+if curl "${args[@]}" --data-binary "$mensagem" "${NTFY_URL%/}/$NTFY_TOPICO" >/dev/null; then
+  logger -t alerta "enviado (p$prioridade): $titulo"
+else
+  logger -t alerta -p user.err "FALHOU o envio (p$prioridade): $titulo"
+  echo "alerta: falhou o envio para o ntfy" >&2
+  exit 1
+fi
