@@ -1,0 +1,62 @@
+#!/bin/bash
+# /usr/local/sbin/alerta-verifica — verificações periódicas (alerta-verifica.timer, 1 min).
+# Tarefa 21 (home-server), passos 6 e 7:
+#   - disco: avisa quando um sistema de ficheiros chega aos 85%; repete a cada 24 h
+#     enquanto lá estiver; o estado limpa-se abaixo dos 80%.
+#   - corrente: avisa quando o AC0 cai ou volta, e uma vez quando a bateria chega
+#     aos 20% (desliga-se sozinho aos 2%, UPower).
+# Um aviso só se dá por feito quando o envio corre bem: num corte geral o router
+# também cai, e o aviso sai (com a hora real) quando a rede voltar. Até lá, quem
+# avisa é o healthchecks.io (heartbeat). Sai sempre com 0, para não gerar OnFailure.
+
+set -u
+ESTADO=/run/alerta-verifica
+mkdir -p "$ESTADO"
+ALERTA=/usr/local/sbin/alerta
+agora=$(date +%s)
+
+# --- Passo 6: disco a 85% -----------------------------------------------------
+LIMITE=${ALERTA_LIMITE_DISCO:-85}; LIMPA=80; REPETE=$((24 * 3600))   # variável só para testes
+while read -r alvo uso tamanho; do
+  uso=${uso%\%}
+  chave=$ESTADO/disco$(printf '%s' "$alvo" | tr '/' '_')
+  if (( uso >= LIMITE )); then
+    ultimo=0; [[ -f $chave ]] && ultimo=$(<"$chave")
+    if (( agora - ultimo >= REPETE )); then
+      if "$ALERTA" -p 4 -t warning,floppy_disk "Disco a ${uso}%: $alvo" \
+           "$alvo está a ${uso}% (tamanho $tamanho). Limite de aviso: ${LIMITE}%."; then
+        echo "$agora" > "$chave"
+      fi
+    fi
+  elif (( uso < LIMPA )); then
+    rm -f "$chave"
+  fi
+done < <(df -h -x tmpfs -x devtmpfs -x overlay -x efivarfs -x squashfs --output=target,pcent,size | tail -n +2)
+
+# --- Passo 7: corrente --------------------------------------------------------
+AC=/sys/class/power_supply/AC0; BAT=/sys/class/power_supply/BAT0
+if [[ -r $AC/online ]]; then
+  ligado=$(<"$AC/online"); bateria=$(cat "$BAT/capacity" 2>/dev/null || echo "?")
+  avisado=$ESTADO/corrente      # último estado avisado: 1 = com corrente, 0 = sem
+  inicio=$ESTADO/corrente-desde # hora em que o estado atual começou
+  if [[ ! -f $avisado ]]; then
+    echo "$ligado" > "$avisado"   # primeira execução após o arranque: sem aviso
+  elif [[ $(<"$avisado") == "$ligado" ]]; then
+    rm -f "$inicio"               # voltou ao estado já avisado antes de o envio sair
+  elif [[ $(<"$avisado") != "$ligado" ]]; then
+    [[ -f $inicio && $(cut -d' ' -f1 "$inicio") == "$ligado" ]] || echo "$ligado $agora" > "$inicio"
+    desde=$(date -d "@$(cut -d' ' -f2 "$inicio")" '+%H:%M')
+    if [[ $ligado == 0 ]]; then
+      "$ALERTA" -p 4 -t zap,battery "Sem corrente desde as $desde" \
+        "O servidor está a funcionar a bateria (${bateria}%). Desliga-se sozinho aos 2%." && echo 0 > "$avisado"
+    else
+      "$ALERTA" -p 3 -t zap,white_check_mark "Corrente reposta às $desde" \
+        "O servidor voltou à corrente (bateria a ${bateria}%)." && { echo 1 > "$avisado"; rm -f "$ESTADO/bateria-20"; }
+    fi
+  fi
+  if [[ $ligado == 0 && $bateria =~ ^[0-9]+$ ]] && (( bateria <= 20 )) && [[ ! -f $ESTADO/bateria-20 ]]; then
+    "$ALERTA" -p 4 -t battery,warning "Bateria a ${bateria}%, ainda sem corrente" \
+      "O servidor desliga-se sozinho aos 2%." && touch "$ESTADO/bateria-20"
+  fi
+fi
+exit 0

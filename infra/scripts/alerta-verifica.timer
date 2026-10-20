@@ -1,0 +1,11 @@
+# Tarefa 21 (home-server): verificações de disco e corrente a cada minuto.
+[Unit]
+Description=Verificações de disco e corrente a cada minuto
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+AccuracySec=10s
+
+[Install]
+WantedBy=timers.target

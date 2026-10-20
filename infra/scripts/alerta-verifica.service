@@ -1,0 +1,7 @@
+# Tarefa 21 (home-server): disco a 85% e falta de corrente. Ver alerta-verifica.timer.
+[Unit]
+Description=Verificações de disco e corrente para o telemóvel (ntfy)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/alerta-verifica
