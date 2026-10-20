@@ -1,0 +1,28 @@
+#!/bin/bash
+# /usr/local/sbin/alerta-falha — chamado por alerta-falha@<unit>.service quando
+# um serviço systemd entra em "failed" (drop-in global OnFailure= em
+# /etc/systemd/system/service.d/10-alerta-falha.conf). Tarefa 21 (home-server).
+# Manda o nome, o motivo e as últimas linhas do log. A mesma unit não volta a
+# alertar durante 6 h (um timer que falha de hora a hora não enche o telemóvel).
+
+set -u
+unit=${1:?uso: alerta-falha <nome-da-unit sem .service>}.service
+SILENCIO=$((6 * 3600))
+ESTADO=/run/alerta-falha
+mkdir -p "$ESTADO"
+
+agora=$(date +%s); ultimo=0
+[[ -f $ESTADO/$unit ]] && ultimo=$(<"$ESTADO/$unit")
+if (( agora - ultimo < SILENCIO )); then
+  echo "$unit voltou a falhar; alerta suprimido (último há $(( (agora - ultimo) / 60 )) min)"
+  exit 0
+fi
+echo "$agora" > "$ESTADO/$unit"
+
+estado=$(systemctl show "$unit" -p Result -p ExecMainStatus -p NRestarts --value | paste -sd' ')
+read -r resultado codigo reinicios <<< "$estado"
+{
+  echo "Motivo: ${resultado:-?} | código de saída: ${codigo:-?} | reinícios: ${reinicios:-0}"
+  echo "--- últimas linhas do log"
+  journalctl -u "$unit" -n 15 --no-pager -o cat 2>&1
+} | /usr/local/sbin/alerta -p 4 -t x "Serviço falhou: $unit"

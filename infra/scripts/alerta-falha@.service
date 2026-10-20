@@ -1,0 +1,9 @@
+# Tarefa 21 (home-server): alerta quando um serviço falha. Ativado pelo drop-in
+# global /etc/systemd/system/service.d/10-alerta-falha.conf (OnFailure=).
+# Esta unit tem o drop-in anulado (→ /dev/null), para não se chamar a si própria.
+[Unit]
+Description=Alerta de falha do serviço %i.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/alerta-falha %i
