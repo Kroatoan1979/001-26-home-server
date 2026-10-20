@@ -1,0 +1,35 @@
+#!/bin/bash
+# /usr/local/sbin/alerta-smartd — segue o journal do smartd e manda os avisos
+# graves (prioridade 0-3) para o telemóvel via /usr/local/sbin/alerta.
+# Tarefa 21 (home-server), plano B: o SELinux não deixa o smartd (-M exec, domínio
+# smartdwarn_t) ir à rede, por isso o envio corre aqui, num serviço systemd normal
+# (alerta-smartd.service). O smartd.conf fica como o RHEL o deixou.
+#
+# Linhas em rajada (até 5 s entre elas) vão num só alerta. O mesmo texto não é
+# reenviado durante 6 h: o smartd repete os avisos a cada verificação (30 min).
+
+set -u
+JANELA=5
+SILENCIO=$((6 * 3600))
+ESTADO=/run/alerta-smartd
+mkdir -p "$ESTADO"
+
+enviar() {
+  local texto=$1 chave agora ultimo=0
+  chave=$(printf '%s' "$texto" | sed -E 's/[0-9]+/N/g' | sha1sum | cut -c1-16)
+  agora=$(date +%s)
+  [[ -f $ESTADO/$chave ]] && ultimo=$(<"$ESTADO/$chave")
+  if (( agora - ultimo < SILENCIO )); then
+    echo "repetido, não enviado: ${texto%%$'\n'*}"
+    return
+  fi
+  echo "$agora" > "$ESTADO/$chave"
+  printf '%s\n' "$texto" | /usr/local/sbin/alerta -p 5 -t rotating_light,floppy_disk "SMART: aviso do smartd"
+}
+
+journalctl --follow --lines=0 --identifier=smartd --priority=0..3 --output=cat |
+while IFS= read -r linha; do
+  lote=$linha
+  while IFS= read -r -t "$JANELA" linha; do lote+=$'\n'$linha; done
+  enviar "$lote"
+done

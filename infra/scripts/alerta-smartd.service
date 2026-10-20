@@ -1,0 +1,14 @@
+# Tarefa 21 (home-server): avisos graves do smartd → telemóvel (ntfy).
+# Ver /usr/local/sbin/alerta-smartd.
+[Unit]
+Description=Alertas do smartd para o telemóvel (ntfy)
+After=network-online.target smartd.service
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/local/sbin/alerta-smartd
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
