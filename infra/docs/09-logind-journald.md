@@ -55,7 +55,7 @@ Ao investigar porque é que o Wi-Fi do servidor (`wlp3s0`) estava desligado, o `
 |---|---|
 | Só acrescentar `[Login]` ao `/etc/systemd/logind.conf` | Funcionava, mas o ficheiro em `/etc` passa a sombrear o do fornecedor inteiro. Os drop-ins são o padrão recomendado |
 | Mudar o GNOME (`gsettings ... sleep-inactive-ac-type 'nothing'`) | **Testado e não resolveu**: o pedido não vinha do GNOME (`CODE_FUNC=handle_action_execute` é o tratamento da tampa pelo próprio `logind`). Ficou aplicado como proteção extra |
-| Passar o servidor para `multi-user.target` (sem GNOME) | Não resolve este problema (o `logind` trata a tampa com ou sem interface gráfica). Fica como decisão separada |
+| Passar o servidor para `multi-user.target` (sem GNOME) | Não resolve este problema (o `logind` trata a tampa com ou sem interface gráfica). Decidido à parte: feito a 2026-10-21 (ver checklist do `CLAUDE.md`) |
 | Tirar a máscara dos alvos de suspensão | Não: a máscara é a segunda barreira, e foi ela que manteve o servidor acessível estes dois meses |
 | **Drop-in `logind.conf.d/10-homeserver.conf` + máscara mantida** (escolhido) | Duas barreiras independentes, sobrevive a atualizações e fica visível numa só pasta |
 | Journal: `SystemMaxUse` sem limite | Não: com um loop destes encheria o disco. **1G** chega para semanas de histórico normal |
