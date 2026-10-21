@@ -17,7 +17,7 @@ Camada de rede do home server. O Tailscale cria uma rede privada virtual (mesh) 
 | Acer (`acer`, ex-DAT-WS-IA-01) na tailnet | [x] Concluído — `100.82.47.47` (2026-10-14; na antiga era `100.124.224.123`) |
 | ZenBook Duo UX482 na tailnet | [x] Concluído — `100.99.98.113` (2026-10-13) |
 | Telemóvel (pessoal) na tailnet | [x] Concluído — `100.108.10.121` (2026-10-13) |
-| Tablet (pessoal) na tailnet | [x] Concluído — `100.119.33.58` (2026-10-13) |
+| Tablet (pessoal) na tailnet | [x] Concluído — `100.119.33.58` (2026-10-13); acesso fora de casa (hotspot) testado a 2026-10-21: Cockpit + SSH por chave |
 
 ---
 

@@ -20,6 +20,7 @@ graph TB
         WS["acer (Acer Predator)\nWindows 11 Pro"]
         ZB["asus (ZenBook Duo UX482)\nOmarchy"]
         TM1["Telemóvel (pessoal)\nAndroid"]
+        TB1["Tablet (Galaxy Tab S8)\nAndroid"]
     end
 
     Router <-->|WAN| Internet
@@ -30,10 +31,12 @@ graph TB
     WS <-->|"Tailscale VPN"| Internet
     ZB <-->|"Tailscale VPN"| Internet
     TM1 <-->|"Tailscale VPN"| Internet
+    TB1 <-->|"Tailscale VPN"| Internet
 
     WS -->|"SSH :22"| Server
     ZB -->|"SSH :22"| Server
     TM1 -->|"SSH :22 (Termius)"| Server
+    TB1 -->|"SSH :22 (Termius)"| Server
 
     classDef linux fill:#2d6a4f,color:#fff,stroke:#1b4332
     classDef windows fill:#0d6efd,color:#fff,stroke:#084298
@@ -43,7 +46,7 @@ graph TB
 
     class Server linux
     class WS,ZB windows
-    class TM1 mobile
+    class TM1,TB1 mobile
     class Router,Internet network
     class TV tv
 ```
@@ -76,7 +79,7 @@ graph TB
     TraderScope -.->|"instalado em"| SSD_int
 
     WinPC["acer / asus\nTailscale ou LAN"] -->|"SSH / X11"| SSHD
-    Phone["Telemóvel\nTailscale"] -->|"SSH"| SSHD
+    Phone["Telemóvel / tablet\nTailscale"] -->|"SSH"| SSHD
     Browser["Browser\nLAN ou tailnet"] -->|"HTTPS"| Cockpit
 
     classDef service fill:#2d6a4f,color:#fff,stroke:#1b4332

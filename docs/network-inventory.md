@@ -176,6 +176,24 @@
 
 ---
 
+### Tablet (pessoal)
+
+| Campo | Valor |
+|---|---|
+| Hostname | `tab-s8-de-ivan` |
+| Tipo / Papel | Tablet pessoal (Samsung Galaxy Tab S8) |
+| OS | Android |
+| IP LAN | Dinâmico (sem reserva) |
+| IP Tailscale | `100.119.33.58` (MagicDNS: `tab-s8-de-ivan`, desde 2026-10-13) |
+| MAC Address | — *(a preencher)* |
+| DHCP Reservation | N/A — dispositivo portátil, cliente puro; IP LAN irrelevante |
+| Ligação | Wi-Fi (fora de casa: hotspot do telemóvel) |
+| Serviços expostos | — |
+| Acesso remoto | App Tailscale, Termius (SSH por chave `ivan@tab-s8-de-ivan`), browser (Cockpit) |
+| Notas | Cliente puro. Acesso fora de casa testado a 2026-10-21 (hotspot do telemóvel): Cockpit e SSH OK; do Asus ligação direta, do homeserver só por relay DERP. |
+
+---
+
 ### Telemóvel Kyndryl
 
 > **Excluído do projeto** — equipamento corporativo da Kyndryl. Integração na rede doméstica excluída por risco de violação das políticas de segurança da empresa. Mantido como registo de inventário apenas.

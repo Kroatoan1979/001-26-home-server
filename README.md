@@ -66,7 +66,7 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 | Acer Predator (`acer`; era DAT-WS-IA-01) | Windows 11 Pro | RDP / SSH |
 | ZenBook Duo UX482 (`asus`) | Omarchy (Arch Linux + Hyprland), desde 10/2026 | SSH (cliente) |
 | Telemóvel (pessoal, Xiaomi Redmi Note 14) | Android | App Tailscale + Termius |
-| Tablet (pessoal, Samsung Galaxy Tab S8) | Android | App Tailscale |
+| Tablet (pessoal, Samsung Galaxy Tab S8) | Android | App Tailscale + Termius (acesso fora de casa testado a 2026-10-21) |
 
 > PC Kyndryl e Telemóvel Kyndryl excluídos do projeto — equipamentos corporativos, risco de violação de políticas de segurança da Kyndryl.
 

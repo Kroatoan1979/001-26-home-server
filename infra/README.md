@@ -13,7 +13,7 @@ Camada de infraestrutura do servidor: sistema operativo, modo headless, SSH, ace
 | RHEL instalado | [x] RHEL 10.2 (substitui o Rocky Linux 10) |
 | Registo `subscription-manager` | [x] Registado (Simple Content Access) |
 | Modo headless configurado | [x] Corrigido a 2026-10-12 (drop-in do `logind`) |
-| SSH operacional | [x] Só por chave ED25519 desde 2026-10-15 (acer, asus, redmi-note-14; acer-kali desde 2026-10-18); só LAN e tailnet |
+| SSH operacional | [x] Só por chave ED25519 desde 2026-10-15 (acer, asus, redmi-note-14; acer-kali desde 2026-10-18; tab-s8-de-ivan desde 2026-10-21); só LAN e tailnet |
 | Acesso gráfico remoto (X11) | [x] asus 2026-10-14, acer pelo WSL 2026-10-18 (o xrdp saiu do plano a 2026-10-18) |
 | HDD externo 5TB montado | [x] Reposto em RHEL a 2026-10-11 (`/mnt/dados`, XFS, fstab, regra `udev` do hdparm recriada) |
 

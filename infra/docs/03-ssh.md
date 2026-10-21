@@ -127,10 +127,21 @@ Uma chave ED25519 por dispositivo. O comentário no fim de cada linha diz de ond
 | `ivan@asus` | ZenBook Duo (Omarchy) | `ssh-keygen` (era `ivan@zenbook`) |
 | `ivan@redmi-note-14` | Telemóvel (Termius) | Termius: Keychain → Generate Key (ED25519) → "Export to host" |
 | `ivan@acer-kali` | Acer Predator, WSL Kali Linux | `ssh-keygen -t ed25519 -C "ivan@acer-kali"` (2026-10-18; acrescentada a partir do `asus`) |
+| `ivan@tab-s8-de-ivan` | Tablet Galaxy Tab S8 (Termius) | Termius: Keychain → Generate Key (ED25519); a chave pública foi copiada da app e acrescentada a partir do `asus` (2026-10-21). O "Export to host" já não serve: precisa da password, que está desligada desde 2026-10-15 |
 
 O "Export to host" do Termius junta a chave ao `authorized_keys` sem comentário; o nome dado na app fica só na app. Os comentários foram acertados à mão a 2026-10-15 (as chaves ficaram iguais, byte a byte; backup em `~/.ssh/authorized_keys.bak-2026-10-15`, apagado a 2026-10-18 depois de confirmar que as três chaves estavam no ficheiro atual).
 
 No Termius, o host tem de usar a chave **e não ter a password guardada**; caso contrário, o teste não prova que a chave funciona.
+
+**Troubleshooting (tablet, 2026-10-21):** o Termius dava "falha de autenticação" com a chave certa no `authorized_keys` e no host. O registo normal só mostrava `Disconnected from authenticating user ivan … [preauth]`. Com `LogLevel VERBOSE` temporário apareceu a causa: `Accepted key ED25519 SHA256:… found at …authorized_keys:5` seguido de `Postponed publickey` e de um `Normal Shutdown` do cliente. Ou seja, o servidor aceitou a chave pública, mas o Termius não chegou a assinar com a chave privada (chave privada estragada dentro da app). **Solução:** apagar a chave no Termius, gerar outra e trocar a linha no `authorized_keys`. Registo detalhado temporário:
+
+```bash
+# ligar (o 00- faz com que seja lido primeiro; no sshd ganha o primeiro valor)
+echo "LogLevel VERBOSE" | sudo tee /etc/ssh/sshd_config.d/00-debug-temp.conf && sudo sshd -t && sudo systemctl reload sshd
+journalctl -u sshd --since "-5 min"
+# desligar sempre no fim
+sudo rm /etc/ssh/sshd_config.d/00-debug-temp.conf && sudo sshd -t && sudo systemctl reload sshd
+```
 
 ### Desligar a password
 
