@@ -171,6 +171,7 @@ watch -n 2 sensors
 - [x] Testar acesso remoto via Tailscale de todos os dispositivos — Asus e telemóvel (dados móveis) OK a 2026-10-14; Acer OK a 2026-10-14 (`ssh ivan@homeserver` pela tailnet e `ssh ivan@homeserver.local` pela LAN, sem avisos de host key); só por chave desde 2026-10-15
 - [x] Configurar X11 forwarding para acesso gráfico remoto — Omarchy OK a 2026-10-14 (`ssh -Y`) e Acer a 2026-10-18 (WSL Kali + WSLg, `ssh -X`)
 - [x] Canal de alertas: ntfy no telemóvel + heartbeat no healthchecks.io (concluído a 2026-10-20; ver [infra/docs/10-alertas-ntfy-healthchecks.md](infra/docs/10-alertas-ntfy-healthchecks.md))
+- [x] Atualizações: segurança automática com `dnf-automatic` (sem reinício), verificação do `/boot` e aviso mensal com link para o Cockpit para as restantes (2026-10-31; ver [infra/docs/11-dnf-automatic.md](infra/docs/11-dnf-automatic.md))
 - [ ] Redeploy do TraderScope em 24/7, quando estiver sólido localmente
 - [ ] Praticar RHCSA (CLI: utilizadores, permissões, LVM, systemd, firewalld, SELinux, containers com Podman)
 

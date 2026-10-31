@@ -1,0 +1,10 @@
+# 2026-10-31 (home-server): aviso mensal das atualizações que não são de segurança.
+# Ver dnf-aviso-mensal.timer e infra/docs/11-dnf-automatic.md.
+[Unit]
+Description=Aviso mensal de atualizações por confirmar (ntfy + Cockpit)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/dnf-aviso-mensal

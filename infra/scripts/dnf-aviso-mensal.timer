@@ -1,0 +1,11 @@
+# 2026-10-31 (home-server): dia 1 de cada mês às 11:00. Persistent=true: se o servidor
+# estiver desligado a essa hora, corre no arranque seguinte.
+[Unit]
+Description=Aviso mensal de atualizações por confirmar
+
+[Timer]
+OnCalendar=*-*-01 11:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

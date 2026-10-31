@@ -1,0 +1,66 @@
+#!/bin/bash
+# /usr/local/sbin/dnf-verifica — corre depois de cada dnf-automatic (ExecStartPost= no
+# drop-in /etc/systemd/system/dnf-automatic.service.d/10-verifica.conf). 2026-10-31.
+# O dnf dá "Complete!" mesmo quando o dracut falha num scriptlet (incidente de
+# 2026-10-31: /boot cheio, initramfs por criar). Por isso confirma-se à parte:
+#   - cada kernel instalado tem vmlinuz e initramfs legível, e não sobrou nenhum .tmp;
+#   - o /boot tem espaço para o próximo kernel (BOOT_MIN_LIVRE_MB);
+#   - se é preciso reiniciar, avisa no ntfy (o timer é diário, logo lembra 1 vez por dia).
+# Problema → sai com 1: a unit fica "failed" e o OnFailure= global manda o alerta com o log.
+# No fim faz ping ao check próprio no healthchecks.io (HC_DNF_PING_URL), se existir.
+# DNF_VERIFICA_TESTE=1 (só para testes) não faz o ping, para não sujar o histórico do check.
+
+set -u
+ALERTA=/usr/local/sbin/alerta
+BOOT_MIN_LIVRE_MB=${BOOT_MIN_LIVRE_MB:-200}   # variável só para testes
+# shellcheck source=/dev/null
+source /etc/alerta.conf
+[[ ${DNF_VERIFICA_TESTE:-0} == 1 ]] && HC_DNF_PING_URL=
+
+ping_hc() {   # $1 = "" (sucesso) ou "/fail"
+  [[ -n ${HC_DNF_PING_URL:-} ]] || return 0
+  curl -fsS -m 10 --retry 3 --retry-all-errors -o /dev/null "${HC_DNF_PING_URL}$1" ||
+    logger -t dnf-verifica -p user.warning "ping ao healthchecks.io falhou"
+}
+
+problemas=()
+
+# --- Kernels: vmlinuz + initramfs legível para cada um ------------------------
+while read -r kver; do
+  [[ -s /boot/vmlinuz-$kver ]] || problemas+=("falta /boot/vmlinuz-$kver")
+  img=/boot/initramfs-$kver.img
+  if [[ ! -s $img ]]; then
+    problemas+=("falta $img")
+  elif ! lsinitrd "$img" 2>/dev/null | grep -q "usr/lib/modules/$kver/modules.dep"; then
+    problemas+=("$img ilegível ou incompleto (lsinitrd sem modules.dep)")
+  fi
+done < <(rpm -q kernel-core --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n')
+
+for tmp in /boot/*.tmp; do
+  [[ -e $tmp ]] && problemas+=("ficou um ficheiro temporário do dracut: $tmp")
+done
+
+# --- Espaço no /boot -----------------------------------------------------------
+livre=$(df --output=avail -m /boot | tail -1 | tr -d ' ')
+(( livre < BOOT_MIN_LIVRE_MB )) &&
+  problemas+=("/boot só com ${livre} MB livres (mínimo ${BOOT_MIN_LIVRE_MB} MB para o próximo kernel)")
+
+if (( ${#problemas[@]} )); then
+  printf 'PROBLEMA: %s\n' "${problemas[@]}"
+  echo "NÃO reiniciar antes de corrigir (infra/docs/11-dnf-automatic.md, troubleshooting)."
+  ping_hc /fail
+  exit 1
+fi
+echo "OK: $(rpm -q kernel-core | wc -l) kernels com initramfs legível, /boot com ${livre} MB livres"
+
+# --- Reinício necessário? (dnf needs-restarting -r: sai com 1 quando é preciso) -
+if ! motivo=$(dnf -q -C needs-restarting -r 2>&1); then
+  echo "Reinício necessário"
+  "$ALERTA" -p 3 -t arrows_counterclockwise "Reinício necessário" \
+    "As atualizações de segurança já estão instaladas, mas só ficam ativas depois de reiniciar.
+Kernel em uso: $(uname -r)
+$motivo"
+fi
+
+ping_hc ""
+exit 0

@@ -19,8 +19,10 @@ if (( agora - ultimo < SILENCIO )); then
 fi
 echo "$agora" > "$ESTADO/$unit"
 
-estado=$(systemctl show "$unit" -p Result -p ExecMainStatus -p NRestarts --value | paste -sd' ')
-read -r resultado codigo reinicios <<< "$estado"
+# Uma propriedade de cada vez: o systemctl show devolve-as pela ordem interna dele,
+# não pela ordem pedida (bug corrigido a 2026-10-31: código e reinícios saíam trocados).
+prop() { systemctl show "$unit" -p "$1" --value; }
+resultado=$(prop Result); codigo=$(prop ExecMainStatus); reinicios=$(prop NRestarts)
 {
   echo "Motivo: ${resultado:-?} | código de saída: ${codigo:-?} | reinícios: ${reinicios:-0}"
   echo "--- últimas linhas do log"

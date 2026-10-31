@@ -2,9 +2,10 @@
 # /usr/local/sbin/alerta — envia um alerta para o telemóvel do Ivan via ntfy.
 # Tarefa 21 (home-server). Corre como root: o /etc/alerta.conf é root:root 600.
 #
-# Uso: alerta [-p prioridade] [-t etiquetas] "Título" ["Mensagem"]
+# Uso: alerta [-p prioridade] [-t etiquetas] [-u link] "Título" ["Mensagem"]
 #   -p  1 (mínima) a 5 (urgente); por defeito 4 (alta)
 #   -t  etiquetas ntfy separadas por vírgulas (ex.: warning,floppy_disk)
+#   -u  link aberto ao tocar na notificação, também como botão "Abrir" (2026-10-31)
 #   Sem "Mensagem", lê o texto do stdin (útil para logs: journalctl ... | alerta "X").
 #
 # O título leva sempre o nome da máquina à frente. Cada envio fica no journal
@@ -14,13 +15,15 @@ set -u
 CONF=/etc/alerta.conf
 prioridade=4
 etiquetas=""
+link=""
 
-uso() { echo "Uso: alerta [-p 1-5] [-t etiquetas] \"Título\" [\"Mensagem\"]" >&2; exit 2; }
+uso() { echo "Uso: alerta [-p 1-5] [-t etiquetas] [-u link] \"Título\" [\"Mensagem\"]" >&2; exit 2; }
 
-while getopts "p:t:h" opt; do
+while getopts "p:t:u:h" opt; do
   case $opt in
     p) prioridade=$OPTARG ;;
     t) etiquetas=$OPTARG ;;
+    u) link=$OPTARG ;;
     *) uso ;;
   esac
 done
@@ -45,6 +48,7 @@ source "$CONF"
 args=(--silent --show-error --fail --max-time 15 --retry 3 --retry-delay 5 --retry-all-errors
       --url-query "title=$titulo" --url-query "priority=$prioridade")
 [[ -n $etiquetas ]] && args+=(--url-query "tags=$etiquetas")
+[[ -n $link ]] && args+=(--url-query "click=$link" --url-query "actions=view, Abrir, $link")
 
 if curl "${args[@]}" --data-binary "$mensagem" "${NTFY_URL%/}/$NTFY_TOPICO" >/dev/null; then
   logger -t alerta "enviado (p$prioridade): $titulo"

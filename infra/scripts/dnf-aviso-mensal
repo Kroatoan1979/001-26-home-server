@@ -1,0 +1,29 @@
+#!/bin/bash
+# /usr/local/sbin/dnf-aviso-mensal — dia 1 de cada mês (dnf-aviso-mensal.timer). 2026-10-31.
+# O dnf-automatic só aplica segurança; o resto das atualizações fica à espera de
+# confirmação do Ivan (decisão de 2026-10-31). Este script só conta e avisa: o ntfy
+# leva um link para a página de atualizações do Cockpit (pela tailnet), onde se vê
+# a lista, se instala e, se preciso, se reinicia. Não instala nada.
+# Sai com 1 se o dnf falhar (OnFailure= global avisa); sem atualizações, fica calado.
+
+set -u
+COCKPIT=https://homeserver:9090/updates
+
+saida=$(dnf -q check-update --refresh 2>&1); rc=$?   # 100 = há atualizações, 0 = nenhuma
+case $rc in
+  0)   echo "Sem atualizações pendentes"; exit 0 ;;
+  100) ;;
+  *)   echo "dnf check-update falhou (código $rc):"; echo "$saida"; exit 1 ;;
+esac
+
+total=$(grep -cE '^[^[:space:]]+\.[^[:space:]]+[[:space:]]+[^[:space:]]+[[:space:]]+[^[:space:]]+$' <<< "$saida")
+seguranca=$(dnf -q -C updateinfo list --security 2>/dev/null | awk '{print $3}' | sort -u | grep -c .)
+echo "Pendentes: $total atualizações ($seguranca de segurança)"
+
+texto="$total atualizações à espera de confirmação."
+(( seguranca > 0 )) && texto+="
+ATENÇÃO: $seguranca são de segurança — o dnf-automatic devia tê-las aplicado (ver journalctl -u dnf-automatic)."
+texto+="
+Toca para abrir o Cockpit (tailnet), rever a lista e instalar. Reinicia se o Cockpit o pedir."
+
+/usr/local/sbin/alerta -p 3 -t package -u "$COCKPIT" "Atualizações por confirmar: $total" "$texto"

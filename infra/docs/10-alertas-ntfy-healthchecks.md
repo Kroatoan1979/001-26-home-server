@@ -1,5 +1,7 @@
 # Alertas do homeserver — ntfy, healthchecks.io e systemd
 
+> **Atualização 2026-10-31** ([11-dnf-automatic.md](11-dnf-automatic.md)): o `alerta-falha` trocava o código de saída com o número de reinícios (o `systemctl show` devolve as propriedades pela ordem interna, não pela ordem dos `-p`), corrigido; o `alerta` ganhou a opção `-u link` (abre ao tocar + botão "Abrir"); no Android, cada prioridade do ntfy tem o seu canal de notificação, e o "Default priority" (p3) estava em silêncio.
+>
 > Criado a 2026-10-20, no fecho da tarefa 21. Decisões de 2026-10-18 e passos 1 a 7 feitos entre 2026-10-18 e 2026-10-20. O tópico ntfy e o Ping URL **não aparecem aqui** (são segredos e vivem só em `/etc/alerta.conf`).
 
 ---
