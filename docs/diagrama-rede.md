@@ -71,8 +71,11 @@ graph TB
 
     subgraph Storage["Armazenamento"]
         SSD_int["SSD Interno\nSO + serviços + configs"]
-        subgraph HDD_ext["HDD Externo 5TB — /mnt/dados"]
-            Backups["/mnt/dados/backups"]
+        subgraph HDD_ext["HDD Externo 5TB — /mnt/dados (só media)"]
+            Media["/mnt/dados/media"]
+        end
+        subgraph HDD_bak["HDD1TB — /mnt/hdd1tb (backups)"]
+            Backups["05_Backups/restic-asus\n05_Backups/traderscope"]
         end
     end
 
@@ -87,7 +90,7 @@ graph TB
     classDef client fill:#0d6efd,color:#fff,stroke:#084298
 
     class Cockpit,SSHD,Tailscaled,TraderScope service
-    class SSD_int,Backups storage
+    class SSD_int,Backups,Media storage
     class WinPC,Phone,Browser client
 ```
 

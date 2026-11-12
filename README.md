@@ -13,7 +13,7 @@ Infraestrutura pessoal baseada num portátil antigo transformado em servidor hea
 Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevante para servidor) para criar uma infraestrutura doméstica robusta e de baixo custo, com:
 
 - Acesso remoto seguro a todos os dispositivos de casa
-- Cópia local do arquivo pessoal no HDD externo (`/mnt/dados/backups`)
+- Disco de backups HDD1TB (`/mnt/hdd1tb`, desde 2026-11-12): restic do asus, BD da TraderScope e cópia do arquivo pessoal; o WD de 5 TB (`/mnt/dados`) fica só para media
 - Ambiente oficial de estudo/prática para a certificação **RHCSA** (o RHEL Developer é o mesmo SO usado no exame, ao contrário do Rocky Linux que é apenas um rebuild binário)
 - Execução do **TraderScope** em 24/7 (planeado, quando estiver sólido localmente)
 
@@ -27,7 +27,8 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 | CPU | Intel Core i7 (4ª ou 5ª geração) |
 | RAM | 8 GB DDR3 |
 | Disco interno | SSD (SO + serviços) |
-| Disco externo | HDD 5TB WD My Passport (backups) |
+| Disco externo | HDD 5TB WD My Passport (só media desde 2026-11-12, setores ilegíveis) |
+| Disco de backups | HDD USB 1TB `HDD1TB` (`/mnt/hdd1tb`, desde 2026-11-12) |
 | Rede | Ethernet ao router doméstico |
 | Modo de operação | Headless — tampa fechada, sem monitor |
 
@@ -94,8 +95,12 @@ SSD interno
 ├── Serviços (Tailscale; TraderScope quando voltar)
 └── Configurações e logs
 
-HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados)
-└── /mnt/dados/backups
+HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados) — só media desde 2026-11-12
+├── /mnt/dados/media
+└── /mnt/dados/backups   (cópias antigas, a apagar)
+
+HDD USB 1TB "HDD1TB" (ponto de montagem: /mnt/hdd1tb) — disco de backups desde 2026-11-12
+└── 05_Backups/{restic-asus,traderscope}
 ```
 
 ---

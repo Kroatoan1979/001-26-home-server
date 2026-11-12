@@ -15,7 +15,8 @@ Camada de infraestrutura do servidor: sistema operativo, modo headless, SSH, ace
 | Modo headless configurado | [x] Corrigido a 2026-10-12 (drop-in do `logind`) |
 | SSH operacional | [x] Só por chave ED25519 desde 2026-10-15 (acer, asus, redmi-note-14; acer-kali desde 2026-10-18; tab-s8-de-ivan desde 2026-10-21); só LAN e tailnet |
 | Acesso gráfico remoto (X11) | [x] asus 2026-10-14, acer pelo WSL 2026-10-18 (o xrdp saiu do plano a 2026-10-18) |
-| HDD externo 5TB montado | [x] Reposto em RHEL a 2026-10-11 (`/mnt/dados`, XFS, fstab, regra `udev` do hdparm recriada) |
+| HDD externo 5TB montado | [x] Reposto em RHEL a 2026-10-11 (`/mnt/dados`, XFS, fstab, regra `udev` do hdparm recriada). ⚠️ Só media desde 2026-11-12 (setores ilegíveis desde 2026-11-07) |
+| HDD1TB (disco de backups) montado | [x] 2026-11-12 (`/mnt/hdd1tb`, ext4, fstab com `nofail`); restic do asus + BD da TraderScope |
 
 ---
 
@@ -32,6 +33,8 @@ Camada de infraestrutura do servidor: sistema operativo, modo headless, SSH, ace
 | [08-backup-arquivo-ssd.md](docs/08-backup-arquivo-ssd.md) | Backup do arquivo pessoal (SSD externo NTFS) para `/mnt/dados/backups` com `rsync` por SSH e verificação SHA-256 |
 | [09-logind-journald.md](docs/09-logind-journald.md) | Tampa fechada sem loops (`logind` por drop-in) e journal persistente |
 | [10-alertas-ntfy-healthchecks.md](docs/10-alertas-ntfy-healthchecks.md) | Alertas para o telemóvel: ntfy, healthchecks.io, smartd, `OnFailure=` global, disco e corrente |
+| [11-dnf-automatic.md](docs/11-dnf-automatic.md) | Atualizações do homeserver: dnf-automatic, verificação do /boot e aviso mensal |
+| [12-hdd1tb-disco-backups.md](docs/12-hdd1tb-disco-backups.md) | HDD1TB, o disco de backups: badblocks, ext4, fstab com `nofail`, mudança do repositório do rest-server e `RequiresMountsFor` |
 
 ---
 
@@ -41,7 +44,8 @@ Camada de infraestrutura do servidor: sistema operativo, modo headless, SSH, ace
 - **CPU:** Intel Core i7 (4ª/5ª geração)
 - **RAM:** 8 GB DDR3
 - **Disco interno:** SSD (RHEL + serviços)
-- **Disco externo:** HDD 5TB WD My Passport — `/mnt/dados` (backups)
+- **Disco externo:** HDD 5TB WD My Passport — `/mnt/dados` (só media desde 2026-11-12; setores ilegíveis)
+- **Disco de backups:** HDD USB 1TB `HDD1TB` — `/mnt/hdd1tb` (restic do asus e BD da TraderScope, desde 2026-11-12)
 - **Rede:** Ethernet ao router doméstico
 
 ---
