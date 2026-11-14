@@ -126,7 +126,23 @@ sudo systemctl daemon-reload && sudo systemctl start rest-server
 
 **Porque é que `RequiresMountsFor=` é obrigatório.** Com `RequiresMountsFor=/mnt/hdd1tb/05_Backups/restic-asus`, o systemd só arranca o rest-server depois de `/mnt/hdd1tb` estar montado. Se o disco não montar, o serviço não arranca, o backup do asus falha e o alerta dispara (`OnFailure=` global). Sem esta linha, o rest-server arrancava na pasta vazia do SSD do sistema, criava ali um repositório novo e o asus fazia backups para o sítio errado sem ninguém dar por nada. `ReadWritePaths=` é a outra metade: com `ProtectSystem=strict`, o serviço só consegue escrever nesse caminho.
 
-A pasta antiga ficou intacta em `/mnt/dados/backups/restic` (a apagar só com OK do Ivan, depois de alguns backups automáticos bons).
+A pasta antiga ficou intacta em `/mnt/dados/backups/restic` até haver backups automáticos bons no HDD1TB.
+
+**Limpeza do WD (2026-11-14, com OK do Ivan).** Antes de apagar: restic do asus com 3 snapshots no HDD1TB (12d90cc2, 5ee9417e de 13/11 e be4c734b de 14/11, os dois últimos automáticos) e TraderScope com 3 backups automáticos às 04:00 (12, 13 e 14/11). Contagem: WD 1156 ficheiros (igual ao rsync) e HDD1TB 1223 (+67 dos snapshots novos). Apagados pelo nome exato:
+
+```bash
+rm -rf -- /mnt/dados/backups/traderscope.antigo-20261112      # dono ivan
+ssh -t homeserver 'sudo rm -rf -- /mnt/dados/backups/restic'   # dono restic, precisa de sudo
+```
+
+| Flag | O que faz | Sem ela |
+|---|---|---|
+| `-r` | Apaga a pasta e tudo o que tem dentro | O `rm` recusa apagar uma pasta |
+| `-f` | Não pede confirmação ficheiro a ficheiro (os ficheiros do restic são só de leitura) | Uma pergunta por cada um dos 1156 ficheiros |
+| `--` | Fim das opções: o que vem a seguir é sempre um caminho | Um caminho começado por `-` seria lido como opção |
+| `ssh -t` | Abre um terminal remoto para o `sudo` poder pedir a password | O `sudo` falha com "a terminal is required" |
+
+Resultado: o WD passou de 270 G para 253 G ocupados e em `/mnt/dados/backups` ficou só a `Ivan_SSD`.
 
 ---
 
@@ -144,7 +160,7 @@ A pasta antiga ficou intacta em `/mnt/dados/backups/restic` (a apagar só com OK
 | Backup da TraderScope | Destino `/mnt/hdd1tb/05_Backups/traderscope` (validado na sessão do projeto 002) |
 
 **Por testar:**
-- [ ] Primeiro backup automático do asus (00:20) e da TraderScope (04:00) no HDD1TB
+- [x] Primeiro backup automático do asus e da TraderScope (04:00) no HDD1TB (13/11 e 14/11); cópias antigas do WD apagadas a 2026-11-14
 - [ ] Reinício do servidor: o HDD1TB monta sozinho e o rest-server arranca depois dele
 - [ ] Arranque **sem** o HDD1TB ligado: o servidor arranca, o rest-server fica parado e chega o alerta
 

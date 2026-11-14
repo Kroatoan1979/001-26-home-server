@@ -97,7 +97,7 @@ SSD interno
 
 HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados) — só media desde 2026-11-12
 ├── /mnt/dados/media
-└── /mnt/dados/backups   (cópias antigas, a apagar)
+└── /mnt/dados/backups   (só Ivan_SSD; cópias antigas apagadas a 2026-11-14)
 
 HDD USB 1TB "HDD1TB" (ponto de montagem: /mnt/hdd1tb) — disco de backups desde 2026-11-12
 └── 05_Backups/{restic-asus,traderscope}

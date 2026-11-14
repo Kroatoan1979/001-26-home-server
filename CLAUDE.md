@@ -148,7 +148,7 @@ SSD interno
 
 HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados) — SÓ MEDIA desde 2026-11-12 (setores ilegíveis)
 ├── /mnt/dados/media     (espelho legível de Music/Videos/Pictures do asus, tarefa 29(b))
-└── /mnt/dados/backups   (cópias antigas, a apagar com OK do Ivan)
+└── /mnt/dados/backups   (só Ivan_SSD; cópias antigas do restic e da TraderScope apagadas a 2026-11-14)
     └── Ivan_SSD/Arquivo   (cópia do arquivo pessoal do SSD externo, 2026-10-11 — ver infra/docs/08-backup-arquivo-ssd.md)
 
 HDD USB 1TB "HDD1TB" (ext4, ponto de montagem: /mnt/hdd1tb) — DISCO DE BACKUPS desde 2026-11-12
