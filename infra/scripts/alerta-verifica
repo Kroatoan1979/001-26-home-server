@@ -5,6 +5,7 @@
 #     enquanto lá estiver; o estado limpa-se abaixo dos 80%.
 #   - corrente: avisa quando o AC0 cai ou volta, e uma vez quando a bateria chega
 #     aos 20% (desliga-se sozinho aos 2%, UPower).
+#   - HDD1TB (tarefa 48, 2026-11-23): avisa se /mnt/hdd1tb ficar 5 min sem montagem.
 # Um aviso só se dá por feito quando o envio corre bem: num corte geral o router
 # também cai, e o aviso sai (com a hora real) quando a rede voltar. Até lá, quem
 # avisa é o healthchecks.io (heartbeat). Sai sempre com 0, para não gerar OnFailure.
@@ -32,6 +33,29 @@ while read -r alvo uso tamanho; do
     rm -f "$chave"
   fi
 done < <(df -h -x tmpfs -x devtmpfs -x overlay -x efivarfs -x squashfs --output=target,pcent,size | tail -n +2)
+
+# --- Tarefa 48: HDD1TB (disco de backups) montado -----------------------------
+# Sem o disco, o rest-server pára sem ficar "failed" e o asus não avisa: o backup
+# ficava sem destino em silêncio. Avisa ao fim de 5 min sem montagem (tolera um
+# umount curto para um e2fsck), repete a cada 24 h e avisa quando voltar.
+DISCO_BACKUPS=/mnt/hdd1tb
+desde=$ESTADO/hdd1tb-desde; avisado=$ESTADO/hdd1tb-avisado
+if mountpoint -q "$DISCO_BACKUPS"; then
+  rm -f "$desde"
+  if [[ -f $avisado ]]; then
+    "$ALERTA" -p 3 -t white_check_mark,floppy_disk "HDD1TB montado de novo" \
+      "$DISCO_BACKUPS voltou. Ver se o rest-server está ativo: systemctl is-active rest-server" \
+      && rm -f "$avisado"
+  fi
+else
+  [[ -f $desde ]] || echo "$agora" > "$desde"
+  inicio_d=$(<"$desde"); ultimo=0; [[ -f $avisado ]] && ultimo=$(<"$avisado")
+  if (( agora - inicio_d >= 300 && agora - ultimo >= 24 * 3600 )); then
+    "$ALERTA" -p 4 -t warning,floppy_disk "HDD1TB não está montado" \
+      "$DISCO_BACKUPS não está montado desde as $(date -d "@$inicio_d" '+%d/%m %H:%M'). Os backups do asus e da TraderScope não têm destino. Ligar o disco e: sudo systemctl start mnt-hdd1tb.mount rest-server.service" \
+      && echo "$agora" > "$avisado"
+  fi
+fi
 
 # --- Passo 7: corrente --------------------------------------------------------
 AC=/sys/class/power_supply/AC0; BAT=/sys/class/power_supply/BAT0

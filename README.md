@@ -1,6 +1,6 @@
 # Home Server + Tailscale
 
-Infraestrutura pessoal baseada num portátil antigo transformado em servidor headless com **RHEL**, com acesso remoto seguro via VPN mesh (Tailscale) e ambiente de prática para a certificação **RHCSA**. O único serviço planeado é o regresso do **TraderScope** em 24/7, quando a app estiver sólida localmente.
+Infraestrutura pessoal baseada num portátil antigo transformado em servidor headless com **RHEL**, com acesso remoto seguro via VPN mesh (Tailscale) e ambiente de prática para a certificação **RHCSA**. O único serviço é o **TraderScope** em 24/7, de volta ao servidor desde 2026-11-07.
 
 > ⚠️ **Migração em curso (decisão de 2026-08-05):** o servidor está a ser recriado do zero, de Rocky Linux 10 para **RHEL (Red Hat Developer Subscription for Individuals)**. Ver detalhe completo em [CLAUDE.md](CLAUDE.md).
 >
@@ -15,7 +15,7 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 - Acesso remoto seguro a todos os dispositivos de casa
 - Disco de backups HDD1TB (`/mnt/hdd1tb`, desde 2026-11-12): restic do asus, BD da TraderScope e cópia do arquivo pessoal; o WD de 5 TB (`/mnt/dados`) fica só para media
 - Ambiente oficial de estudo/prática para a certificação **RHCSA** (o RHEL Developer é o mesmo SO usado no exame, ao contrário do Rocky Linux que é apenas um rebuild binário)
-- Execução do **TraderScope** em 24/7 (planeado, quando estiver sólido localmente)
+- Execução do **TraderScope** em 24/7 (desde 2026-11-07; desenvolvido no repositório `002-26-traderscope`)
 
 ---
 
@@ -53,7 +53,7 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 | **Tailscale** | VPN mesh — acesso remoto seguro | — |
 | **Cockpit** | Administração web (só LAN e tailnet) | 9090 |
 | **X11 forwarding** | Acesso gráfico pontual pelo SSH (Omarchy / WSL do acer) | — |
-| **TraderScope** | Planeado: app de trading desportivo em 24/7, quando estiver sólida localmente | — |
+| **TraderScope** | App de trading desportivo em 24/7, ativa desde 2026-11-07 | — |
 
 ---
 
@@ -92,7 +92,7 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 ```
 SSD interno
 ├── RHEL (Developer Subscription)
-├── Serviços (Tailscale; TraderScope quando voltar)
+├── Serviços (Tailscale, TraderScope)
 └── Configurações e logs
 
 HDD externo 5TB WD My Passport (ponto de montagem: /mnt/dados) — só media desde 2026-11-12
@@ -161,7 +161,7 @@ watch -n 2 sensors
 
 ## Checklist de Progresso
 
-> Migração Rocky Linux → RHEL concluída na parte de base (SO, SSH, headless, Avahi, Tailscale, HDD). Pendentes: prática RHCSA e o regresso do TraderScope.
+> Migração Rocky Linux → RHEL concluída na parte de base (SO, SSH, headless, Avahi, Tailscale, HDD). Pendentes: prática RHCSA e a cópia dos backups para fora de casa (Drive).
 
 - [x] Obter subscrição RHEL Developer e descarregar a ISO
 - [x] Criar pen USB bootável com Rufus (modo DD Image)
@@ -177,7 +177,8 @@ watch -n 2 sensors
 - [x] Configurar X11 forwarding para acesso gráfico remoto — Omarchy OK a 2026-10-14 (`ssh -Y`) e Acer a 2026-10-18 (WSL Kali + WSLg, `ssh -X`)
 - [x] Canal de alertas: ntfy no telemóvel + heartbeat no healthchecks.io (concluído a 2026-10-20; ver [infra/docs/10-alertas-ntfy-healthchecks.md](infra/docs/10-alertas-ntfy-healthchecks.md))
 - [x] Atualizações: segurança automática com `dnf-automatic` (sem reinício), verificação do `/boot` e aviso mensal com link para o Cockpit para as restantes (2026-10-31; ver [infra/docs/11-dnf-automatic.md](infra/docs/11-dnf-automatic.md))
-- [ ] Redeploy do TraderScope em 24/7, quando estiver sólido localmente
+- [x] Redeploy do TraderScope em 24/7 (2026-11-07, sessões do 002)
+- [x] Testes de reinício e arranque sem o HDD1TB (2026-11-23, doc 12)
 - [ ] Praticar RHCSA (CLI: utilizadores, permissões, LVM, systemd, firewalld, SELinux, containers com Podman)
 
 > Checklist detalhado e sempre atualizado: ver `CLAUDE.md`.

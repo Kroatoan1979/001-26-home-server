@@ -64,7 +64,7 @@ flowchart LR
     A["/usr/local/sbin/alerta"]
     S["alerta-smartd.service<br/>(segue o journal do smartd)"]
     F["service.d/10-alerta-falha.conf<br/>OnFailure= → alerta-falha@"]
-    V["alerta-verifica.timer (1 min)<br/>disco 85% + corrente"]
+    V["alerta-verifica.timer (1 min)<br/>disco 85% + corrente + HDD1TB montado"]
     H["alerta-heartbeat.timer (5 min)"]
     S --> A
     F --> A
@@ -229,6 +229,7 @@ Corrente: `/sys/class/power_supply/AC0/online` (`1` = com corrente) e `/sys/clas
 | Integração healthchecks → ntfy | Botão **Test!** | ✅ "TEST is DOWN" recebido |
 | Heartbeat | `systemctl start alerta-heartbeat.service` | ✅ `success`, check verde |
 | Disco a 85% | `ALERTA_LIMITE_DISCO=60 alerta-verifica` (o `/boot` está a 65%) | ✅ 1 alerta; a repetição foi suprimida |
+| HDD1TB não montado (acrescentado a 2026-11-23, ver o doc 12) | `systemctl stop mnt-hdd1tb.mount`, esperar, `systemctl start mnt-hdd1tb.mount rest-server.service` | ✅ p4 "HDD1TB não está montado" ~5 min depois; p3 "HDD1TB montado de novo" quando o disco voltou |
 
 **Lição do "Não incomodar":** um alerta de prioridade 5 "não chegou"; estava na app, mas o Não incomodar escondeu a notificação. Quando um alerta parece não chegar, ver primeiro **dentro da app**.
 
