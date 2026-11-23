@@ -54,6 +54,7 @@ Reutilizar hardware existente (ASUS X555L com avaria na placa de som, irrelevant
 | **Cockpit** | Administração web (só LAN e tailnet) | 9090 |
 | **X11 forwarding** | Acesso gráfico pontual pelo SSH (Omarchy / WSL do acer) | — |
 | **TraderScope** | App de trading desportivo em 24/7, ativa desde 2026-11-07 | — |
+| **Navidrome** | Servidor de música (Subsonic), Podman sem root; só tailnet (`tailscale serve`), desde 2026-11-23 | 4533 (HTTPS, tailnet) |
 
 ---
 
@@ -179,6 +180,7 @@ watch -n 2 sensors
 - [x] Atualizações: segurança automática com `dnf-automatic` (sem reinício), verificação do `/boot` e aviso mensal com link para o Cockpit para as restantes (2026-10-31; ver [infra/docs/11-dnf-automatic.md](infra/docs/11-dnf-automatic.md))
 - [x] Redeploy do TraderScope em 24/7 (2026-11-07, sessões do 002)
 - [x] Testes de reinício e arranque sem o HDD1TB (2026-11-23, doc 12)
+- [x] Navidrome (media center, 1.º serviço): Podman sem root + Quadlet, `tailscale serve`, espelho da música com `--delete` (2026-11-23; ver [media/docs/01-navidrome.md](media/docs/01-navidrome.md))
 - [ ] Praticar RHCSA (CLI: utilizadores, permissões, LVM, systemd, firewalld, SELinux, containers com Podman)
 
 > Checklist detalhado e sempre atualizado: ver `CLAUDE.md`.

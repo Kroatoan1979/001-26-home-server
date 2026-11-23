@@ -1,0 +1,36 @@
+# Navidrome: servidor de música pessoal (Subsonic), Podman sem root + Quadlet.
+# Utilizador: navidrome (linger). Projeto 001-26-home-server, media/docs/01-navidrome.md.
+# Instalado a 2026-11-23. Versão FIXADA: atualizar à mão (mudar a tag e reiniciar).
+[Unit]
+Description=Navidrome (servidor de música, Podman sem root)
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+Image=docker.io/deluan/navidrome:0.64.2
+ContainerName=navidrome
+# Só no loopback: o acesso de fora é pela tailscale serve (HTTPS, só tailnet).
+PublishPort=127.0.0.1:4533:4533
+# Dados do Navidrome (BD, cache, navidrome.toml): pertencem ao utilizador navidrome.
+Volume=%h/data:/data:Z
+# Espelho da música do asus, só de leitura. Sem :z, porque a etiqueta SELinux
+# (container_ro_file_t) é posta pelo administrador com semanage fcontext.
+Volume=/mnt/dados/media/Music:/music:ro
+Environment=TZ=Europe/Lisbon
+# Sem telemetria anónima (vem ligada por omissão).
+Environment=ND_ENABLEINSIGHTSCOLLECTOR=false
+# O vigilante de ficheiros apanha o que o espelho escreve; varrimento completo
+# de 24 em 24 h como rede de segurança.
+Environment=ND_SCANNER_SCHEDULE=24h
+Environment=ND_LOGLEVEL=info
+
+[Service]
+# Não arranca sem o WD montado (unidade de utilizador: não pode usar RequiresMountsFor).
+ExecStartPre=/usr/bin/mountpoint -q /mnt/dados
+Restart=on-failure
+RestartSec=30
+# A 1.ª vez descarrega a imagem.
+TimeoutStartSec=600
+
+[Install]
+WantedBy=default.target

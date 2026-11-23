@@ -66,7 +66,8 @@ graph TB
         SSHD["sshd\n:22"]
 
         Cockpit["Cockpit\n:9090\nsó LAN + tailnet"]
-        TraderScope["TraderScope\n(planeado, 24/7)"]
+        TraderScope["TraderScope\n24/7 desde 2026-11-07\n:8765 via tailscale serve :443"]
+        Navidrome["Navidrome\nPodman sem root (navidrome)\n127.0.0.1:4533 → tailscale serve :4533"]
     end
 
     subgraph Storage["Armazenamento"]
@@ -80,16 +81,18 @@ graph TB
     end
 
     TraderScope -.->|"instalado em"| SSD_int
+    Navidrome -.->|"lê (só leitura)\n/mnt/dados/media/Music"| Media
 
     WinPC["acer / asus\nTailscale ou LAN"] -->|"SSH / X11"| SSHD
     Phone["Telemóvel / tablet\nTailscale"] -->|"SSH"| SSHD
     Browser["Browser\nLAN ou tailnet"] -->|"HTTPS"| Cockpit
+    Phone -->|"HTTPS :4533 (Symfonium)"| Navidrome
 
     classDef service fill:#2d6a4f,color:#fff,stroke:#1b4332
     classDef storage fill:#6c757d,color:#fff,stroke:#343a40
     classDef client fill:#0d6efd,color:#fff,stroke:#084298
 
-    class Cockpit,SSHD,Tailscaled,TraderScope service
+    class Cockpit,SSHD,Tailscaled,TraderScope,Navidrome service
     class SSD_int,Backups,Media storage
     class WinPC,Phone,Browser client
 ```
