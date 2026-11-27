@@ -1,5 +1,7 @@
 # Alertas do homeserver — ntfy, healthchecks.io e systemd
 
+> **Atualização 2026-11-27 (Ivan):** o `alerta-smartd` passou a avisar **só quando há novidade**. Antes reenviava o mesmo texto de 6 em 6 h, o que dava ~4 alertas por dia do WD com os mesmos 30 setores pendentes (estável desde 07/11). Agora cada aviso é identificado pelo texto com os números soltos trocados por `N` (disco + tipo de aviso), e o último texto de cada um fica em **`/var/lib/alerta-smartd`** (sobrevive a reinícios). Envia quando o aviso é novo ou o valor muda (ex.: 30 → 31); a repetição de 30 em 30 min do smartd nunca volta a sair. Para repor o aviso de um disco: `sudo rm /var/lib/alerta-smartd/*`. Validado a 2026-11-27: último envio às 15:53, depois só `sem alteração, não enviado`. Cópia antiga: `/usr/local/sbin/alerta-smartd.bak-2026-11-27`; script atual em [../scripts/alerta-smartd](../scripts/alerta-smartd).
+>
 > **Atualização 2026-10-31** ([11-dnf-automatic.md](11-dnf-automatic.md)): o `alerta-falha` trocava o código de saída com o número de reinícios (o `systemctl show` devolve as propriedades pela ordem interna, não pela ordem dos `-p`), corrigido; o `alerta` ganhou a opção `-u link` (abre ao tocar + botão "Abrir"); no Android, cada prioridade do ntfy tem o seu canal de notificação, e o "Default priority" (p3) estava em silêncio.
 >
 > Criado a 2026-10-20, no fecho da tarefa 21. Decisões de 2026-10-18 e passos 1 a 7 feitos entre 2026-10-18 e 2026-10-20. O tópico ntfy e o Ping URL **não aparecem aqui** (são segredos e vivem só em `/etc/alerta.conf`).
@@ -51,7 +53,7 @@ Um canal de alertas que leva os problemas do servidor até ao telemóvel do Ivan
 |---|---|
 | smartd por **serviço à parte** (`alerta-smartd`), não por `-M exec` | O SELinux executa o `-M exec` no domínio `smartdwarn_t`, sem DNS nem sockets (ver passo 3) |
 | **Não** criar um módulo SELinux à medida (`audit2allow`) | Abria um domínio confinado e acrescentava regras a manter. Fica como exercício RHCSA |
-| Anti-spam: smartd e `OnFailure=` não repetem durante 6 h, disco a cada 24 h | O smartd repete os avisos a cada 30 min; um timer que falha de hora a hora encheria o telemóvel |
+| Anti-spam: `OnFailure=` não repete durante 6 h, disco a cada 24 h; smartd só quando o aviso é novo ou o valor muda (desde 2026-11-27) | O smartd repete os avisos a cada 30 min; um timer que falha de hora a hora encheria o telemóvel |
 | O "Não incomodar" do telemóvel é **sempre respeitado** | Decisão do Ivan: nenhum alerta justifica intervir de madrugada. Consequência: o que corre 24/7 tem de recuperar sozinho (`Restart=`) |
 | Aviso de corrente só dado por feito **depois de o envio correr bem** | Num corte geral o router também cai; o aviso sai, com a hora real, quando a rede voltar |
 
@@ -255,8 +257,9 @@ journalctl -u 'alerta-falha@*' --since today --no-pager
 journalctl -t alerta-heartbeat --since today          # só tem linhas se um ping falhar
 journalctl -u alerta-verifica --since "-1h" --no-pager
 
-# Estado anti-spam (em RAM; limpa-se num reboot)
-ls -l /run/alerta-smartd /run/alerta-falha /run/alerta-verifica
+# Estado anti-spam (alerta-falha/verifica em RAM, limpa-se num reboot; smartd persistente desde 2026-11-27)
+ls -l /run/alerta-falha /run/alerta-verifica
+sudo ls -l /var/lib/alerta-smartd                     # último texto de cada aviso do smartd
 sudo rm /run/alerta-falha/<unit>.service              # deixar uma unit voltar a alertar já
 
 # Negações SELinux recentes

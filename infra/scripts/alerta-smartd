@@ -5,26 +5,42 @@
 # smartdwarn_t) ir à rede, por isso o envio corre aqui, num serviço systemd normal
 # (alerta-smartd.service). O smartd.conf fica como o RHEL o deixou.
 #
-# Linhas em rajada (até 5 s entre elas) vão num só alerta. O mesmo texto não é
-# reenviado durante 6 h: o smartd repete os avisos a cada verificação (30 min).
+# 2026-11-27 (Ivan): só avisa quando há NOVIDADE. Cada aviso é identificado pelo
+# texto com os números soltos trocados por N (disco + tipo de aviso); guarda-se o
+# último texto de cada um em /var/lib/alerta-smartd (sobrevive a reinícios).
+# Envia se o aviso é novo ou se o valor mudou (ex.: 30 → 31 setores pendentes);
+# a mesma linha repetida pelo smartd a cada 30 min nunca volta a ser enviada.
+# Antes: o mesmo texto era reenviado de 6 em 6 h (~4 alertas/dia do WD com 30).
+# Repor o aviso de um disco: apagar o ficheiro dele em /var/lib/alerta-smartd.
 
 set -u
 JANELA=5
-SILENCIO=$((6 * 3600))
-ESTADO=/run/alerta-smartd
+ESTADO=/var/lib/alerta-smartd
 mkdir -p "$ESTADO"
 
-enviar() {
-  local texto=$1 chave agora ultimo=0
-  chave=$(printf '%s' "$texto" | sed -E 's/[0-9]+/N/g' | sha1sum | cut -c1-16)
-  agora=$(date +%s)
-  [[ -f $ESTADO/$chave ]] && ultimo=$(<"$ESTADO/$chave")
-  if (( agora - ultimo < SILENCIO )); then
-    echo "repetido, não enviado: ${texto%%$'\n'*}"
-    return
+novidade() {   # devolve 0 (e regista) se a linha é nova ou mudou de valor
+  local linha=$1 chave
+  chave=$(printf '%s' "$linha" | sed -E 's/\b[0-9]+\b/N/g' | sha1sum | cut -c1-16)
+  if [[ -f $ESTADO/$chave && $(<"$ESTADO/$chave") == "$linha" ]]; then
+    return 1
   fi
-  echo "$agora" > "$ESTADO/$chave"
-  printf '%s\n' "$texto" | /usr/local/sbin/alerta -p 5 -t rotating_light,floppy_disk "SMART: aviso do smartd"
+  printf '%s' "$linha" > "$ESTADO/$chave"
+  return 0
+}
+
+enviar() {
+  local lote=$1 linha novas=""
+  while IFS= read -r linha; do
+    [[ -z $linha ]] && continue
+    if novidade "$linha"; then
+      novas+=${novas:+$'\n'}$linha
+    else
+      echo "sem alteração, não enviado: $linha"
+    fi
+  done <<<"$lote"
+  [[ -z $novas ]] && return
+  echo "ENVIADO: ${novas%%$'\n'*}"
+  printf '%s\n' "$novas" | /usr/local/sbin/alerta -p 5 -t rotating_light,floppy_disk "SMART: aviso novo do smartd"
 }
 
 journalctl --follow --lines=0 --identifier=smartd --priority=0..3 --output=cat |
